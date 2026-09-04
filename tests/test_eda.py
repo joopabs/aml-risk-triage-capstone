@@ -43,4 +43,4 @@ def test_eda_runs_on_fixture_and_writes_summary(
     text = summary.read_text()
     assert DISCLAIMER in text
     assert "Observation: fixture observation" in text
-    assert text.count("Observation: ") == 11
+    assert text.count("\nObservation:") == 11  # ten empty on the fixture, one filled

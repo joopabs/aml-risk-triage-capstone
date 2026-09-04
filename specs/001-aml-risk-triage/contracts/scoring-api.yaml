@@ -1,0 +1,78 @@
+openapi: 3.1.0
+info:
+  title: AML Transaction-Risk Triage Demo API (OPTIONAL Step 8)
+  version: 0.1.0
+  description: >
+    Educational decision-support prototype trained on synthetic PaySim data. Returns a risk
+    score and review-priority recommendation for human investigator triage. It does not block
+    transactions, close accounts, rate customers, file reports, or make AML determinations.
+paths:
+  /health:
+    get:
+      summary: Service and model status
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status, model_version, disclaimer]
+                properties:
+                  status: {type: string, enum: [ok]}
+                  model_version: {type: string}
+                  disclaimer: {type: string}
+  /score:
+    post:
+      summary: Score one transaction for review prioritization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/TransactionRequest"}
+      responses:
+        "200":
+          description: Risk score and review priority
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ScoreResponse"}
+        "422":
+          description: Validation error (missing or invalid field); no score produced
+components:
+  schemas:
+    TransactionRequest:
+      type: object
+      additionalProperties: false
+      required: [step, type, amount, oldbalanceOrg, newbalanceOrig, oldbalanceDest, newbalanceDest]
+      properties:
+        step: {type: integer, minimum: 1}
+        type: {type: string, description: "Transaction type; must be one of the types seen in training"}
+        amount: {type: number, minimum: 0}
+        oldbalanceOrg: {type: number}
+        newbalanceOrig: {type: number, description: "Batch-only field; available in end-of-period triage"}
+        oldbalanceDest: {type: number}
+        newbalanceDest: {type: number, description: "Batch-only field"}
+        orig_prior_txn_count: {type: integer, minimum: 0, default: 0, description: "Caller-supplied causal aggregate; identifiers are not sent"}
+        orig_prior_amount_sum: {type: number, minimum: 0, default: 0}
+        dest_prior_txn_count: {type: integer, minimum: 0, default: 0}
+        dest_prior_amount_sum: {type: number, minimum: 0, default: 0}
+    ScoreResponse:
+      type: object
+      additionalProperties: false
+      required: [risk_score, review_priority, model_version, disclaimer]
+      properties:
+        risk_score: {type: number, minimum: 0, maximum: 1}
+        review_priority: {type: string, enum: [high, medium, low], description: "Derived from the frozen operating point; a recommendation for human review order only"}
+        model_version: {type: string}
+        top_contributing_features:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              feature: {type: string}
+              contribution: {type: number}
+              plain_language: {type: string}
+        disclaimer: {type: string}

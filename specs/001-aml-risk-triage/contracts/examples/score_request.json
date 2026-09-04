@@ -1,0 +1,13 @@
+{
+  "step": 1,
+  "type": "TRANSFER",
+  "amount": 1000.0,
+  "oldbalanceOrg": 5000.0,
+  "newbalanceOrig": 4000.0,
+  "oldbalanceDest": 0.0,
+  "newbalanceDest": 1000.0,
+  "orig_prior_txn_count": 0,
+  "orig_prior_amount_sum": 0.0,
+  "dest_prior_txn_count": 0,
+  "dest_prior_amount_sum": 0.0
+}

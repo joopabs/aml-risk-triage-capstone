@@ -152,7 +152,7 @@ vocabulary test).
 | first_evaluated_at | timestamp set by first `evaluate --split test` |
 | reevaluations | list of {timestamp, reason} | non-empty only with `--force-reevaluate --reason` |
 
-**State**: `locked` → `frozen` → `evaluated`. `evaluate --split test` fails in `locked`.
+**State**: `locked` → `frozen` → `evaluated`. `locked` is the implicit state when `test_access.json` does not exist; `freeze` creates the file in state `frozen`. `evaluate --split test` fails in `locked`.
 
 ## 10. SelectionMatrix
 
@@ -230,3 +230,14 @@ OperatingPoint + TestAccessRecord(frozen) ──evaluate──▶ EvaluationRun 
 ModelBundle ──▶ ReviewQueue, ExplanationSet
 SensitiveAttributeAvailabilityRecord ──▶ (DemographicFairnessResult | OperationalSliceResult)
 ```
+
+## Glossary of rule-related terms
+
+| Term | Meaning | Use it for |
+|------|---------|------------|
+| `isFlaggedFraud` | The dataset's rule-flag column (expected; V2/V6 confirm) | Column name in schema, code, and data dictionary |
+| rule comparator (`rule_rank`) | Ranking that places flagged rows first, then amount descending; falls back to a documented amount rule if the column is absent | Tables, report prose, `ModelCandidate.id` |
+| random comparator (`random_rank`) | Seeded random ranking; the primary null hypothesis | Tables and report prose |
+| dummy baseline (`dummy`) | Prior-rate classifier with constant scores; ranks as chronological order under tie-break | Tables (labeled "chronological order") |
+
+Avoid "rule baseline" and "rule flag" as standalone terms; use the forms above.

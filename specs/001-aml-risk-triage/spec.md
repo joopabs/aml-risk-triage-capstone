@@ -499,7 +499,9 @@ use, or a statement that GenAI was not used.
   non-transferability to real banking data, and MUST state that results cannot establish
   actual fraud/AML effectiveness, fairness, or regulatory suitability.
 - **FR-076**: Proposed mitigations (reweighting, threshold adjustment, augmentation,
-  post-processing, monitoring) MUST be concrete and feasible for the stated context.
+  post-processing, monitoring) MUST be concrete and feasible for the stated context. Each
+  mitigation MUST name the mechanism, the owner role, and the trigger condition that would
+  invoke it.
 
 #### I. Human-in-the-loop and output surfaces [P IX] [G10]
 

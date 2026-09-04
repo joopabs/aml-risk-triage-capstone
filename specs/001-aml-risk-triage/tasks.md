@@ -109,7 +109,7 @@ before any data is touched. Gates G3, G10 (partial), G2 (secret scan).
 
 - [ ] T012 [P] Write vocabulary scan and optional-isolation tests
   - Milestone M1 / Type: tests / Depends: T007, T008
-  - Files: `tests/test_vocabulary.py` (scans `configs/vocabulary.yaml` `scan_paths` for prohibited terms with allowlist; asserts disclaimer present in every `reports/*.md` when such files exist), `tests/test_core_without_optional.py` (imports every core module with `aml_triage.api` blocked via `sys.modules`)
+  - Files: `tests/test_vocabulary.py` (scans `configs/vocabulary.yaml` `scan_paths` for prohibited terms with allowlist; asserts disclaimer present in every `reports/*.md` when such files exist), `tests/test_no_hardcoded_params.py` (FR-101: scans `notebooks/*.ipynb` and `scripts/*.py` code cells for literal assignments to `seed`, `K`, `train_end_step`, `val_end_step`, `threshold`; passes only when values come from config), `tests/test_core_without_optional.py` (imports every core module with `aml_triage.api` blocked via `sys.modules`)
   - Accept: both pass on the empty scaffold
   - Verify: `pytest tests/test_vocabulary.py tests/test_core_without_optional.py -q`
 
@@ -154,7 +154,7 @@ leakage-safe features built, EDA produced. No modeling story can start before th
   - Milestone M2 / Type: data, docs / Depends: T016
   - Files: `data/raw/<filename>.csv` (local only), `configs/data_source.yaml` (fill `filename`, `sha256`, `downloaded_on`, `license_text_verbatim`, `license_verified_on`), `data/README.md` (Provenance, License, Checksum sections)
   - Accept: license text copied verbatim from the Kaggle page; if it does not permit educational use, STOP and record the blocker instead of proceeding; file not tracked by git
-  - Verify: `shasum -a 256 data/raw/*.csv | grep -f <(yq '.sha256' configs/data_source.yaml) && git status --porcelain | grep -v data/raw`
+  - Verify: `python -c "import yaml,hashlib,glob;c=yaml.safe_load(open('configs/data_source.yaml'));f=glob.glob('data/raw/*.csv')[0];assert hashlib.sha256(open(f,'rb').read()).hexdigest()==c['sha256'];print('checksum OK')" && ! git ls-files data/raw | grep -q csv`
 
 - [ ] T018 Implement schema config, loader, and `validate-schema` command
   - Milestone M2 / Type: code, config / Depends: T017
@@ -699,7 +699,7 @@ invalid payload returns 422; `tests/api` passes; core tests pass with the API pa
 
 - [ ] T093 [P] [US6] Write Dockerfile and deployment guide
   - Milestone M9 / Type: code, docs / Depends: T090
-  - Files: `deployment/Dockerfile` (copies `src/`, `configs/`, selected `models/<version>/` only; no `data/`), `deployment/DEPLOYMENT.md` (run locally, run container, config, model version, rollback via `models/LATEST`, limits and disclaimer)
+  - Files: `deployment/Dockerfile` (copies `src/`, `configs/`, selected `models/<version>/` only; no `data/`; requires a locally regenerated `pipeline.joblib` since joblib files are never committed), `deployment/DEPLOYMENT.md` (run locally, run container, config, model version, rollback via `models/LATEST`, limits and disclaimer)
   - Accept: image builds and answers `/health`
   - Verify: `docker build -t aml-triage-api -f deployment/Dockerfile . && docker run --rm -d -p 8000:8000 --name aml aml-triage-api && sleep 3 && curl -s localhost:8000/health && docker stop aml`
 
@@ -767,9 +767,9 @@ versioning/rollback.
 
 - [ ] T101 Package submission files
   - Milestone M8 / Type: docs / Depends: T100
-  - Files: `submission/` (gitignored or separate): `Your_Name_Pillar5_Capstone_Report.pdf`, `Your_Name_Pillar5_Capstone_Technical_Deck.pdf`, `Your_Name_Pillar5_Capstone_Business_Deck.pptx`, repository URL note, per `CAPSTONE_BRIEF.md` §8
-  - Accept: approved formats only; names follow `Your_Name_Assignment name`
-  - Verify: `ls submission/`
+  - Files: `submission/` (gitignored or separate): `Your_Name_Pillar5_Capstone_Report.pdf`, `Your_Name_Pillar5_Capstone_Technical_Deck.pdf`, `Your_Name_Pillar5_Capstone_Business_Deck.pptx`, repository URL note, per `CAPSTONE_BRIEF.md` §8; `configs/data_source.yaml` (`license_verified_on` updated after re-reading the Kaggle page)
+  - Accept: approved formats only; names follow `Your_Name_Assignment name`; license re-verified on the submission date and still permits educational use, else the report flags it
+  - Verify: `ls submission/ && grep license_verified_on configs/data_source.yaml`
 
 ---
 

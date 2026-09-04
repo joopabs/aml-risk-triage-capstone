@@ -8,15 +8,15 @@ Every candidate is trained on the training split of its feature set and scored o
 
 | candidate [feature set] | PR-AUC | ROC-AUC | Recall@200 (mean/period) | Recall@200 (pooled) | Precision@200 (mean/period) | Brier | ECE | degenerate |
 |---|---|---|---|---|---|---|---|---|
-| balanced_rf [primary] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0005 | 0.0090 |  |
-| hgb [posttx_ablation] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0005 | 0.0029 |  |
-| hgb [primary] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0000 | 0.0002 |  |
-| hgb [strict_pretx] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0000 | 0.0004 |  |
-| hgb [selected] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0002 | 0.0018 |  |
-| balanced_rf [strict_pretx] | 0.9997 | 1.0000 | 0.8021 | 0.7972 | 0.9992 | 0.0023 | 0.0187 |  |
-| logreg [primary] | 0.9987 | 0.9995 | 0.8029 | 0.7979 | 1.0000 | 0.0003 | 0.0057 |  |
-| hgb [pca_variant] | 0.8998 | 0.9976 | 0.7373 | 0.7354 | 0.9217 | 0.0140 | 0.0253 |  |
-| logreg [strict_pretx] | 0.2599 | 0.9821 | 0.2945 | 0.2972 | 0.3725 | 0.0583 | 0.0874 |  |
+| balanced_rf [primary] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0004 | 0.0046 |  |
+| hgb [posttx_ablation] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0007 | 0.0024 |  |
+| hgb [primary] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0000 | 0.0000 |  |
+| hgb [strict_pretx] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0000 | 0.0000 |  |
+| balanced_rf [strict_pretx] | 1.0000 | 1.0000 | 0.8029 | 0.7979 | 1.0000 | 0.0008 | 0.0048 |  |
+| hgb [selected] | 0.9990 | 0.9994 | 0.8029 | 0.7979 | 1.0000 | 0.0003 | 0.0006 |  |
+| logreg [primary] | 0.9987 | 0.9992 | 0.8029 | 0.7979 | 1.0000 | 0.0003 | 0.0065 |  |
+| hgb [pca_variant] | 0.9069 | 0.9972 | 0.7526 | 0.7500 | 0.9400 | 0.0070 | 0.0113 |  |
+| logreg [strict_pretx] | 0.2776 | 0.9824 | 0.3117 | 0.3145 | 0.3942 | 0.0589 | 0.0893 |  |
 | rule comparator (flag, then amount) | 0.1555 | 0.8142 | 0.1965 | 0.1995 | 0.2500 | 0.0077 | 0.0024 |  |
 | random ranking | 0.0084 | 0.5050 | 0.0104 | 0.0106 | 0.0133 | 0.3335 | 0.4919 |  |
 | dummy (chronological order) [primary] | 0.0083 | 0.5000 | 0.0650 | 0.0665 | 0.0833 | 0.0083 | 0.0075 | yes |
@@ -30,11 +30,11 @@ Every candidate is trained on the training split of its feature set and scored o
 | hgb [posttx_ablation] | 0.2007 | 0.4015 | 0.8029 | 1.0000 | 1.0000 |
 | hgb [primary] | 0.2007 | 0.4015 | 0.8029 | 1.0000 | 1.0000 |
 | hgb [strict_pretx] | 0.2007 | 0.4015 | 0.8029 | 1.0000 | 1.0000 |
-| hgb [selected] | 0.2007 | 0.4015 | 0.8029 | 1.0000 | 1.0000 |
-| balanced_rf [strict_pretx] | 0.2007 | 0.4015 | 0.8021 | 1.0000 | 1.0000 |
+| balanced_rf [strict_pretx] | 0.2007 | 0.4015 | 0.8029 | 1.0000 | 1.0000 |
+| hgb [selected] | 0.2007 | 0.4015 | 0.8029 | 0.9987 | 0.9993 |
 | logreg [primary] | 0.2007 | 0.4015 | 0.8029 | 0.9988 | 0.9988 |
-| hgb [pca_variant] | 0.2007 | 0.4007 | 0.7373 | 0.8689 | 0.9276 |
-| logreg [strict_pretx] | 0.0642 | 0.1458 | 0.2945 | 0.4072 | 0.5659 |
+| hgb [pca_variant] | 0.2007 | 0.4007 | 0.7526 | 0.8720 | 0.9300 |
+| logreg [strict_pretx] | 0.0719 | 0.1617 | 0.3117 | 0.4220 | 0.5787 |
 | rule comparator (flag, then amount) | 0.0927 | 0.1352 | 0.1965 | 0.2351 | 0.3102 |
 | random ranking | 0.0013 | 0.0026 | 0.0104 | 0.0130 | 0.0220 |
 | dummy (chronological order) [primary] | 0.0457 | 0.0528 | 0.0650 | 0.0925 | 0.1513 |
@@ -48,11 +48,11 @@ Every candidate is trained on the training split of its feature set and scored o
 | hgb [posttx_ablation] | 1.0000 | 1.0000 | 1.0000 | 0.8356 | 0.5013 |
 | hgb [primary] | 1.0000 | 1.0000 | 1.0000 | 0.8356 | 0.5013 |
 | hgb [strict_pretx] | 1.0000 | 1.0000 | 1.0000 | 0.8356 | 0.5013 |
-| hgb [selected] | 1.0000 | 1.0000 | 1.0000 | 0.8356 | 0.5013 |
-| balanced_rf [strict_pretx] | 1.0000 | 1.0000 | 0.9992 | 0.8356 | 0.5013 |
+| balanced_rf [strict_pretx] | 1.0000 | 1.0000 | 1.0000 | 0.8356 | 0.5013 |
+| hgb [selected] | 1.0000 | 1.0000 | 1.0000 | 0.8344 | 0.5010 |
 | logreg [primary] | 1.0000 | 1.0000 | 1.0000 | 0.8344 | 0.5007 |
-| hgb [pca_variant] | 1.0000 | 0.9983 | 0.9217 | 0.7267 | 0.4657 |
-| logreg [strict_pretx] | 0.3267 | 0.3700 | 0.3725 | 0.3433 | 0.2860 |
+| hgb [pca_variant] | 1.0000 | 0.9983 | 0.9400 | 0.7289 | 0.4670 |
+| logreg [strict_pretx] | 0.3667 | 0.4100 | 0.3942 | 0.3556 | 0.2923 |
 | rule comparator (flag, then amount) | 0.4733 | 0.3433 | 0.2500 | 0.1989 | 0.1567 |
 | random ranking | 0.0067 | 0.0067 | 0.0133 | 0.0111 | 0.0113 |
 | dummy (chronological order) [primary] | 0.2333 | 0.1350 | 0.0833 | 0.0789 | 0.0770 |
@@ -62,15 +62,15 @@ Every candidate is trained on the training split of its feature set and scored o
 
 | candidate [feature set] | threshold | precision | recall | F1 | FPR | TP | FP | FN | TN |
 |---|---|---|---|---|---|---|---|---|---|
-| balanced_rf [primary] | 0.5000 | 0.9993 | 1.0000 | 0.9997 | 0.0000 | 1,504 | 1 | 0 | 179,563 |
-| hgb [posttx_ablation] | 0.5000 | 0.9888 | 1.0000 | 0.9944 | 0.0001 | 1,504 | 17 | 0 | 179,547 |
-| hgb [primary] | 0.5000 | 0.9993 | 1.0000 | 0.9997 | 0.0000 | 1,504 | 1 | 0 | 179,563 |
-| hgb [strict_pretx] | 0.5000 | 0.9954 | 1.0000 | 0.9977 | 0.0000 | 1,504 | 7 | 0 | 179,557 |
-| hgb [selected] | 0.5000 | 0.9823 | 0.9987 | 0.9904 | 0.0002 | 1,502 | 27 | 2 | 179,537 |
-| balanced_rf [strict_pretx] | 0.5000 | 0.8909 | 0.9993 | 0.9420 | 0.0010 | 1,503 | 184 | 1 | 179,380 |
-| logreg [primary] | 0.5000 | 0.9980 | 0.9987 | 0.9983 | 0.0000 | 1,502 | 3 | 2 | 179,561 |
-| hgb [pca_variant] | 0.5000 | 0.2866 | 0.9654 | 0.4420 | 0.0201 | 1,452 | 3,614 | 52 | 175,950 |
-| logreg [strict_pretx] | 0.5000 | 0.0925 | 0.9820 | 0.1690 | 0.0807 | 1,477 | 14,499 | 27 | 165,065 |
+| balanced_rf [primary] | 0.5000 | 0.9967 | 1.0000 | 0.9983 | 0.0000 | 1,504 | 5 | 0 | 179,559 |
+| hgb [posttx_ablation] | 0.5000 | 0.9477 | 1.0000 | 0.9731 | 0.0005 | 1,504 | 83 | 0 | 179,481 |
+| hgb [primary] | 0.5000 | 1.0000 | 1.0000 | 1.0000 | 0.0000 | 1,504 | 0 | 0 | 179,564 |
+| hgb [strict_pretx] | 0.5000 | 1.0000 | 0.9993 | 0.9997 | 0.0000 | 1,503 | 0 | 1 | 179,564 |
+| balanced_rf [strict_pretx] | 0.5000 | 0.9284 | 1.0000 | 0.9629 | 0.0006 | 1,504 | 116 | 0 | 179,448 |
+| hgb [selected] | 0.5000 | 0.9671 | 0.9973 | 0.9820 | 0.0003 | 1,500 | 51 | 4 | 179,513 |
+| logreg [primary] | 0.5000 | 0.9967 | 0.9987 | 0.9977 | 0.0000 | 1,502 | 5 | 2 | 179,559 |
+| hgb [pca_variant] | 0.5000 | 0.4764 | 0.9242 | 0.6287 | 0.0085 | 1,390 | 1,528 | 114 | 178,036 |
+| logreg [strict_pretx] | 0.5000 | 0.0906 | 0.9820 | 0.1658 | 0.0826 | 1,477 | 14,834 | 27 | 164,730 |
 | rule comparator (flag, then amount) | 0.5000 | 1.0000 | 0.0013 | 0.0027 | 0.0000 | 2 | 0 | 1,502 | 179,564 |
 | random ranking | 0.5000 | 0.0084 | 0.5073 | 0.0166 | 0.5006 | 763 | 89,883 | 741 | 89,681 |
 | dummy (chronological order) [primary] | 0.5000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0 | 0 | 1,504 | 179,564 |
@@ -81,14 +81,14 @@ Every candidate is trained on the training split of its feature set and scored o
 | candidate [feature set] | accuracy | prevalence | majority-class accuracy (1 - prevalence) |
 |---|---|---|---|
 | balanced_rf [primary] | 1.0000 | 0.0083 | 0.9917 |
-| hgb [posttx_ablation] | 0.9999 | 0.0083 | 0.9917 |
+| hgb [posttx_ablation] | 0.9995 | 0.0083 | 0.9917 |
 | hgb [primary] | 1.0000 | 0.0083 | 0.9917 |
 | hgb [strict_pretx] | 1.0000 | 0.0083 | 0.9917 |
-| hgb [selected] | 0.9998 | 0.0083 | 0.9917 |
-| balanced_rf [strict_pretx] | 0.9990 | 0.0083 | 0.9917 |
+| balanced_rf [strict_pretx] | 0.9994 | 0.0083 | 0.9917 |
+| hgb [selected] | 0.9997 | 0.0083 | 0.9917 |
 | logreg [primary] | 1.0000 | 0.0083 | 0.9917 |
-| hgb [pca_variant] | 0.9798 | 0.0083 | 0.9917 |
-| logreg [strict_pretx] | 0.9198 | 0.0083 | 0.9917 |
+| hgb [pca_variant] | 0.9909 | 0.0083 | 0.9917 |
+| logreg [strict_pretx] | 0.9179 | 0.0083 | 0.9917 |
 | rule comparator (flag, then amount) | 0.9917 | 0.0083 | 0.9917 |
 | random ranking | 0.4995 | 0.0083 | 0.9917 |
 | dummy (chronological order) [primary] | 0.9917 | 0.0083 | 0.9917 |

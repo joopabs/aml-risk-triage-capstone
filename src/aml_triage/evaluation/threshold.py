@@ -62,19 +62,23 @@ def choose_operating_point(cfg: Config, headline_set: str | None = None) -> dict
         else {"method": "none", "applied": False, "chosen_on": "val"}
     )
     calibrator_path = None
-    scores = raw
     if decision.get("applied"):
         iso = fit_isotonic(raw, y)
-        scores = iso.predict(raw)
         calibrator_path = str(
             save_joblib(
                 iso, Path(cfg.paths.models_dir) / "runs" / selected / "calibrator_isotonic.joblib"
             )
         )
 
-    thr, f2 = f2_threshold(y, scores)
-    cal_preds = preds.assign(score=scores)
-    cutoff = k_score_cutoff(cal_preds, cfg.review.primary_k, cfg.review.review_period_steps)
+    # Ranking, threshold and cutoff use RAW scores: a monotone calibrator can merge scores into
+    # plateaus (on a perfectly separable split it maps everything to 0/1), which would destroy the
+    # within-plateau ranking. The calibrator only produces the displayed probability.
+    thr, f2 = f2_threshold(y, raw)
+    if not 0.0 < thr < 1.0:
+        raise ValueError(
+            f"degenerate F2 threshold {thr}; raw scores do not separate the validation split usefully"
+        )
+    cutoff = k_score_cutoff(preds, cfg.review.primary_k, cfg.review.review_period_steps)
     op = {
         "selected_run": selected,
         "candidate_id": runs[selected]["candidate_id"],
@@ -82,7 +86,8 @@ def choose_operating_point(cfg: Config, headline_set: str | None = None) -> dict
         "selection_basis": "validation metrics only (see reports/selection_matrix.md)",
         "primary_k": cfg.review.primary_k,
         "threshold": round(thr, 6),
-        "threshold_rule": "f2_max_on_val",
+        "threshold_rule": "f2_max_on_val_raw_scores",
+        "ranking_scores": "raw model scores (calibrated probability is display-only)",
         "threshold_f2": round(f2, 4),
         "priority_rule": PRIORITY_RULE,
         "k_score_cutoff": round(cutoff, 6),
@@ -113,13 +118,16 @@ def load_operating_point(cfg: Config) -> dict[str, Any] | None:
 
 
 def apply_operating_point(op: dict[str, Any], preds: pd.DataFrame) -> pd.DataFrame:
-    """Return predictions with calibrated ``score`` (if a calibrator exists) and ``review_priority``."""
+    """Return predictions with ``score`` (raw, used for ranking and threshold) and
+    ``calibrated_score`` (display probability; equals ``score`` when no calibrator is applied)."""
     out = preds.copy()
     cal_path = (op.get("calibration") or {}).get("calibrator_path")
     if cal_path and Path(cal_path).exists():
         import joblib
 
-        out["score"] = joblib.load(cal_path).predict(out["score"].to_numpy())
+        out["calibrated_score"] = joblib.load(cal_path).predict(out["score"].to_numpy())
+    else:
+        out["calibrated_score"] = out["score"]
     return out
 
 

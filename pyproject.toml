@@ -33,6 +33,7 @@ ignore = ["E501"]
 "src/aml_triage/eda/plots.py" = ["E702"]  # dense matplotlib call chains
 "src/aml_triage/features/pca.py" = ["E702"]
 "src/aml_triage/evaluation/compare.py" = ["E702"]
+"src/aml_triage/evaluation/capacity_report.py" = ["E702"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["aml_triage"]

@@ -191,7 +191,17 @@ def test_single_touch_test_evaluation(m6) -> None:
     assert _main(["freeze", "--config", str(cfg_path)]) == EXIT_OK
     state = _json.loads((Path(cfg.paths.processed_dir) / "test_access.json").read_text())
     assert state["state"] == "frozen" and state["first_evaluated_at"] is None
-    assert _main(["freeze", "--config", str(cfg_path)]) == EXIT_GUARD  # cannot freeze twice
+    assert (
+        _main(["freeze", "--config", str(cfg_path)]) == EXIT_OK
+    )  # re-freeze before any test access is allowed and audited
+    assert (
+        len(
+            _json.loads((Path(cfg.paths.processed_dir) / "test_access.json").read_text())[
+                "refreezes"
+            ]
+        )
+        == 1
+    )
     assert (
         _main(["train", "--config", str(cfg_path), "--models", "dummy", "--split", "test"])
         == EXIT_GUARD
@@ -227,6 +237,9 @@ def test_single_touch_test_evaluation(m6) -> None:
     )
     state = _json.loads((Path(cfg.paths.processed_dir) / "test_access.json").read_text())
     assert state["reevaluations"][0]["reason"] == "unit test of the audit trail"
+    assert (
+        _main(["freeze", "--config", str(cfg_path)]) == EXIT_GUARD
+    )  # never re-freeze after the test split was evaluated
     test_metrics = _json.loads(
         (Path(cfg.paths.models_dir) / "runs" / "logreg__primary" / "test_metrics.json").read_text()
     )

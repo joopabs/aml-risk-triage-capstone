@@ -1,0 +1,18 @@
+# Written by `python -m aml_triage tune`; best RandomizedSearchCV params on a seeded training subsample.
+id: balanced_rf
+params:
+  max_depth: 17
+  max_features: 0.8
+  min_samples_leaf: 4
+  n_estimators: 506
+tuned_on:
+  feature_set: primary
+  subsample_rows: 1000000
+  subsample_positives: 766
+  n_iter: 30
+  cv_folds: 3
+  scoring: average_precision
+  best_cv_score: 0.9911486255303874
+  seconds: 777.9
+  seed: 42
+  date: '2026-09-04'

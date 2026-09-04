@@ -508,7 +508,8 @@ use, or a statement that GenAI was not used.
 - **FR-080**: Every output surface (evaluation tables, top-K lists, notebooks, report, decks,
   optional service) MUST carry the educational disclaimer, defined once and reused verbatim.
 - **FR-081**: Outputs MUST be limited to risk score, rank/review-priority recommendation, model
-  version, explanation, and disclaimer.
+  version, explanation, and disclaimer. The review-priority recommendation is expressed as one
+  of three levels (high, medium, low) whose rule is fixed at the operating point.
 - **FR-082**: The project MUST NOT implement, simulate, or describe any of the prohibited
   actions in "Explicit non-use".
 - **FR-083**: The report and business deck MUST describe the human review workflow,

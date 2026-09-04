@@ -140,7 +140,7 @@ vocabulary test).
 | threshold | float in (0,1); chosen on validation by F2 maximization (R-09) |
 | calibration | enum {none, isotonic_val}; with decision log |
 | chosen_on | must be `val` |
-| priority_rule | high = rank ≤ primary_k within the review period; medium = rank > primary_k and score ≥ threshold; low = score < threshold. For single-transaction scoring with no period rank (optional API), high = score ≥ the score of the K-th ranked validation transaction (`k_score_cutoff`, recorded at freeze), medium = score ≥ threshold, low = otherwise |
+| priority_rule | high = rank ≤ primary_k within the review period; medium = rank > primary_k and score ≥ threshold; low = score < threshold. For single-transaction scoring with no period rank (optional API), high = score ≥ the score of the K-th ranked validation transaction (`k_score_cutoff`, recorded by `choose-operating-point` in `configs/operating_point.yaml`), medium = score ≥ threshold, low = otherwise |
 | frozen_at | timestamp; must precede any TestAccessRecord.first_evaluated_at |
 
 ## 9. TestAccessRecord (`data/processed/test_access.json`)
@@ -240,4 +240,4 @@ SensitiveAttributeAvailabilityRecord ──▶ (DemographicFairnessResult | Oper
 | random comparator (`random_rank`) | Seeded random ranking; the primary null hypothesis | Tables and report prose |
 | dummy baseline (`dummy`) | Prior-rate classifier with constant scores; ranks as chronological order under tie-break | Tables (labeled "chronological order") |
 
-Avoid "rule baseline" and "rule flag" as standalone terms; use the forms above.
+"Rule baseline" is an accepted prose synonym for the rule comparator (the spec uses it). Use `rule_rank` in code and tables, and `isFlaggedFraud` for the column; avoid "rule flag" as a standalone term.

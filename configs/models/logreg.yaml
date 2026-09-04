@@ -1,0 +1,9 @@
+id: logreg
+description: Class-weighted logistic regression on standardised inputs (linear, transparent baseline learner).
+estimator: sklearn.linear_model.LogisticRegression
+params: {class_weight: balanced, C: 1.0, max_iter: 2000, solver: lbfgs, random_state: "${seed}"}
+imbalance_strategy: class_weight
+scale_inputs: true
+feature_set: primary
+search_space:
+  C: {loguniform: [0.001, 10.0]}

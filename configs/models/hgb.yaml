@@ -1,0 +1,13 @@
+id: hgb
+description: Histogram gradient boosting with balanced class weight (scikit-learn native; XGBoost is a documented optional swap, research R-03).
+estimator: sklearn.ensemble.HistGradientBoostingClassifier
+params: {class_weight: balanced, learning_rate: 0.1, max_iter: 300, max_leaf_nodes: 31, min_samples_leaf: 50, l2_regularization: 0.0, early_stopping: true, validation_fraction: 0.1, n_iter_no_change: 20, random_state: "${seed}"}
+imbalance_strategy: class_weight
+scale_inputs: false
+feature_set: primary
+search_space:
+  learning_rate: {loguniform: [0.01, 0.3]}
+  max_leaf_nodes: {randint: [15, 127]}
+  min_samples_leaf: {randint: [20, 500]}
+  l2_regularization: {loguniform: [0.0001, 1.0]}
+  max_iter: {randint: [100, 600]}

@@ -70,7 +70,7 @@ def run_selection(cfg: Config, set_name: str = "primary") -> dict[str, Any]:
                     "select",
                     SelectFromModel(
                         LogisticRegression(
-                            penalty="l1",
+                            l1_ratio=1.0,
                             C=cfg.selection.l1_c or 0.1,
                             solver="liblinear",
                             class_weight="balanced",

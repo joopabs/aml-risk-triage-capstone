@@ -1,0 +1,12 @@
+id: balanced_rf
+description: Balanced random forest; each tree undersamples the majority class inside fit (resampling never touches validation or test rows).
+estimator: imblearn.ensemble.BalancedRandomForestClassifier
+params: {n_estimators: 300, sampling_strategy: all, replacement: true, bootstrap: false, min_samples_leaf: 5, n_jobs: "${n_jobs}", random_state: "${seed}"}
+imbalance_strategy: undersample_in_fit
+scale_inputs: false
+feature_set: primary
+search_space:
+  n_estimators: {randint: [200, 600]}
+  max_depth: {randint: [6, 24]}
+  min_samples_leaf: {randint: [2, 50]}
+  max_features: {choice: [sqrt, 0.5, 0.8]}

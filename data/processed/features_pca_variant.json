@@ -1,0 +1,37 @@
+{
+  "aggregates_included": false,
+  "batch_only": [],
+  "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
+  "features": [
+    "PC1",
+    "PC2",
+    "PC3",
+    "PC4",
+    "PC5",
+    "PC6",
+    "PC7",
+    "PC8",
+    "PC9",
+    "type_CASH_IN",
+    "type_CASH_OUT",
+    "type_DEBIT",
+    "type_PAYMENT",
+    "type_TRANSFER"
+  ],
+  "inputs": [
+    "amount_bucket",
+    "log_amount",
+    "log_oldbalance_org",
+    "log_oldbalance_dest",
+    "amount_to_orig_balance_ratio",
+    "step_hour_of_day",
+    "orig_balance_delta",
+    "dest_balance_delta",
+    "orig_prior_txn_count",
+    "orig_prior_amount_sum",
+    "dest_prior_txn_count",
+    "dest_prior_amount_sum"
+  ],
+  "set": "pca_variant",
+  "source_set": "primary"
+}

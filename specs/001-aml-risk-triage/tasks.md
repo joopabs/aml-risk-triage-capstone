@@ -387,55 +387,55 @@ the selected model beats random and dummy at the same K (SC-001), with the rule 
 
 ### Tuning, operating point, single-touch test, selection (M6)
 
-- [ ] T052 [US1] Implement tuning and the `tune` command
+- [X] T052 [US1] Implement tuning and the `tune` command
   - Milestone M6 / Type: code / Depends: T050
   - Files: `src/aml_triage/models/tune.py` (seeded stratified subsample of train of `tune_sample_rows`; `RandomizedSearchCV` with `average_precision`, folds within subsample; refit best on full train; score on val; write `configs/models/<id>.tuned.yaml` and search log), `src/aml_triage/cli.py`
   - Accept: tuned configs written for logreg, balanced_rf, hgb; wall-clock recorded
   - Verify: `python -m aml_triage tune --config configs/base.yaml --models logreg,balanced_rf,hgb && ls configs/models/*.tuned.yaml`
 
-- [ ] T053 [US1] Implement operating-point selection and `choose-operating-point` command
+- [X] T053 [US1] Implement operating-point selection and `choose-operating-point` command
   - Milestone M6 / Type: code / Depends: T052
   - Files: `src/aml_triage/evaluation/threshold.py` (F2-max threshold on validation; isotonic decision per calibration tolerance; `priority_rule` per data-model.md §8 and `k_score_cutoff` = score of the K-th ranked validation transaction; writes `configs/operating_point.yaml` with `chosen_on: val`), `src/aml_triage/cli.py`
   - Accept: file written with primary K, threshold, priority rule, k_score_cutoff, calibration decision and log
   - Verify: `python -m aml_triage choose-operating-point --config configs/base.yaml && cat configs/operating_point.yaml`
 
-- [ ] T054 [US1] Implement `freeze`, test-access guard, bootstrap CIs, and `evaluate --split test`
+- [X] T054 [US1] Implement `freeze`, test-access guard, bootstrap CIs, and `evaluate --split test`
   - Milestone M6 / Type: code / Depends: T053
   - Files: `src/aml_triage/cli.py` (`freeze` writes `data/processed/test_access.json` state `frozen`, requires operating point; `evaluate --split test` allowed once per config hash, else exit 3 unless `--force-reevaluate --reason`, reason appended to `reevaluations` and to the report), `src/aml_triage/evaluation/bootstrap.py` (row-resample test for PR-AUC and Recall@K CIs, `n_resamples` from config)
   - Accept: state machine `locked → frozen → evaluated` per data-model.md §9
   - Verify: covered by T055 and T056
 
-- [ ] T055 [US1] Extend `tests/test_leakage.py` with test-access guard tests
+- [X] T055 [US1] Extend `tests/test_leakage.py` with test-access guard tests
   - Milestone M6 / Type: tests / Depends: T054
   - Files: `tests/test_leakage.py` (train/evaluate on test exits 3 when locked; second evaluate exits 3 without reason; reason recorded when forced; freeze refused without operating point)
   - Accept: all pass
   - Verify: `pytest tests/test_leakage.py -q`
 
-- [ ] T056 [US1] Run tune → choose-operating-point → freeze → evaluate test once on the real data; confirm the guard
+- [X] T056 [US1] Run tune → choose-operating-point → freeze → evaluate test once on the real data; confirm the guard
   - Milestone M6 / Type: models, verification / Depends: T055
   - Files: `data/processed/test_access.json`, `models/runs/*/test_metrics.json` (local), `reports/model_comparison.md` (test tables appended by tool)
   - Accept: one successful test evaluation with CIs for all candidates and comparators; an immediate second run exits 3
   - Verify: `python -m aml_triage freeze --config configs/base.yaml && python -m aml_triage evaluate --config configs/base.yaml --split test && python -m aml_triage evaluate --config configs/base.yaml --split test; test $? -eq 3`
 
-- [ ] T057 [US1] Implement selection matrix, model bundle persistence, and `select` command
+- [X] T057 [US1] Implement selection matrix, model bundle persistence, and `select` command
   - Milestone M6 / Type: code / Depends: T056
   - Files: `src/aml_triage/evaluation/compare.py` (selection matrix columns per data-model.md §10; exactly one `selected`), `src/aml_triage/utils/io.py` (bundle writer: `pipeline.joblib` + `pipeline.sha256`, `config_snapshot.yaml`, `metrics.json`, `feature_list.json`, `model_card.md` template with required sections, `models/LATEST`), `src/aml_triage/cli.py`
   - Accept: `models/<version>/` complete; `models/LATEST` points to it; selection uses validation numbers, reporting uses test numbers
   - Verify: `python -m aml_triage select --config configs/base.yaml && ls models/$(cat models/LATEST)`
 
-- [ ] T058 [US1] Implement `queue --period` command
+- [X] T058 [US1] Implement `queue --period` command
   - Milestone M6 / Type: code / Depends: T057
   - Files: `src/aml_triage/cli.py`, `src/aml_triage/evaluation/capacity.py` (queue writer with only permitted columns: rank, row_index, step, type, risk_score, review_priority, model_version; `review_priority` derived by the `priority_rule` in `configs/operating_point.yaml`; disclaimer footer; shortfall note if `n_rows < K`)
   - Accept: `reports/review_queue_period_<i>.md` has exactly the permitted columns; every rank ≤ K is `high`
   - Verify: `python -m aml_triage queue --config configs/base.yaml --period 0 && head -5 reports/review_queue_period_0.md`
 
-- [ ] T059 [US1] Write the selection, capacity, and model-card narratives from the test results
+- [X] T059 [US1] Write the selection, capacity, and model-card narratives from the test results
   - Milestone M6 / Type: reports, models / Depends: T057, T058
   - Files: `reports/selection_matrix.md` (verdict reasoning across all matrix columns), `reports/capacity_analysis.md` (Recall@K and Precision@K vs K, per-period distribution, FP/FN trade-off narrative, illustrative KPI counts vs random and rule, labeled "illustrative"), `reports/model_comparison.md` (test discussion incl. validation-vs-test shift), `models/<version>/model_card.md` (intended use, non-use, limitations, metrics)
   - Accept: SC-001 and SC-002 evaluated explicitly with numbers copied from `metrics.json`; if the selected model does not beat the rule baseline, that is stated; no currency figures
   - Verify: `grep -c illustrative reports/capacity_analysis.md && pytest tests/test_vocabulary.py -q`
 
-- [ ] T060 [P] [US1] Create `notebooks/06_tuning_capacity_and_test.ipynb`
+- [X] T060 [P] [US1] Create `notebooks/06_tuning_capacity_and_test.ipynb`
   - Milestone M6 / Type: notebooks / Depends: T059
   - Files: `notebooks/06_tuning_capacity_and_test.ipynb` (reads saved metrics; does not call `evaluate --split test`)
   - Accept: executes without triggering test re-evaluation

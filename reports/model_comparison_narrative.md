@@ -80,3 +80,38 @@ by project decision; the report will show `strict_pretx` beside it.
 - Perfect validation separability is a property of PaySim's generator and will not transfer to real
   banking data. Nothing here establishes real-world detection effectiveness.
 - Threshold metrics use 0.5 pending the validation-chosen operating point.
+
+## Test discussion (task T059, single-touch evaluation, written 2026-09-05 after the tables above)
+
+The test split (steps 553–743, 194,135 rows, 2,120 positives, prevalence 1.09%) was scored exactly
+once after the operating point was frozen; `data/processed/test_access.json` records the state and
+would record any re-evaluation with a reason. Every run was refitted on the full training split with
+its tuned parameters before scoring.
+
+**Validation-to-test shift.** Prevalence rises from 0.83% to 1.09% and daily volume stays in the
+low-volume regime. Rankings are stable: `hgb [primary]` and `hgb [posttx_ablation]` keep PR-AUC
+1.0000 (95% CI [1.0000, 1.0000]); `balanced_rf` on both sets holds at 0.9997; `hgb [strict_pretx]`
+moves from 1.0000 to 0.9995 [0.9986, 1.0000]; `hgb [selected]` from 0.9990 to 0.9996;
+`logreg [primary]` from 0.9987 to 0.9954 [0.9922, 0.9977]. The linear model on the strict set
+improves slightly (0.2776 → 0.2908) and the rule comparator improves from 0.1555 to 0.1856, both
+because higher prevalence makes precision easier. No candidate degrades materially, so the regime
+shift the split was designed to expose does not hurt tree models on this data.
+
+**Recall@200 is again a K ceiling.** All strong models score 0.7568 (mean) / 0.7547 (pooled) with
+Precision@200 = 1.0000, because every test period holds 240–280 positives. The dummy (chronological)
+comparator rises to 0.2076 and random to 0.1012 only because day 31 contains 272 rows, all positives,
+where any order scores 0.735. See `capacity_analysis.md`.
+
+**Calibration on test.** The reliability curves keep the class-weighting signature (observed rate
+below the diagonal in the middle bins), but the strong models place nearly all rows at scores near 0
+or 1, so Brier stays tiny: `hgb [primary]` 0.0000 (3 × 10⁻⁶), `hgb [strict_pretx]` 0.0000,
+`balanced_rf [primary]` 0.0003, `logreg [primary]` 0.0004. The validation-fitted isotonic
+calibrator, used only for the displayed probability, gives Brier 2.8 × 10⁻⁶ and ECE 6 × 10⁻⁶ on test.
+
+**Selected model at its operating point.** `hgb [primary]` at the frozen raw-score threshold 0.9719:
+2,115 true positives, 5 false negatives, 0 false positives across 192,015 normals (recall 0.9976,
+precision 1.0000). At the default 0.5 threshold it makes 0 errors of either kind on 194,135 rows.
+
+**Caveats carried forward.** Eight review periods; one of them (day 31) is a partial day with 272
+transactions. Perfect separation is a property of PaySim, not a transferable result. Bootstrap CIs
+resample rows and therefore understate uncertainty about future periods.

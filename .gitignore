@@ -27,6 +27,11 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+# small governance records are tracked (no row-level data inside)
+!data/processed/split_manifest.json
+!data/processed/test_access.json
+!data/processed/features_*.json
+!data/processed/*.fitscope.json
 *.csv
 *.parquet
 

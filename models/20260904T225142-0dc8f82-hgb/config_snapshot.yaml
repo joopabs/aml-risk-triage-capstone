@@ -1,0 +1,134 @@
+effective_config:
+  seed: 42
+  paths:
+    raw_csv: data/raw/PS_20174392719_1491204439457_log.csv
+    processed_dir: data/processed
+    models_dir: models
+    reports_dir: reports
+  split:
+    strategy: temporal
+    train_end_step: 408
+    val_end_step: 552
+    min_positives_per_split: 500
+    fallback_reason: null
+  review:
+    review_period_steps: 24
+    primary_k: 200
+    k_grid:
+    - 50
+    - 100
+    - 200
+    - 300
+    - 500
+    tie_break:
+    - score_desc
+    - step_asc
+    - row_index_asc
+  features:
+    registry: configs/features.yaml
+    default_set: primary
+    ablation_sets:
+    - strict_pretx
+    - posttx_ablation
+  selection:
+    mi_k: 12
+    l1_c: 0.1
+    combine_rule: intersection_or_union_if_lt
+    min_size: 6
+  pca:
+    n_components: 0.95
+    role: diagnostic_and_visualization
+  tuning:
+    tune_sample_rows: 1000000
+    n_iter: 30
+    cv_folds: 3
+    scoring: average_precision
+  calibration:
+    method: isotonic_val
+    max_pr_auc_drop: 0.005
+  operating_point_path: configs/operating_point.yaml
+  bootstrap:
+    n_resamples: 200
+  evaluation:
+    degenerate_eps: 1.0e-09
+  explain:
+    shap_background_rows: 1000
+    shap_eval_rows: 2000
+    n_local_examples: 3
+    pdp_top_features: 5
+  fairness:
+    slice_dimensions:
+    - type
+    - amount_band
+    - orig_balance_band
+    - step_band
+    label: operational error-slice analysis
+  compute:
+    n_jobs: 4
+    omp_num_threads: 4
+  disclaimer_ref: aml_triage.constants.DISCLAIMER
+operating_point:
+  selected_run: hgb__primary
+  candidate_id: hgb
+  feature_set: primary
+  selection_basis: validation metrics only (see reports/selection_matrix.md)
+  primary_k: 200
+  threshold: 0.971931
+  threshold_rule: f2_max_on_val_raw_scores
+  ranking_scores: raw model scores (calibrated probability is display-only)
+  threshold_f2: 1.0
+  priority_rule:
+    high: rank_le_k
+    medium: above_threshold
+    low: below_threshold
+  k_score_cutoff: 0.999977
+  calibration:
+    method: isotonic_val
+    applied: true
+    decision_log:
+      method: isotonic_val
+      before:
+        brier: 5.650912454745987e-07
+        pr_auc: 1.0
+      after:
+        brier: 0.0
+        pr_auc: 1.0
+      applied: true
+      chosen_on: val
+    calibrator_path: models/runs/hgb__primary/calibrator_isotonic.joblib
+  chosen_on: val
+  chosen_at: '2026-09-04T22:22:37+00:00'
+  frozen_at: '2026-09-04T22:22:38+00:00'
+  config_hash: sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9
+split_manifest:
+  strategy: temporal
+  train_end_step: 408
+  val_end_step: 552
+  rows:
+    test: 194135
+    train: 5987417
+    val: 181068
+  positives:
+    test: 2120
+    train: 4589
+    val: 1504
+  step_ranges:
+    test:
+    - 553
+    - 743
+    train:
+    - 1
+    - 408
+    val:
+    - 409
+    - 552
+  review_period_steps: 24
+  excluded_rows: {}
+  config_hash: sha256:d099f2d0939dfa0e48bdbdc5d6ad6f139eea60b799258458b5eaafe79ea31b8a
+  fallback_reason: null
+  created_at: '2026-09-04T18:02:40+00:00'
+  frozen_at: '2026-09-04T22:22:38+00:00'
+  notes:
+  - Temporal split by step; all validation rows are later than all training rows and
+    all test rows later than validation.
+config_hash: sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9

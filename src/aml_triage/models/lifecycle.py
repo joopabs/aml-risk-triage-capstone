@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import concurrent.futures
 import json
+import multiprocessing
 import shutil
 from datetime import UTC, datetime
 from pathlib import Path
@@ -69,26 +71,41 @@ def evaluate_test(cfg: Config, force: bool = False, reason: str | None = None) -
         if not reason or not reason.strip():
             raise TestAccessError("--force-reevaluate requires --reason")
         state["reevaluations"].append({"timestamp": datetime.now(UTC).isoformat(timespec="seconds"), "reason": reason.strip()})
-    op = load_operating_point(cfg) or {}
     results = {}
+    # Each refit runs in a fresh subprocess so memory is returned to the OS between runs
+    # (a single long-lived process was killed for memory on the 16 GB development machine).
+    ctx = multiprocessing.get_context("spawn")
     for rid in list_runs(cfg, "val"):
-        mid, fset = rid.split("__", 1)
-        res = train_and_score(cfg, mid, fset, "test", context="evaluate")
-        _, preds = load_run(cfg, rid, "test")
-        if rid == op.get("selected_run"):
-            cal = apply_operating_point(op, preds)
-            res["operating_point_metrics"] = compute_metrics(cal["isFraud"], cal["score"], threshold=float(op["threshold"]), degenerate_eps=cfg.evaluation.degenerate_eps)
-            res["operating_point_metrics"]["calibration_applied"] = bool((op.get("calibration") or {}).get("applied"))
-            calq = compute_metrics(cal["isFraud"], cal["calibrated_score"], threshold=0.5, degenerate_eps=cfg.evaluation.degenerate_eps)
-            res["operating_point_metrics"]["calibrated_probability"] = {"brier": calq["brier"], "ece": calq["ece"], "pr_auc": calq["pr_auc"], "note": "display probability after validation-fitted isotonic; ranking uses raw scores"}
-        res["bootstrap_ci"] = bootstrap_ci(preds, cfg.review.primary_k, cfg.review.review_period_steps, cfg.bootstrap.n_resamples, cfg.seed)
-        write_json(res, runs_dir(cfg) / rid / "test_metrics.json")
-        results[rid] = res
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1, mp_context=ctx) as pool:
+            results[rid] = pool.submit(_evaluate_one, str(cfg.source_path), cfg.seed, rid).result()
     state["state"] = "evaluated"
     state["first_evaluated_at"] = state.get("first_evaluated_at") or datetime.now(UTC).isoformat(timespec="seconds")
     (processed / TEST_ACCESS).write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
     compare(cfg, "test")
     return {"state": state, "runs": list(results)}
+
+
+def _evaluate_one(config_path: str, seed: int, rid: str) -> dict[str, Any]:
+    """Refit one run on train, score test once, add operating-point metrics and bootstrap CIs."""
+    import gc
+
+    from aml_triage.config import load as load_cfg
+
+    cfg = load_cfg(config_path, overrides={"seed": seed})
+    op = load_operating_point(cfg) or {}
+    mid, fset = rid.split("__", 1)
+    res = train_and_score(cfg, mid, fset, "test", context="evaluate")
+    _, preds = load_run(cfg, rid, "test")
+    if rid == op.get("selected_run"):
+        cal = apply_operating_point(op, preds)
+        res["operating_point_metrics"] = compute_metrics(cal["isFraud"], cal["score"], threshold=float(op["threshold"]), degenerate_eps=cfg.evaluation.degenerate_eps)
+        res["operating_point_metrics"]["calibration_applied"] = bool((op.get("calibration") or {}).get("applied"))
+        calq = compute_metrics(cal["isFraud"], cal["calibrated_score"], threshold=0.5, degenerate_eps=cfg.evaluation.degenerate_eps)
+        res["operating_point_metrics"]["calibrated_probability"] = {"brier": calq["brier"], "ece": calq["ece"], "pr_auc": calq["pr_auc"], "note": "display probability after validation-fitted isotonic; ranking uses raw scores"}
+    res["bootstrap_ci"] = bootstrap_ci(preds, cfg.review.primary_k, cfg.review.review_period_steps, cfg.bootstrap.n_resamples, cfg.seed)
+    write_json(res, runs_dir(cfg) / rid / "test_metrics.json")
+    gc.collect()
+    return {k: v for k, v in res.items() if k in ("candidate_id", "feature_set", "metrics", "bootstrap_ci")}
 
 
 # ---- select -----------------------------------------------------------------------------------

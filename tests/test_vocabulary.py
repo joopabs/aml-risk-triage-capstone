@@ -98,7 +98,11 @@ def test_no_prohibited_language_in_scan_paths(repo_root: Path) -> None:
 
 
 def test_disclaimer_present_in_every_report(repo_root: Path) -> None:
-    reports = [p for p in (repo_root / "reports").rglob("*.md") if p.is_file()]
+    reports = [
+        p
+        for p in (repo_root / "reports").rglob("*.md")
+        if p.is_file() and not p.name.endswith("_narrative.md") and "sections" not in p.parts
+    ]  # narrative/section files are embedded into a report that carries the footer
     if not reports:
         pytest.skip("no report files yet")
     missing = [str(p.relative_to(repo_root)) for p in reports if DISCLAIMER not in p.read_text()]

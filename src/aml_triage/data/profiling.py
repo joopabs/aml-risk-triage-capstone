@@ -60,7 +60,12 @@ def profile_frame(df: pd.DataFrame, schema: Schema) -> dict[str, Any]:
     }
 
     # Invalid values and balance arithmetic (V5)
-    orig_gap = (df["oldbalanceOrg"] - df["newbalanceOrig"] - df["amount"]).abs()
+    # Direction-aware arithmetic: CASH_IN raises the origin balance; every other type lowers it.
+    # Destination is expected to rise by the amount for every type (merchant destinations in
+    # PAYMENT/CASH_IN are expected to show no balance tracking; the per-type table exposes that).
+    inflow = df["type"].astype(str).isin(INFLOW_TYPES_EXPECTED)
+    expected_new_orig = np.where(inflow, df["oldbalanceOrg"] + df["amount"], df["oldbalanceOrg"] - df["amount"])
+    orig_gap = (df["newbalanceOrig"] - expected_new_orig).abs()
     dest_gap = (df["newbalanceDest"] - df["oldbalanceDest"] - df["amount"]).abs()
     inconsistency = pd.DataFrame(
         {
@@ -268,22 +273,37 @@ def render_markdown(profile: dict[str, Any], out_path: str | Path, source_label:
             + (f"Matching columns: {sa['matching_columns']}" if sa["any_match"] else "No column name matches a sensitive-attribute pattern. The formal availability record is produced in Milestone 7 (FR-070)."),
         )
     )
-    sections.append(
-        (
-            "Findings and handling decisions",
-            "<!-- T022: written by a human after reviewing the tables above. One row per finding, "
-            "decision ids DQ-01..., decision in {keep, correct, flag as feature, exclude}, with justification. -->\n\n"
-            "_Pending review (task T022)._",
-        )
-    )
-    sections.append(
-        (
-            "Source-data limitations",
-            "<!-- T022: written after review. Synthetic generation, simulator artifacts, label validity, "
-            "transferability. -->\n\n_Pending review (task T022)._",
-        )
-    )
+    sections.extend(_narrative_sections(Path(out_path).parent / NARRATIVE_FILENAME))
     return write_markdown(out_path, "Data Quality Report", sections)
+
+
+NARRATIVE_FILENAME = "data_quality_narrative.md"
+
+
+def _narrative_sections(narrative_path: Path) -> list[tuple[str, str]]:
+    """Human-authored findings live in a separate file so regenerating tables never erases them.
+
+    The file holds ``## `` sections; each becomes a section of the report verbatim.
+    """
+    pending = (
+        "<!-- Task T022: write reports/data_quality_narrative.md after reviewing the tables above. -->\n\n"
+        "_Pending review (task T022)._"
+    )
+    if not narrative_path.exists():
+        return [("Findings and handling decisions", pending), ("Source-data limitations", pending)]
+    text = narrative_path.read_text(encoding="utf-8")
+    out: list[tuple[str, str]] = []
+    heading, body = None, []
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if heading:
+                out.append((heading, "\n".join(body).strip()))
+            heading, body = line[3:].strip(), []
+        elif heading:
+            body.append(line)
+    if heading:
+        out.append((heading, "\n".join(body).strip()))
+    return out
 
 
 def run_profile(df: pd.DataFrame, schema: Schema, reports_dir: str | Path, source_label: str) -> tuple[Path, Path]:
@@ -294,4 +314,4 @@ def run_profile(df: pd.DataFrame, schema: Schema, reports_dir: str | Path, sourc
     return md_path, json_path
 
 
-__all__ = ["profile_frame", "render_markdown", "run_profile", "np"]
+__all__ = ["profile_frame", "render_markdown", "run_profile"]

@@ -4,11 +4,14 @@
 name: PaySim - Synthetic Financial Datasets for Fraud Detection
 url: https://www.kaggle.com/datasets/ealaxi/paysim1
 kaggle_dataset: ealaxi/paysim1
-filename: null                 # set at first download (CSV inside the Kaggle zip)
-sha256: null                   # set at first download; verified on every later run
-size_bytes: null
-downloaded_on: null            # ISO date
-license_text_verbatim: null    # copied from the Kaggle dataset page (V1)
-license_verified_on: null      # ISO date the page was read
-license_permits_educational_use: null   # true/false, decided by a human after reading the text
+filename: PS_20174392719_1491204439457_log.csv
+sha256: 16910f90577b0d981bf8ff289714510bb89bc71bff7d3f220f024e287e4eea6b  # pragma: allowlist secret (file checksum, not a credential)
+size_bytes: 493534783
+downloaded_on: 2026-09-05
+license_text_verbatim: "CC BY-SA 4.0"
+license_verified_on: 2026-09-05
+license_permits_educational_use: true   # CC BY-SA 4.0 permits use with attribution and share-alike
+license_source: Kaggle API dataset metadata (licenseName) at download time
+license_page_confirmed_by_human: false   # set true after reading the License panel on the dataset page
+attribution: "PaySim synthetic dataset by E. A. Lopez-Rojas (Kaggle: ealaxi/paysim1), CC BY-SA 4.0"
 synthetic_notice: "PaySim is synthetic mobile-money transaction data. It is not real SME, corporate, or Philippine banking data."

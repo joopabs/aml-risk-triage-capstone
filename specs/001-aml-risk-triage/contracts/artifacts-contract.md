@@ -22,6 +22,7 @@ snake_case, timestamps ISO-8601 UTC. Every Markdown artifact ends with the discl
 
 ## data/processed/test_access.json
 ```json
+# Absence of this file means state `locked`. `freeze` creates it.
 {"config_hash": "sha256:…", "state": "frozen", "frozen_at": "…",
  "first_evaluated_at": null, "reevaluations": []}
 ```

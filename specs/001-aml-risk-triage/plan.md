@@ -63,7 +63,7 @@ in Git. Every output surface carries the disclaimer constant.
 
 **Scale/Scope**: One dataset, expected on the order of millions of rows and eleven columns
 `[VERIFY on load]`; one target; four models plus three ranking comparators; one selected model;
-one report; two decks; roughly 25 source modules, 8 notebooks, and 10 test modules.
+one report; two decks; roughly 26 source modules, 8 notebooks, and 13 test modules.
 
 ## Constitution Check
 
@@ -197,7 +197,8 @@ specs/001-aml-risk-triage/
 │   ├── fairness/
 │   │   ├── availability.py          # sensitive-attribute availability record (FR-070)
 │   │   ├── slices.py                # operational error-slice analysis (FR-073)
-│   │   └── demographic.py           # DP/EO/DI, executed only if availability says valid labels
+│   │   ├── demographic.py           # DP/EO/DI, executed only if availability says valid labels
+│   │   └── report.py                # writes bias_fairness_analysis.md with the six required headings
 │   ├── reporting/
 │   │   ├── figures.py               # consistent matplotlib/seaborn styling, save helpers
 │   │   ├── tables.py                # markdown table writers with disclaimer footer
@@ -216,9 +217,10 @@ specs/001-aml-risk-triage/
 │   ├── 07_explainability_and_fairness.ipynb
 │   └── 90_technical_deck.ipynb      # nbconvert --to slides
 ├── models/
-│   └── <model_version>/             # pipeline.joblib, model_card.md, config_snapshot.yaml, metrics.json (joblib gitignored above size; model_card + metrics committed)
+│   └── <model_version>/             # pipeline.joblib, model_card.md, config_snapshot.yaml, metrics.json (pipeline.joblib always gitignored, pipeline.sha256 committed; regenerate via `make pipeline`; model_card + metrics committed)
 ├── reports/
 │   ├── final_report.md / .pdf
+│   ├── sections/                    # hand-authored 01_problem.md, 07_limitations.md, 08_reproducibility.md
 │   ├── data_quality.md, data_quality.json
 │   ├── data_dictionary.md
 │   ├── eda_summary.md
@@ -244,6 +246,7 @@ specs/001-aml-risk-triage/
 │   ├── test_metrics.py
 │   ├── test_capacity.py             # ties, short periods
 │   ├── test_vocabulary.py           # FR-084
+│   ├── test_fairness.py             # DP/EO/DI on fixture with synthetic group column
 │   ├── test_core_without_optional.py
 │   └── api/test_scoring_api.py      # optional, skipped if fastapi missing
 ├── deployment/                      # OPTIONAL Step 8
@@ -432,7 +435,7 @@ validation tables (PR-AUC, ROC-AUC, P/R/F1 at default 0.5 and at operating point
 ECE, Recall@K and Precision@K for each K in grid, per-period mean and pooled); PR, ROC,
 calibration curves; class prevalence line next to any accuracy.
 
-**Leakage/privacy controls**: test split not read in M5 (CLI refuses `--split test` before M6
+**Leakage/privacy controls**: no test predictions are produced in M5 (CLI refuses `--split test` before M6
 `freeze` step); imbalance handling via `class_weight` or `imblearn.Pipeline` sampler so
 resampling occurs inside fit only; `test_capacity.py` covers ties (deterministic tie-break:
 score desc, step asc, row index asc) and periods with fewer than K rows.

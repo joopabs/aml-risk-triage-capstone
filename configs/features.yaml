@@ -10,7 +10,7 @@
   rationale: Simulated fraud occurs only in TRANSFER and CASH_OUT (DQ-09); type is the first-order signal.
   available_at_prediction_time: realtime
   kind: categorical
-  sets: [primary, strict_pretx, posttx_ablation]
+  sets: [primary, strict_pretx, posttx_ablation, selected]
   dictionary_entry: {type: one-hot (5 columns), unit: indicator, range_or_values: "0/1 per observed type", description: "One column per transaction type observed in training; unknown types map to all zeros."}
 
 - name: log_amount
@@ -28,7 +28,7 @@
   rationale: Quantile buckets fitted on training data give a monotone, outlier-robust view of amount for slice analysis and linear models.
   available_at_prediction_time: realtime
   kind: numeric
-  sets: [primary, strict_pretx]
+  sets: [primary, strict_pretx, selected]
   dictionary_entry: {type: int, unit: bucket index, range_or_values: "0..n_bins-1 (n_bins=10)", description: "Amount decile bucket; edges fitted on the training split only."}
 
 - name: log_oldbalance_org
@@ -55,7 +55,7 @@
   rationale: Emptying an account (ratio near 1) is a classic mule-account pattern; the +1 guard handles zero balances.
   available_at_prediction_time: realtime
   kind: numeric
-  sets: [primary, strict_pretx]
+  sets: [primary, strict_pretx, selected]
   dictionary_entry: {type: float, unit: ratio, range_or_values: ">= 0", description: "amount / (oldbalanceOrg + 1)."}
 
 - name: orig_zero_balance_flag
@@ -64,7 +64,7 @@
   rationale: 2.1M rows start from a zero origin balance (DQ-07); the flag separates this mass from the continuous scale.
   available_at_prediction_time: realtime
   kind: flag
-  sets: [primary, strict_pretx]
+  sets: [primary, strict_pretx, selected]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceOrg == 0."}
 
 - name: dest_zero_balance_flag
@@ -73,7 +73,7 @@
   rationale: Zero destination balance before the transaction marks merchants and fresh accounts (DQ-06).
   available_at_prediction_time: realtime
   kind: flag
-  sets: [primary, strict_pretx]
+  sets: [primary, strict_pretx, selected]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceDest == 0."}
 
 - name: zero_amount_flag
@@ -100,7 +100,7 @@
   rationale: Hourly position within the simulated day may carry volume seasonality; cyclic and in-range for every split.
   available_at_prediction_time: realtime
   kind: numeric
-  sets: [primary, strict_pretx]
+  sets: [primary, strict_pretx, selected]
   dictionary_entry: {type: int, unit: hour, range_or_values: "0..23", description: "(step - 1) mod 24."}
 
 - name: step_day_index
@@ -136,7 +136,7 @@
   rationale: Direction-aware arithmetic gap on the origin side is inconsistent for most CASH_OUT/TRANSFER rows (DQ-05); a simulator behaviour that correlates with the label.
   available_at_prediction_time: batch_only
   kind: flag
-  sets: [primary, posttx_ablation]
+  sets: [primary, posttx_ablation, selected]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "|newbalanceOrig - expected| > 0.01 where expected = old + amount for CASH_IN, old - amount otherwise."}
 
 - name: dest_balance_inconsistent_flag
@@ -145,7 +145,7 @@
   rationale: Destination arithmetic gap (DQ-06); always inconsistent for merchant destinations.
   available_at_prediction_time: batch_only
   kind: flag
-  sets: [primary, posttx_ablation]
+  sets: [primary, posttx_ablation, selected]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "|newbalanceDest - oldbalanceDest - amount| > 0.01."}
 
 - name: orig_zero_after_flag
@@ -154,7 +154,7 @@
   rationale: Account emptied to exactly zero after the transaction (DQ-05); a strong mule pattern in the simulator.
   available_at_prediction_time: batch_only
   kind: flag
-  sets: [primary, posttx_ablation]
+  sets: [primary, posttx_ablation, selected]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceOrg > 0 and newbalanceOrig == 0."}
 
 - name: orig_prior_txn_count

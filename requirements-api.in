@@ -1,0 +1,4 @@
+# Optional Step 8 only. Compile with: uv pip compile requirements-api.in -o requirements-api.txt
+-c requirements.txt
+fastapi
+uvicorn[standard]

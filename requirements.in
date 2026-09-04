@@ -1,0 +1,12 @@
+# Runtime dependencies (top-level). Compile with: uv pip compile requirements.in -o requirements.txt
+pandas
+numpy
+scikit-learn
+imbalanced-learn
+shap
+matplotlib
+seaborn
+joblib
+pyarrow
+pyyaml
+pydantic>=2

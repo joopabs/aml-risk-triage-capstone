@@ -1,0 +1,45 @@
+# Vocabulary rules enforced by tests/test_vocabulary.py (spec FR-084, constitution Principle IX).
+# Prohibited phrases describe model outputs as determinations or actions. Allowed phrases are
+# stripped from scanned text before matching, so the non-use statements and the disclaimer
+# never trigger a finding. Matching is case-insensitive and word-bounded, except entries in
+# case_sensitive which match exact case and word boundaries.
+prohibited_applied_to_outputs:
+  - fraudulent transaction
+  - is fraudulent
+  - launderer
+  - money launderer
+  - guilty
+  - confirmed fraud
+  - transaction blocked
+  - block this transaction
+  - account closed
+  - close the account
+  - risk rating assigned
+  - suspicious activity report filed
+  - regulatory filing
+case_sensitive:
+  - SAR
+allowed_phrases:
+  - simulated fraud
+  - isFraud
+  - isFlaggedFraud
+  - fraud label
+  - rule flag
+  - no automatic blocking
+  - does not block
+  - must not block
+  - performs no automatic blocking
+  - customer risk rating
+  - account closure
+  - regulatory reporting
+  - suspicious-activity or regulatory reports
+  - regulatory report
+  - AML determination
+fairness_forbidden_when_unavailable:
+  - demographic fairness result
+  - protected-group fairness
+  - bias audit by protected group
+  - demographic parity achieved
+required_literal: "operational error-slice analysis"
+scan_paths: [src, reports, notebooks, README.md, docs]
+scan_extensions: [.py, .md, .ipynb, .txt, .yaml, .yml]

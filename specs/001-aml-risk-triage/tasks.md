@@ -41,91 +41,91 @@ Single Python package: `src/aml_triage/`, `tests/`, `configs/`, `notebooks/`, `d
 **Purpose**: A clean clone installs, lints, and passes starter tests; disclaimer and configs exist
 before any data is touched. Gates G3, G10 (partial), G2 (secret scan).
 
-- [ ] T001 Create the repository directory skeleton with `.gitkeep` files per plan.md tree
+- [X] T001 Create the repository directory skeleton with `.gitkeep` files per plan.md tree
   - Milestone M1 / Type: code / Depends: none
   - Files: `src/aml_triage/{utils,data,eda,features,models,evaluation,explain,fairness,reporting}/`, `tests/api/`, `notebooks/`, `configs/models/`, `data/{raw,processed}/`, `models/`, `reports/figures/{eda,features,models,explain,fairness}/`, `reports/slides/`, `scripts/`, `deployment/demo/`, `docs/`
   - Accept: every directory in the plan tree exists; `data/raw` and `data/processed` contain only `.gitkeep`
   - Verify: `find . -type d -not -path './.git*' | sort` matches plan tree
 
-- [ ] T002 Write `pyproject.toml`, `.python-version`, and `LICENSE`
+- [X] T002 Write `pyproject.toml`, `.python-version`, and `LICENSE`
   - Milestone M1 / Type: code / Depends: T001
   - Files: `pyproject.toml` (package `aml_triage`, `requires-python = ">=3.11,<3.12"`, ruff, pytest, coverage ≥80% on `src/aml_triage`), `.python-version` (`3.11.12`), `LICENSE` (MIT, code only; data note)
   - Accept: `python --version` reports 3.11.12 inside the venv; `pip install -e .` succeeds
   - Verify: `python -c "import tomllib;tomllib.load(open('pyproject.toml','rb'))"`
 
-- [ ] T003 [P] Author `requirements.in`, `requirements-dev.in`, `requirements-api.in` and compile pinned lockfiles
+- [X] T003 [P] Author `requirements.in`, `requirements-dev.in`, `requirements-api.in` and compile pinned lockfiles
   - Milestone M1 / Type: code / Depends: T002
   - Files: `requirements.in` (pandas, numpy, scikit-learn, imbalanced-learn, shap, matplotlib, seaborn, joblib, pyarrow, pyyaml, pydantic), `requirements-dev.in` (pytest, pytest-cov, ruff, detect-secrets, pre-commit, nbstripout, jupyter, nbconvert, httpx), `requirements-api.in` (fastapi, uvicorn), `requirements.txt`, `requirements-dev.txt`, `requirements-api.txt`
   - Accept: every line in `requirements*.txt` has an exact `==` pin; XGBoost absent (research R-03)
   - Verify: `uv pip compile requirements.in -o requirements.txt && grep -vc '==' requirements.txt` returns 0 non-pinned package lines (comments excluded)
 
-- [ ] T004 [P] Write `.gitignore` and `.env.example`
+- [X] T004 [P] Write `.gitignore` and `.env.example`
   - Milestone M1 / Type: code / Depends: T001
   - Files: `.gitignore` (`data/raw/`, `data/processed/`, `*.csv`, `*.parquet`, `.env`, `.venv/`, `models/**/*.joblib`, `.ipynb_checkpoints/`, `__pycache__/`, keep `.gitkeep`), `.env.example` (`KAGGLE_USERNAME=`, `KAGGLE_KEY=` placeholders only)
   - Accept: sample paths are ignored; `.gitkeep` files are not
   - Verify: `git check-ignore -q data/raw/x.csv data/processed/y.parquet .env models/v/pipeline.joblib && ! git check-ignore -q data/raw/.gitkeep`
 
-- [ ] T005 [P] Configure pre-commit hooks and secret-scan baseline
+- [X] T005 [P] Configure pre-commit hooks and secret-scan baseline
   - Milestone M1 / Type: code / Depends: T003
   - Files: `.pre-commit-config.yaml` (ruff, ruff-format, detect-secrets with baseline, nbstripout), `.secrets.baseline`
   - Accept: `pre-commit install` succeeds; baseline generated from current tree with zero findings
   - Verify: `detect-secrets scan > .secrets.baseline && pre-commit run --all-files`
 
-- [ ] T006 Write `Makefile` with targets `setup lint test data pipeline report slides ci api clean-derived`
+- [X] T006 Write `Makefile` with targets `setup lint test data pipeline report slides ci api clean-derived`
   - Milestone M1 / Type: code / Depends: T003
   - Files: `Makefile` (sets `OMP_NUM_THREADS` from config; `pipeline` target runs the CLI sequence in contracts/cli-contract.md; `ci` fails if any `data/raw|processed` file is tracked)
   - Accept: `make -n <target>` prints the expected commands for every target
   - Verify: `make -n setup lint test ci pipeline | head -50`
 
-- [ ] T007 [P] Create `configs/base.yaml`, `configs/vocabulary.yaml`, `configs/smoke.yaml` per contracts/config-schema.md
+- [X] T007 [P] Create `configs/base.yaml`, `configs/vocabulary.yaml`, `configs/smoke.yaml` per contracts/config-schema.md
   - Milestone M1 / Type: config / Depends: T001
   - Files: `configs/base.yaml` (all profiling-dependent keys `null` with `# set after Vn` comments; `seed: 42`), `configs/vocabulary.yaml` (prohibited terms, allowlist, fairness-forbidden terms, `required_literal`, `scan_paths`), `configs/smoke.yaml` (small overrides for CI fixture run)
   - Accept: YAML parses; no non-null value for any key marked "set after Vn"
   - Verify: `python -c "import yaml;[yaml.safe_load(open(f)) for f in ['configs/base.yaml','configs/vocabulary.yaml','configs/smoke.yaml']]"`
 
-- [ ] T008 Implement package constants and utilities
+- [X] T008 Implement package constants and utilities
   - Milestone M1 / Type: code / Depends: T002
   - Files: `src/aml_triage/__init__.py`, `src/aml_triage/constants.py` (`DISCLAIMER` single string; `MODEL_OUTPUT_FIELDS`; `PROHIBITED_OUTPUT_FIELDS`), `src/aml_triage/utils/seed.py` (`set_global_seed`), `src/aml_triage/utils/io.py` (parquet/json/joblib helpers, `model_version()` = UTC timestamp + git short sha + candidate id, `sha256_file`), `src/aml_triage/utils/logging.py`
   - Accept: `DISCLAIMER` names synthetic data, educational use, human review, and the non-use list; `model_version()` matches `^\d{8}T\d{6}-[0-9a-f]{7}-\w+$`
   - Verify: `python -c "from aml_triage.constants import DISCLAIMER;assert 'synthetic' in DISCLAIMER.lower()"`
 
-- [ ] T009 Implement config loader in `src/aml_triage/config.py`
+- [X] T009 Implement config loader in `src/aml_triage/config.py`
   - Milestone M1 / Type: code / Depends: T007, T008
   - Files: `src/aml_triage/config.py` (pydantic models mirroring contracts/config-schema.md; unknown keys error; `require(keys)` helper that exits 2 on nulls; `config_hash()` over base+schema)
   - Accept: loading `configs/base.yaml` succeeds; an unknown key raises; `require(['review.primary_k'])` exits 2 while null
   - Verify: `python -c "from aml_triage.config import load;c=load('configs/base.yaml');print(c.config_hash())"`
 
-- [ ] T010 Implement CLI skeleton in `src/aml_triage/cli.py` and `__main__.py`
+- [X] T010 Implement CLI skeleton in `src/aml_triage/cli.py` and `__main__.py`
   - Milestone M1 / Type: code / Depends: T009
   - Files: `src/aml_triage/cli.py`, `src/aml_triage/__main__.py` (register every command in contracts/cli-contract.md as a stub returning "not implemented" exit 1; shared `--config`, `--seed`; exit-code constants 0/1/2/3/4; logs config hash and disclaimer)
   - Accept: `--help` lists all 22 commands; stub exits 1 with a clear message
   - Verify: `python -m aml_triage --help | grep -c -E 'fetch-data|validate-schema|profile|split|build-features|train|freeze|evaluate|select|explain|fairness|build-report|queue'`
 
-- [ ] T011 [P] Write test fixture and config tests
+- [X] T011 [P] Write test fixture and config tests
   - Milestone M1 / Type: tests / Depends: T009
   - Files: `tests/conftest.py` (small synthetic frame with the expected PaySim columns, several steps, a few positives, deliberate duplicates and one inconsistent balance; NOT PaySim rows), `tests/test_config.py`
   - Accept: fixture builds without data files; config tests cover load, unknown key, null-required
   - Verify: `pytest tests/test_config.py -q`
 
-- [ ] T012 [P] Write vocabulary scan and optional-isolation tests
+- [X] T012 [P] Write vocabulary scan and optional-isolation tests
   - Milestone M1 / Type: tests / Depends: T007, T008
   - Files: `tests/test_vocabulary.py` (scans `configs/vocabulary.yaml` `scan_paths` for prohibited terms with allowlist; asserts disclaimer present in every `reports/*.md` when such files exist), `tests/test_no_hardcoded_params.py` (FR-101: scans `notebooks/*.ipynb` and `scripts/*.py` code cells for literal assignments to `seed`, `K`, `train_end_step`, `val_end_step`, `threshold`; passes only when values come from config), `tests/test_core_without_optional.py` (imports every core module with `aml_triage.api` blocked via `sys.modules`)
   - Accept: both pass on the empty scaffold
   - Verify: `pytest tests/test_vocabulary.py tests/test_core_without_optional.py -q`
 
-- [ ] T013 [P] Add GitHub Actions workflow `.github/workflows/ci.yml`
+- [X] T013 [P] Add GitHub Actions workflow `.github/workflows/ci.yml`
   - Milestone M1 / Type: code / Depends: T005, T006
   - Files: `.github/workflows/ci.yml` (ubuntu-latest, Python 3.11.12, `uv pip sync`, ruff, detect-secrets-hook, pytest with coverage, `make ci` smoke on fixture, tracked-data check; optional API job gated on `requirements-api.txt` changes)
   - Accept: workflow YAML valid; no dataset download in CI
   - Verify: `python -c "import yaml;yaml.safe_load(open('.github/workflows/ci.yml'))"`
 
-- [ ] T014 Write README and data README skeletons
+- [X] T014 Write README and data README skeletons
   - Milestone M1 / Type: docs / Depends: T008
   - Files: `README.md` (title, purpose, disclaimer verbatim, synthetic-data notice, placeholder headings: Provenance, Setup, Commands, Repository Map, Results, Reproducibility Tolerance, Optional Steps, Links), `data/README.md` (Provenance, License, Checksum, Fetch, Synthetic Notice headings)
   - Accept: both files contain the word "synthetic" and the disclaimer; no results claimed
   - Verify: `grep -c synthetic README.md data/README.md`
 
-- [ ] T015 Run the M1 checkpoint and fix until green
+- [X] T015 Run the M1 checkpoint and fix until green
   - Milestone M1 / Type: verification / Depends: T001–T014
   - Files: none new
   - Accept: lint clean, all starter tests pass, pre-commit passes, git tracks no data

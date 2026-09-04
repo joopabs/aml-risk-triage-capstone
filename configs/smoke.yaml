@@ -1,0 +1,35 @@
+# CI smoke configuration: extends base.yaml and overrides paths and sizes so the full CLI
+# sequence runs in minutes on a small synthetic sample produced by scripts/make_sample.py
+# (task T063). No PaySim data is used in CI.
+_extends: configs/base.yaml
+paths:
+  raw_csv: data/processed/smoke_sample.csv
+  processed_dir: data/processed/smoke
+  models_dir: models/smoke
+  reports_dir: reports/smoke
+split:
+  train_end_step: 48
+  val_end_step: 60
+  min_positives_per_split: 5
+review:
+  review_period_steps: 24
+  primary_k: 20
+  k_grid: [10, 20, 40]
+selection:
+  mi_k: 8
+  l1_c: 0.1
+  min_size: 5
+pca:
+  n_components: 3
+tuning:
+  tune_sample_rows: 2000
+  n_iter: 3
+  cv_folds: 2
+bootstrap:
+  n_resamples: 20
+explain:
+  shap_background_rows: 100
+  shap_eval_rows: 200
+compute:
+  n_jobs: 2
+  omp_num_threads: 2

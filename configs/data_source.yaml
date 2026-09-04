@@ -12,6 +12,6 @@ license_text_verbatim: "CC BY-SA 4.0"
 license_verified_on: 2026-09-05
 license_permits_educational_use: true   # CC BY-SA 4.0 permits use with attribution and share-alike
 license_source: Kaggle API dataset metadata (licenseName) at download time
-license_page_confirmed_by_human: false   # set true after reading the License panel on the dataset page
+license_page_confirmed_by_human: true   # confirmed by the learner on 2026-09-05
 attribution: "PaySim synthetic dataset by E. A. Lopez-Rojas (Kaggle: ealaxi/paysim1), CC BY-SA 4.0"
 synthetic_notice: "PaySim is synthetic mobile-money transaction data. It is not real SME, corporate, or Philippine banking data."

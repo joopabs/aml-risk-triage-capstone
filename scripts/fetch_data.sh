@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Fetch the PaySim CSV into data/raw/ and verify its SHA-256 against configs/data_source.yaml.
 #
-#   scripts/fetch_data.sh            # Kaggle API if KAGGLE_USERNAME/KAGGLE_KEY are set, else manual steps
+#   scripts/fetch_data.sh            # Kaggle API if KAGGLE_API_TOKEN (or KAGGLE_USERNAME/KAGGLE_KEY, or
+#                                    # ~/.kaggle/kaggle.json) is available, else manual steps
 #   scripts/fetch_data.sh --record   # after a first download: write filename/sha256/size/date to the config
 #   scripts/fetch_data.sh --dry-run  # print what would happen; touch nothing
 #
@@ -27,20 +28,42 @@ fi
 # Load optional .env without echoing values.
 if [ -f .env ]; then set -a; . ./.env; set +a; fi
 
+# Resolve credentials (never echoed). Newer Kaggle tokens (KAGGLE_API_TOKEN) are bearer tokens;
+# older ones are a username/key pair, possibly stored in ~/.kaggle/kaggle.json.
+if [ -z "${KAGGLE_API_TOKEN:-}" ] && { [ -z "${KAGGLE_USERNAME:-}" ] || [ -z "${KAGGLE_KEY:-}" ]; } && [ -f "$HOME/.kaggle/kaggle.json" ]; then
+  KAGGLE_USERNAME=$("$PY" -c "import json,os;print(json.load(open(os.path.expanduser('~/.kaggle/kaggle.json'))).get('username',''))")
+  KAGGLE_KEY=$("$PY" -c "import json,os;print(json.load(open(os.path.expanduser('~/.kaggle/kaggle.json'))).get('key',''))")
+fi
+have_creds() { [ -n "${KAGGLE_API_TOKEN:-}" ] || { [ -n "${KAGGLE_USERNAME:-}" ] && [ -n "${KAGGLE_KEY:-}" ]; }; }
+kaggle_curl() {  # usage: kaggle_curl <url> [extra curl args...]
+  local url=$1; shift
+  if [ -n "${KAGGLE_API_TOKEN:-}" ]; then
+    curl -fL --retry 3 -H "Authorization: Bearer $KAGGLE_API_TOKEN" "$@" "$url"
+  else
+    curl -fL --retry 3 -u "$KAGGLE_USERNAME:$KAGGLE_KEY" "$@" "$url"
+  fi
+}
+
 find_csv() { find "$RAW_DIR" -maxdepth 1 -name '*.csv' | head -n1; }
 
 if [ "$DRY" = 1 ]; then
   echo "dry run:"; echo "  source: $URL"; echo "  target dir: $RAW_DIR"
-  if [ -n "${KAGGLE_USERNAME:-}" ] && [ -n "${KAGGLE_KEY:-}" ]; then echo "  method: Kaggle API (credentials present)"; else echo "  method: manual download (no Kaggle credentials in env or .env)"; fi
+  if have_creds; then echo "  method: Kaggle API ($([ -n "${KAGGLE_API_TOKEN:-}" ] && echo bearer token || echo username/key))"; else echo "  method: manual download (no Kaggle credentials in env, .env, or ~/.kaggle/kaggle.json)"; fi
   echo "  recorded sha256: ${SHA:-<none yet>}"; exit 0
 fi
 
 CSV=$(find_csv || true)
 if [ -z "$CSV" ]; then
-  if [ -n "${KAGGLE_USERNAME:-}" ] && [ -n "${KAGGLE_KEY:-}" ]; then
+  if have_creds; then
     echo "downloading via Kaggle API ..."
     ZIP="$RAW_DIR/paysim1.zip"
-    curl -fL --retry 3 -u "$KAGGLE_USERNAME:$KAGGLE_KEY" -o "$ZIP" "https://www.kaggle.com/api/v1/datasets/download/$SLUG"
+    kaggle_curl "https://www.kaggle.com/api/v1/datasets/download/$SLUG" -o "$ZIP"
+    # Record the license name Kaggle's metadata reports (a human still confirms the page text, V1).
+    META=$(kaggle_curl "https://www.kaggle.com/api/v1/datasets/view/$SLUG" -s 2>/dev/null || true)
+    if [ -n "$META" ]; then
+      LIC=$("$PY" -c "import sys,json;d=json.loads(sys.argv[1]);print(d.get('licenseName') or d.get('license',{}).get('name',''))" "$META" 2>/dev/null || true)
+      [ -n "$LIC" ] && echo "license name reported by Kaggle API: $LIC" && echo "$LIC" > "$RAW_DIR/.license_name_from_api"
+    fi
     "$PY" -c "import zipfile;zipfile.ZipFile('$ZIP').extractall('$RAW_DIR')"
     rm -f "$ZIP"
     CSV=$(find_csv || true)
@@ -55,7 +78,7 @@ Manual steps (one time, requires a Kaggle login):
      If it does not permit educational use, STOP: do not use the dataset.
   3. Click Download, unzip, and move the CSV into $RAW_DIR/
   4. Re-run: scripts/fetch_data.sh --record   (records filename, sha256, size, date)
-Alternatively export KAGGLE_USERNAME and KAGGLE_KEY (or put them in an untracked .env) and re-run.
+Alternatively put KAGGLE_API_TOKEN (newer token) or KAGGLE_USERNAME + KAGGLE_KEY in an untracked .env and re-run.
 MSG
     exit 4
   fi

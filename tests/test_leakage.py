@@ -110,3 +110,154 @@ def test_resampled_rows_only_in_train_placeholder() -> None:
     estimator pipeline's ``fit`` and never touches validation or test rows. Enforced by the fit-scope
     record: ``fitted_on`` must be exactly ['train']."""
     assert_fit_scope({"fitted_on": ["train"], "transformed_on": ["train", "val", "test"]})
+
+
+# ---- Milestone 6: test-access state machine (locked -> frozen -> evaluated) ----
+import json as _json  # noqa: E402
+
+from aml_triage.cli import main as _main  # noqa: E402
+from aml_triage.constants import EXIT_GUARD, EXIT_MISSING_PREREQ, EXIT_OK  # noqa: E402
+
+
+@pytest.fixture
+def m6(tmp_path: Path, repo_root: Path, fixture_frame):
+    import shutil
+
+    models_dir = tmp_path / "models_cfg"
+    models_dir.mkdir()
+    for f in (repo_root / "configs" / "models").glob("*.yaml"):
+        if ".tuned" not in f.name:
+            shutil.copy(f, models_dir / f.name)
+    cfg_path = tmp_path / "cfg.yaml"
+    cfg_path.write_text(
+        yaml.safe_dump(
+            {
+                "_extends": str(repo_root / "configs" / "base.yaml"),
+                "paths": {
+                    "processed_dir": str(tmp_path / "processed"),
+                    "reports_dir": str(tmp_path / "reports"),
+                    "models_dir": str(tmp_path / "models"),
+                    "raw_csv": str(tmp_path / "f.csv"),
+                },
+                "split": {"train_end_step": 40, "val_end_step": 56, "min_positives_per_split": 1},
+                "review": {"review_period_steps": 24, "primary_k": 5, "k_grid": [5, 10]},
+                "operating_point_path": str(tmp_path / "operating_point.yaml"),
+                "bootstrap": {"n_resamples": 5},
+            }
+        )
+    )
+    cfg = load(cfg_path)
+    parts, manifest = make_split(fixture_frame, cfg)
+    write_split(parts, manifest, cfg.paths.processed_dir)
+    build_feature_matrices(cfg, "primary")
+    assert (
+        _main(
+            [
+                "train",
+                "--config",
+                str(cfg_path),
+                "--models",
+                "dummy,logreg",
+                "--feature-set",
+                "primary",
+                "--split",
+                "val",
+            ]
+        )
+        == EXIT_OK
+    )
+    return cfg, cfg_path
+
+
+def test_evaluate_locked_and_freeze_requires_operating_point(m6) -> None:
+    cfg, cfg_path = m6
+    assert _main(["evaluate", "--config", str(cfg_path), "--split", "test"]) == EXIT_GUARD
+    assert (
+        _main(["freeze", "--config", str(cfg_path)]) == EXIT_MISSING_PREREQ
+    )  # no operating point yet
+    assert _main(["select", "--config", str(cfg_path)]) == EXIT_MISSING_PREREQ
+
+
+def test_single_touch_test_evaluation(m6) -> None:
+    cfg, cfg_path = m6
+    assert _main(["choose-operating-point", "--config", str(cfg_path)]) == EXIT_OK
+    op = yaml.safe_load(Path(cfg.operating_point_path).read_text())
+    assert (
+        op["chosen_on"] == "val"
+        and op["selected_run"] == "logreg__primary"
+        and op["frozen_at"] is None
+    )
+    assert set(op["priority_rule"]) == {"high", "medium", "low"} and "k_score_cutoff" in op
+    assert _main(["freeze", "--config", str(cfg_path)]) == EXIT_OK
+    state = _json.loads((Path(cfg.paths.processed_dir) / "test_access.json").read_text())
+    assert state["state"] == "frozen" and state["first_evaluated_at"] is None
+    assert _main(["freeze", "--config", str(cfg_path)]) == EXIT_GUARD  # cannot freeze twice
+    assert (
+        _main(["train", "--config", str(cfg_path), "--models", "dummy", "--split", "test"])
+        == EXIT_GUARD
+    )  # only evaluate may touch test
+    assert _main(["evaluate", "--config", str(cfg_path), "--split", "test"]) == EXIT_OK
+    state = _json.loads((Path(cfg.paths.processed_dir) / "test_access.json").read_text())
+    assert (
+        state["state"] == "evaluated"
+        and state["first_evaluated_at"]
+        and state["reevaluations"] == []
+    )
+    assert (
+        _main(["evaluate", "--config", str(cfg_path), "--split", "test"]) == EXIT_GUARD
+    )  # second touch refused
+    assert (
+        _main(["evaluate", "--config", str(cfg_path), "--split", "test", "--force-reevaluate"])
+        == EXIT_GUARD
+    )  # reason required
+    assert (
+        _main(
+            [
+                "evaluate",
+                "--config",
+                str(cfg_path),
+                "--split",
+                "test",
+                "--force-reevaluate",
+                "--reason",
+                "unit test of the audit trail",
+            ]
+        )
+        == EXIT_OK
+    )
+    state = _json.loads((Path(cfg.paths.processed_dir) / "test_access.json").read_text())
+    assert state["reevaluations"][0]["reason"] == "unit test of the audit trail"
+    test_metrics = _json.loads(
+        (Path(cfg.paths.models_dir) / "runs" / "logreg__primary" / "test_metrics.json").read_text()
+    )
+    assert "bootstrap_ci" in test_metrics and test_metrics["split"] == "test"
+    assert "operating_point_metrics" in test_metrics
+    # select persists a bundle and LATEST; queue writes only permitted columns
+    assert _main(["select", "--config", str(cfg_path)]) == EXIT_OK
+    version = (Path(cfg.paths.models_dir) / "LATEST").read_text().strip()
+    bundle = Path(cfg.paths.models_dir) / version
+    for f in [
+        "pipeline.joblib",
+        "pipeline.sha256",
+        "config_snapshot.yaml",
+        "metrics.json",
+        "feature_list.json",
+        "model_card.md",
+        "features.yaml",
+    ]:
+        assert (bundle / f).exists(), f
+    assert _main(["queue", "--config", str(cfg_path), "--period", "0"]) == EXIT_OK
+    q = (Path(cfg.paths.reports_dir) / "review_queue_period_0.md").read_text()
+    header = [h.strip() for h in q.split("## Queue")[1].splitlines()[2].strip("|").split("|")]
+    assert header == [
+        "rank",
+        "row_index",
+        "step",
+        "type",
+        "risk_score",
+        "review_priority",
+        "model_version",
+    ]
+    assert "isFraud" not in q and "high" in q
+    matrix = _json.loads((Path(cfg.paths.reports_dir) / "selection_matrix.json").read_text())
+    assert sum(1 for r in matrix["rows"] if r["verdict"] == "selected") == 1

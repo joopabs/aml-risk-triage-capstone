@@ -330,3 +330,170 @@ def compare(cfg: Config, split: str) -> Path:
 
 
 __all__ = ["compare", "collect", "render_report", "np"]
+
+
+# ---------------------------------------------------------------------------------------------
+# Selection (Milestone 6). Verdict uses VALIDATION numbers only; test numbers are reported beside.
+# ---------------------------------------------------------------------------------------------
+EXPLAINABILITY = {
+    "logreg": (
+        1,
+        "high: linear coefficients on standardised features; SHAP linear explainer exact",
+    ),
+    "hgb": (2, "medium: SHAP TreeExplainer exact; PDP/ICE valid on raw features"),
+    "balanced_rf": (3, "medium: SHAP TreeExplainer over 300 trees; slower to explain locally"),
+    "dummy": (9, "none: constant score"),
+}
+EXCLUDED_FROM_VERDICT = {"dummy", "random_rank", "rule_rank"}
+
+
+def selection_ranking(
+    cfg: Config, val_runs: dict[str, dict[str, Any]], headline_set: str
+) -> list[dict[str, Any]]:
+    """Deterministic ranking of eligible validation runs (headline set, learners only).
+
+    Key: PR-AUC desc (4 dp) → Recall@K desc (4 dp) → Brier asc → explainability rank → fit seconds.
+    """
+    K = str(cfg.review.primary_k)
+    rows = []
+    for rid, r in val_runs.items():
+        if r["candidate_id"] in EXCLUDED_FROM_VERDICT or r.get("feature_set") != headline_set:
+            continue
+        m = r["metrics"]
+        rows.append(
+            {
+                "run_id": rid,
+                "candidate_id": r["candidate_id"],
+                "feature_set": r["feature_set"],
+                "key": (
+                    -round(m["pr_auc"], 4),
+                    -round(r["recall_at_k"][K]["mean_over_periods"] or 0.0, 4),
+                    round(m["brier"], 6) if m["brier"] == m["brier"] else 1.0,
+                    EXPLAINABILITY.get(r["candidate_id"], (5, ""))[0],
+                    r.get("fit_seconds", 0.0),
+                ),
+            }
+        )
+    if not rows:
+        raise ValueError(f"no eligible validation runs on headline set {headline_set!r}")
+    return sorted(rows, key=lambda x: x["key"])
+
+
+def selection_matrix(cfg: Config, headline_set: str) -> dict[str, Any]:
+    val = collect(cfg, "val")
+    test = collect(cfg, "test") if list_runs(cfg, "test") else {}
+    ranking = selection_ranking(cfg, val, headline_set)
+    selected = ranking[0]["run_id"]
+    K = str(cfg.review.primary_k)
+    rows = []
+    for rid, r in val.items():
+        if r["candidate_id"] in EXCLUDED_FROM_VERDICT:
+            continue
+        m = r["metrics"]
+        t = test.get(rid)
+        tm = t["metrics"] if t else None
+        ci = (t or {}).get("bootstrap_ci") or {}
+        fp_val = m["confusion_matrix"]["fp"]
+        rows.append(
+            {
+                "run_id": rid,
+                "candidate": r["candidate_id"],
+                "feature_set": r["feature_set"],
+                "eligible": r["feature_set"] == headline_set,
+                "val_pr_auc": m["pr_auc"],
+                "val_recall_at_k": r["recall_at_k"][K]["mean_over_periods"],
+                "val_precision_at_k": r["precision_at_k"][K]["mean_over_periods"],
+                "val_brier": m["brier"],
+                "val_ece": m["ece"],
+                "test_pr_auc": tm["pr_auc"] if tm else None,
+                "test_pr_auc_ci": ci.get("pr_auc"),
+                "test_recall_at_k": t["recall_at_k"][K]["mean_over_periods"] if t else None,
+                "test_recall_at_k_pooled_ci": ci.get("recall_at_k_pooled"),
+                "explainability": EXPLAINABILITY.get(r["candidate_id"], (5, "unknown"))[1],
+                "fit_seconds": r.get("fit_seconds"),
+                "investigator_workload": f"val FP at 0.5 = {fp_val:,}; Precision@{K} = {r['precision_at_k'][K]['mean_over_periods']:.3f}",
+                "verdict": "selected"
+                if rid == selected
+                else ("eligible" if r["feature_set"] == headline_set else "comparison only"),
+            }
+        )
+    rows.sort(
+        key=lambda x: (
+            x["verdict"] != "selected",
+            x["verdict"] != "eligible",
+            -(x["val_pr_auc"] or 0),
+        )
+    )
+    return {
+        "headline_set": headline_set,
+        "selected_run": selected,
+        "primary_k": cfg.review.primary_k,
+        "rows": rows,
+        "ranking_key": "val PR-AUC desc → val Recall@K desc → val Brier asc → explainability → fit time",
+        "config_hash": cfg.config_hash(),
+    }
+
+
+def render_selection_matrix(cfg: Config, matrix: dict[str, Any]) -> Path:
+    reports = Path(cfg.paths.reports_dir)
+    K = matrix["primary_k"]
+
+    def ci(v):
+        return f"[{v[0]:.4f}, {v[1]:.4f}]" if v else ""
+
+    rows = [
+        (
+            f"{r['candidate']} [{r['feature_set']}]",
+            "yes" if r["eligible"] else "",
+            r["val_pr_auc"],
+            r["val_recall_at_k"],
+            r["val_precision_at_k"],
+            r["val_brier"],
+            r["val_ece"],
+            r["test_pr_auc"],
+            ci(r["test_pr_auc_ci"]),
+            r["test_recall_at_k"],
+            ci(r["test_recall_at_k_pooled_ci"]),
+            r["explainability"],
+            r["fit_seconds"],
+            r["investigator_workload"],
+            f"**{r['verdict']}**" if r["verdict"] == "selected" else r["verdict"],
+        )
+        for r in matrix["rows"]
+    ]
+    table = md_table(
+        [
+            "candidate [set]",
+            "eligible",
+            "val PR-AUC",
+            f"val Recall@{K}",
+            f"val Precision@{K}",
+            "val Brier",
+            "val ECE",
+            "test PR-AUC",
+            "test PR-AUC 95% CI",
+            f"test Recall@{K}",
+            f"test pooled Recall@{K} 95% CI",
+            "explainability",
+            "fit s",
+            "investigator workload",
+            "verdict",
+        ],
+        rows,
+    )
+    sections = [
+        (
+            "Method",
+            f"Headline feature set: **{matrix['headline_set']}** (project decision). Eligible rows are learners on the headline set; "
+            f"the verdict is decided from **validation** numbers only with the deterministic key `{matrix['ranking_key']}`. Test numbers "
+            f"(single-touch evaluation with 95% bootstrap CIs) are reported beside the verdict and never used to choose it. Comparators "
+            f"and the dummy baseline appear in `model_comparison.md`, not here.",
+        ),
+        ("Matrix", table),
+    ]
+    sections += narrative_sections(
+        reports / "selection_matrix_narrative.md",
+        "<!-- Task T059: write reports/selection_matrix_narrative.md after reviewing the matrix. -->\n\n_Pending review._",
+    )
+    write_json(matrix, reports / "selection_matrix.json")
+    return write_markdown(reports / "selection_matrix.md", "Model Selection Matrix", sections)

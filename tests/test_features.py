@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -54,7 +56,9 @@ def test_registry_rejects_batch_only_in_strict(registry) -> None:
 
 def test_unfilled_sets_raise(registry) -> None:
     with pytest.raises(RegistryError, match="empty"):
-        features_for_set(registry, "selected")
+        features_for_set(
+            registry, "pca_variant"
+        )  # produced by the pca command, never a registry set
 
 
 def test_stateless_transforms_shapes_and_guards(fixture_frame, registry) -> None:
@@ -98,3 +102,99 @@ def test_bucketizer_edges_fitted_on_train_only(fixture_frame) -> None:
     assert np.array_equal(b.edges_, edges)  # transform never refits
     assert out.min() >= 0 and out.max() <= 10
     assert list(b.get_feature_names_out()) == ["amount_bucket"]
+
+
+# ---- Milestone 4: selection and PCA fit scope ----
+import yaml  # noqa: E402
+
+from aml_triage.config import load as load_cfg  # noqa: E402
+from aml_triage.data.split import make_split, write_split  # noqa: E402
+from aml_triage.features.pca import run_pca  # noqa: E402
+from aml_triage.features.pipeline import (  # noqa: E402
+    build_feature_matrices,
+    load_feature_matrix,
+    read_fitscope,
+)
+from aml_triage.features.selection import (  # noqa: E402
+    registry_name,
+    run_selection,
+    update_registry_selected,
+)
+
+
+@pytest.fixture
+def m4_cfg(tmp_path, repo_root, fixture_frame):
+    import shutil
+
+    reg = tmp_path / "features.yaml"
+    shutil.copy(repo_root / "configs" / "features.yaml", reg)
+    cfg_path = tmp_path / "cfg.yaml"
+    cfg_path.write_text(
+        yaml.safe_dump(
+            {
+                "_extends": str(repo_root / "configs" / "base.yaml"),
+                "paths": {
+                    "processed_dir": str(tmp_path / "processed"),
+                    "reports_dir": str(tmp_path / "reports"),
+                    "raw_csv": str(tmp_path / "f.csv"),
+                },
+                "features": {"registry": str(reg)},
+                "split": {"train_end_step": 40, "val_end_step": 56, "min_positives_per_split": 1},
+                "review": {"review_period_steps": 24, "primary_k": 5, "k_grid": [5, 10]},
+                "tuning": {"tune_sample_rows": 100000},
+                "selection": {"mi_k": 6, "l1_c": 0.5, "min_size": 3},
+                "pca": {"n_components": 0.95},
+            }
+        )
+    )
+    cfg = load_cfg(cfg_path)
+    parts, manifest = make_split(fixture_frame, cfg)
+    write_split(parts, manifest, cfg.paths.processed_dir)
+    build_feature_matrices(cfg, "primary")
+    build_feature_matrices(cfg, "strict_pretx")
+    return cfg
+
+
+def test_selection_fitted_on_train_only(m4_cfg) -> None:
+    result = run_selection(m4_cfg, "primary")
+    assert result["fit_scope"]["mi"]["fitted_on"] == ["train"]
+    assert result["fit_scope"]["l1"]["fitted_on"] == ["train"]
+    assert 0 < len(result["selected_columns"]) <= len(result["before"])
+    assert set(result["selected_columns"]) <= set(result["before"])
+    assert not (set(result["constant_columns"]) & set(result["selected_columns"]))
+
+
+def test_selection_on_strict_set_has_no_batch_only(m4_cfg) -> None:
+    result = run_selection(m4_cfg, "strict_pretx")
+    batch_only = {
+        d.name
+        for d in load_registry(m4_cfg.features.registry)
+        if d.available_at_prediction_time == "batch_only"
+    }
+    assert not (batch_only & {registry_name(c) for c in result["selected_columns"]})
+
+
+def test_registry_selected_set_updated_preserving_comments(m4_cfg) -> None:
+    result = run_selection(m4_cfg, "primary")
+    path = update_registry_selected(m4_cfg.features.registry, result["selected_registry_features"])
+    text = path.read_text()
+    assert text.startswith("# Feature registry")  # comments preserved
+    sel = {d.name for d in features_for_set(load_registry(path), "selected")}
+    assert sel == set(result["selected_registry_features"])
+
+
+def test_pca_fit_scope_and_variant_matrices(m4_cfg) -> None:
+    result = run_pca(m4_cfg, "primary", n_neg_sample=100)
+    assert result["fit_scope"]["fitted_on"] == ["train"]
+    assert sorted(result["fit_scope"]["transformed_on"]) == [
+        "test",
+        "train",
+        "train",
+        "val",
+    ]  # projection sample + 3 splits
+    assert result["cumulative"][-1] >= 0.95 or result["n_components"] == len(result["inputs"])
+    assert read_fitscope(m4_cfg.paths.processed_dir, "pca_variant")["fitted_on"] == ["train"]
+    X, meta = load_feature_matrix(m4_cfg.paths.processed_dir, "pca_variant", "test")
+    assert all(c.startswith(("PC", "type_")) for c in X.columns)
+    assert "isFraud" in meta.columns
+    assert (Path(m4_cfg.paths.reports_dir) / "pca_report.md").exists()

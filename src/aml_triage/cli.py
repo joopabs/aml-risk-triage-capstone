@@ -63,6 +63,8 @@ def _add_command_options(name: str, parser: argparse.ArgumentParser) -> None:
     """Command-specific options from contracts/cli-contract.md (parsed now, used later)."""
     if name == "build-features":
         parser.add_argument("--feature-set", required=True)
+    elif name == "select-features":
+        parser.add_argument("--feature-set", default=None)
     elif name in {"train", "compare", "evaluate"}:
         parser.add_argument("--split", choices=["val", "test"], default="val")
     if name in {"train", "tune"}:
@@ -100,12 +102,15 @@ def _resolve_handler(name: str) -> Handler:
     from aml_triage.data.split_command import run_split
     from aml_triage.eda.commands import run_eda_cmd
     from aml_triage.features.commands import run_build_features
+    from aml_triage.features.selection_commands import run_pca_cmd, run_select_features
 
     registry: dict[str, Handler] = {
         **data_handlers,
         "split": run_split,
         "build-features": run_build_features,
         "eda": run_eda_cmd,
+        "select-features": run_select_features,
+        "pca": run_pca_cmd,
     }
     return registry.get(name, _not_implemented)
 

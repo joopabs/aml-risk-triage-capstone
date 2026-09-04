@@ -1,0 +1,191 @@
+{
+  "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
+  "cumulative": [
+    0.28025667021218575,
+    0.4225931947050494,
+    0.524339011671266,
+    0.6252591357234092,
+    0.7091777862127507,
+    0.7881141224191154,
+    0.8570413719434682,
+    0.9219921893153198,
+    0.9546463327632273
+  ],
+  "excluded_constant": [],
+  "explained_variance_ratio": [
+    0.28025667021218575,
+    0.14233652449286363,
+    0.1017458169662165,
+    0.10092012405214329,
+    0.08391865048934158,
+    0.07893633620636469,
+    0.0689272495243528,
+    0.06495081737185159,
+    0.032654143447907534
+  ],
+  "figures": [
+    "reports/figures/features/pca_01_scree.png",
+    "reports/figures/features/pca_02_projection.png"
+  ],
+  "fit_scope": {
+    "fitted_on": [
+      "train"
+    ],
+    "transformed_on": [
+      "train",
+      "train",
+      "val",
+      "test"
+    ]
+  },
+  "inputs": [
+    "amount_bucket",
+    "log_amount",
+    "log_oldbalance_org",
+    "log_oldbalance_dest",
+    "amount_to_orig_balance_ratio",
+    "step_hour_of_day",
+    "orig_balance_delta",
+    "dest_balance_delta",
+    "orig_prior_txn_count",
+    "orig_prior_amount_sum",
+    "dest_prior_txn_count",
+    "dest_prior_amount_sum"
+  ],
+  "loadings": {
+    "PC1": {
+      "amount_bucket": 0.4513129309775595,
+      "amount_to_orig_balance_ratio": 0.22543046483713672,
+      "dest_balance_delta": 0.21008241704034153,
+      "dest_prior_amount_sum": 0.3593294887324064,
+      "dest_prior_txn_count": 0.40039773031269643,
+      "log_amount": 0.45575772252853675,
+      "log_oldbalance_dest": 0.43741590464458807,
+      "log_oldbalance_org": -0.011641204969048182,
+      "orig_balance_delta": -0.10392574905616454,
+      "orig_prior_amount_sum": 0.00044729247961267446,
+      "orig_prior_txn_count": 0.0005422831752107929,
+      "step_hour_of_day": -0.044076633287149995
+    },
+    "PC2": {
+      "amount_bucket": -0.15207257879386724,
+      "amount_to_orig_balance_ratio": 0.570885117506125,
+      "dest_balance_delta": 0.5916065647920153,
+      "dest_prior_amount_sum": 0.05166772533026042,
+      "dest_prior_txn_count": -0.10255374109888213,
+      "log_amount": -0.11030156802792306,
+      "log_oldbalance_dest": -0.1782764548006611,
+      "log_oldbalance_org": -0.3418970759497353,
+      "orig_balance_delta": 0.3560336805544283,
+      "orig_prior_amount_sum": 0.0009596720694446058,
+      "orig_prior_txn_count": 0.0014077240181567504,
+      "step_hour_of_day": 0.013173347888754322
+    },
+    "PC3": {
+      "amount_bucket": -0.0710148350838366,
+      "amount_to_orig_balance_ratio": -0.01824397889949992,
+      "dest_balance_delta": -0.0377683063076885,
+      "dest_prior_amount_sum": 0.10164408727824169,
+      "dest_prior_txn_count": 0.0932585972108076,
+      "log_amount": -0.07232481892845108,
+      "log_oldbalance_dest": 0.015401774955656087,
+      "log_oldbalance_org": -0.035024662852599024,
+      "orig_balance_delta": 0.01857634441759743,
+      "orig_prior_amount_sum": 0.6939558960678491,
+      "orig_prior_txn_count": 0.6941084528988287,
+      "step_hour_of_day": 0.06138148972295658
+    },
+    "PC4": {
+      "amount_bucket": -0.3683080137818413,
+      "amount_to_orig_balance_ratio": -0.08837720831670934,
+      "dest_balance_delta": -0.18775042557555505,
+      "dest_prior_amount_sum": 0.5264127314645618,
+      "dest_prior_txn_count": 0.482320675354533,
+      "log_amount": -0.3752509500550562,
+      "log_oldbalance_dest": 0.08142220269803724,
+      "log_oldbalance_org": -0.18056512321974755,
+      "orig_balance_delta": 0.10014854420419518,
+      "orig_prior_amount_sum": -0.1356672031814046,
+      "orig_prior_txn_count": -0.1349328495564439,
+      "step_hour_of_day": 0.2913006125302392
+    },
+    "PC5": {
+      "amount_bucket": -0.060298148449953314,
+      "amount_to_orig_balance_ratio": 0.2696607569197434,
+      "dest_balance_delta": 0.20788644863452907,
+      "dest_prior_amount_sum": 0.011182783573988775,
+      "dest_prior_txn_count": -0.08041197879041519,
+      "log_amount": -0.05531753674424909,
+      "log_oldbalance_dest": -0.07838274744851441,
+      "log_oldbalance_org": 0.4943417449475726,
+      "orig_balance_delta": -0.43433659202889996,
+      "orig_prior_amount_sum": -0.005138736149306702,
+      "orig_prior_txn_count": 0.0009823938844439758,
+      "step_hour_of_day": 0.656952053284388
+    },
+    "PC6": {
+      "amount_bucket": 0.2338276963410507,
+      "amount_to_orig_balance_ratio": -0.1855353472914925,
+      "dest_balance_delta": -0.1292224002596542,
+      "dest_prior_amount_sum": -0.25188298379179297,
+      "dest_prior_txn_count": -0.1088237158739516,
+      "log_amount": 0.2323600665641283,
+      "log_oldbalance_dest": 0.11909979543555048,
+      "log_oldbalance_org": -0.4046016343166831,
+      "orig_balance_delta": 0.3349090213413148,
+      "orig_prior_amount_sum": -0.004311284926570228,
+      "orig_prior_txn_count": -0.0009166879713386239,
+      "step_hour_of_day": 0.6890959668807869
+    },
+    "PC7": {
+      "amount_bucket": 0.02241213462876973,
+      "amount_to_orig_balance_ratio": -0.15619429373764587,
+      "dest_balance_delta": 0.11747715940119381,
+      "dest_prior_amount_sum": 0.07818796431280685,
+      "dest_prior_txn_count": 0.07062956032277247,
+      "log_amount": 0.0554289041494573,
+      "log_oldbalance_dest": 0.005518847194033115,
+      "log_oldbalance_org": 0.6536639601963489,
+      "orig_balance_delta": 0.7204877840843189,
+      "orig_prior_amount_sum": -0.0039074664846372375,
+      "orig_prior_txn_count": 0.004596018555441849,
+      "step_hour_of_day": 0.02607356217858619
+    },
+    "PC8": {
+      "amount_bucket": -0.00010407959777529226,
+      "amount_to_orig_balance_ratio": 3.269088657149442e-05,
+      "dest_balance_delta": -0.0015031515760458487,
+      "dest_prior_amount_sum": 7.915542499194177e-05,
+      "dest_prior_txn_count": -9.747269281837703e-05,
+      "log_amount": -0.00016755137486503324,
+      "log_oldbalance_dest": -0.0005692037208107969,
+      "log_oldbalance_org": -0.004931623384334542,
+      "orig_balance_delta": -0.003424329449340479,
+      "orig_prior_amount_sum": -0.7070772475611239,
+      "orig_prior_txn_count": 0.70709277668341,
+      "step_hour_of_day": -0.004783827273666451
+    },
+    "PC9": {
+      "amount_bucket": -0.26964484306349784,
+      "amount_to_orig_balance_ratio": 0.16055639680039788,
+      "dest_balance_delta": 0.028709097116376793,
+      "dest_prior_amount_sum": -0.43861602285100687,
+      "dest_prior_txn_count": 0.02344734922740796,
+      "log_amount": -0.25821370103465124,
+      "log_oldbalance_dest": 0.7956306066454713,
+      "log_oldbalance_org": 0.06910951338654897,
+      "orig_balance_delta": 0.03647461811677786,
+      "orig_prior_amount_sum": 6.012026504502603e-05,
+      "orig_prior_txn_count": 0.001065912342863152,
+      "step_hour_of_day": -0.044105057387542515
+    }
+  },
+  "n_components": 9,
+  "n_components_target": 0.95,
+  "pca_variant_outputs": {
+    "test": "data/processed/features_pca_variant_test.parquet",
+    "train": "data/processed/features_pca_variant_train.parquet",
+    "val": "data/processed/features_pca_variant_val.parquet"
+  },
+  "role": "diagnostic_and_visualization"
+}

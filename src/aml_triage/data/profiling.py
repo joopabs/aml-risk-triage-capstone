@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from aml_triage.data.schema import Schema
-from aml_triage.reporting.tables import md_table, write_markdown
+from aml_triage.reporting.tables import md_table, narrative_sections, write_markdown
 from aml_triage.utils.io import write_json
 
 OUTFLOW_TYPES_EXPECTED = ["CASH_OUT", "DEBIT", "PAYMENT", "TRANSFER"]
@@ -281,29 +281,13 @@ NARRATIVE_FILENAME = "data_quality_narrative.md"
 
 
 def _narrative_sections(narrative_path: Path) -> list[tuple[str, str]]:
-    """Human-authored findings live in a separate file so regenerating tables never erases them.
-
-    The file holds ``## `` sections; each becomes a section of the report verbatim.
-    """
     pending = (
         "<!-- Task T022: write reports/data_quality_narrative.md after reviewing the tables above. -->\n\n"
         "_Pending review (task T022)._"
     )
     if not narrative_path.exists():
         return [("Findings and handling decisions", pending), ("Source-data limitations", pending)]
-    text = narrative_path.read_text(encoding="utf-8")
-    out: list[tuple[str, str]] = []
-    heading, body = None, []
-    for line in text.splitlines():
-        if line.startswith("## "):
-            if heading:
-                out.append((heading, "\n".join(body).strip()))
-            heading, body = line[3:].strip(), []
-        elif heading:
-            body.append(line)
-    if heading:
-        out.append((heading, "\n".join(body).strip()))
-    return out
+    return narrative_sections(narrative_path, pending)
 
 
 def run_profile(df: pd.DataFrame, schema: Schema, reports_dir: str | Path, source_label: str) -> tuple[Path, Path]:

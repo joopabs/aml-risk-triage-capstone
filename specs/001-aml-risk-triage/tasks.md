@@ -299,31 +299,31 @@ the selected model beats random and dummy at the same K (SC-001), with the rule 
 
 ### Feature selection and PCA (M4)
 
-- [ ] T038 [US1] Implement feature selection and `select-features` command
+- [X] T038 [US1] Implement feature selection and `select-features` command
   - Milestone M4 / Type: code / Depends: T034
   - Files: `src/aml_triage/features/selection.py` (mutual-information filter `SelectKBest`; L1 logistic `SelectFromModel`; combine rule from config; both as pipeline steps fitted on train), `src/aml_triage/cli.py`
   - Accept: writes `reports/feature_selection.md` with before/after lists and scores for both methods; updates `selected` set in `configs/features.yaml`
   - Verify: `python -m aml_triage select-features --config configs/base.yaml && grep -c 'Before' reports/feature_selection.md`
 
-- [ ] T039 [P] [US1] Implement PCA analysis and `pca` command
+- [X] T039 [P] [US1] Implement PCA analysis and `pca` command
   - Milestone M4 / Type: code / Depends: T034
   - Files: `src/aml_triage/features/pca.py` (standardize numeric train features; fit PCA; scree and cumulative variance; 2-D label-colored projection on seeded sample; `pca_variant` set of top components), `src/aml_triage/cli.py`
   - Accept: `reports/pca_report.md` states the PCA role from config and lists explained variance; figures in `reports/figures/features/`
   - Verify: `python -m aml_triage pca --config configs/base.yaml && grep -i 'role' reports/pca_report.md`
 
-- [ ] T040 [US1] Extend `tests/test_features.py` with selection and PCA fit-scope tests
+- [X] T040 [US1] Extend `tests/test_features.py` with selection and PCA fit-scope tests
   - Milestone M4 / Type: tests / Depends: T038, T039
   - Files: `tests/test_features.py`
   - Accept: selector and PCA `fit` recorded only on train; `strict_pretx` selection excludes batch-only features
   - Verify: `pytest tests/test_features.py -q -k "selection or pca"`
 
-- [ ] T041 [US1] Review selection and PCA outputs and write the justification narratives
+- [X] T041 [US1] Review selection and PCA outputs and write the justification narratives
   - Milestone M4 / Type: reports / Depends: T038, T039
   - Files: `reports/feature_selection.md` (why the combined set was chosen; features dropped and why), `reports/pca_report.md` (whether components enter any model; why the selected model is expected to use raw features)
   - Accept: statements cite the tables generated in T038/T039; no metric claims about models
   - Verify: `pytest tests/test_vocabulary.py -q`
 
-- [ ] T042 [P] [US1] Create `notebooks/04_feature_selection_and_pca.ipynb`
+- [X] T042 [P] [US1] Create `notebooks/04_feature_selection_and_pca.ipynb`
   - Milestone M4 / Type: notebooks / Depends: T041
   - Files: `notebooks/04_feature_selection_and_pca.ipynb`
   - Accept: executes top to bottom; displays reports and figures

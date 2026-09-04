@@ -43,3 +43,25 @@ def write_markdown(path: str | Path, title: str, sections: Sequence[tuple[str, s
     parts.append(disclaimer_footer())
     p.write_text("\n".join(parts), encoding="utf-8")
     return p
+
+
+def narrative_sections(path: str | Path, pending: str) -> list[tuple[str, str]]:
+    """Human-authored ``## `` sections from a narrative file, or a single pending placeholder.
+
+    Narrative files keep human text out of generated reports so regeneration never erases it.
+    """
+    p = Path(path)
+    if not p.exists():
+        return [("Narrative", pending)]
+    out: list[tuple[str, str]] = []
+    heading, body = None, []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            if heading:
+                out.append((heading, "\n".join(body).strip()))
+            heading, body = line[3:].strip(), []
+        elif heading:
+            body.append(line)
+    if heading:
+        out.append((heading, "\n".join(body).strip()))
+    return out

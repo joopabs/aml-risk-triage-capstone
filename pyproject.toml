@@ -31,6 +31,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/aml_triage/eda/plots.py" = ["E702"]  # dense matplotlib call chains
+"src/aml_triage/features/pca.py" = ["E702"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["aml_triage"]

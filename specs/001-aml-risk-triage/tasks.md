@@ -858,4 +858,7 @@ Task: "T039 Implement PCA analysis in src/aml_triage/features/pca.py"
 - Notebooks never define logic; they call `aml_triage` and display artifacts.
 - The test split is read by exactly one command run (T056). Everything downstream reads saved predictions.
 - Optional work (Phases 8–9) is gated behind T088 by constitution Principle XI.
-- All implementation commits land on `001-aml-risk-triage`. Merge to `main` only by pull request or squash merge after the T015, T060, T088, and T101 checkpoints (constitution Principle X).
+- All implementation commits land on `001-aml-risk-triage`. Merge to `main` only by pull request after the T015, T060, T088, and T101 checkpoints (constitution Principle X).
+- Linear history policy (decided 2026-09-05): merge every PR with **"Rebase and merge"**, then realign the long-lived feature branch to the rebased `main` so the next PR shows only new work:
+  `git fetch origin && git checkout 001-aml-risk-triage && git reset --hard origin/main && git push --force-with-lease origin 001-aml-risk-triage && git checkout main && git merge --ff-only origin/main && git checkout 001-aml-risk-triage`.
+  Force-pushes are permitted on the feature branch only; `main` is never force-pushed (ruleset `protect-main`).

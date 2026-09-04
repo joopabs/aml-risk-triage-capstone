@@ -1,0 +1,97 @@
+# Expected raw schema (public PaySim documentation). Confirmed against the real file by
+# `python -m aml_triage validate-schema` (spec validation task V2). Descriptions feed the data
+# dictionary (FR-023). `availability` marks prediction-time availability (research R-06).
+columns:
+  step:
+    dtype: int32
+    nullable: false
+    min: 1
+    role: time_index
+    availability: realtime
+    unit: hours since simulation start (expected; V8 confirms)
+    description: Simulation time step; one unit is expected to represent one hour.
+  type:
+    dtype: category
+    nullable: false
+    role: feature
+    availability: realtime
+    unit: category
+    description: Transaction type (expected values include CASH_IN, CASH_OUT, DEBIT, PAYMENT, TRANSFER; V2 confirms).
+  amount:
+    dtype: float32
+    nullable: false
+    min: 0
+    min_is_soft: true
+    role: feature
+    availability: realtime
+    unit: currency units (simulated)
+    description: Transaction amount in the simulator's currency units.
+  nameOrig:
+    dtype: string
+    nullable: false
+    role: identifier
+    availability: realtime
+    unit: identifier
+    description: Origin account identifier. Never a model feature; used only for causal aggregates.
+  oldbalanceOrg:
+    dtype: float32
+    nullable: false
+    min: 0
+    min_is_soft: true
+    role: feature
+    availability: realtime
+    unit: currency units (simulated)
+    description: Origin account balance before the transaction.
+  newbalanceOrig:
+    dtype: float32
+    nullable: false
+    min: 0
+    min_is_soft: true
+    role: feature
+    availability: batch_only
+    unit: currency units (simulated)
+    description: Origin account balance after the transaction (post-transaction state).
+  nameDest:
+    dtype: string
+    nullable: false
+    role: identifier
+    availability: realtime
+    unit: identifier
+    description: Destination account identifier. Never a model feature; used only for causal aggregates.
+  oldbalanceDest:
+    dtype: float32
+    nullable: false
+    min: 0
+    min_is_soft: true
+    role: feature
+    availability: realtime
+    unit: currency units (simulated)
+    description: Destination account balance before the transaction.
+  newbalanceDest:
+    dtype: float32
+    nullable: false
+    min: 0
+    min_is_soft: true
+    role: feature
+    availability: batch_only
+    unit: currency units (simulated)
+    description: Destination account balance after the transaction (post-transaction state).
+  isFraud:
+    dtype: int8
+    nullable: false
+    allowed: [0, 1]
+    role: target
+    availability: label
+    unit: binary flag
+    description: Simulated fraud label; 1 = simulated fraud, 0 = simulated normal transaction.
+  isFlaggedFraud:
+    dtype: int8
+    nullable: false
+    allowed: [0, 1]
+    role: rule_comparator
+    availability: batch_only
+    unit: binary flag
+    description: Simulator rule flag. Never a model feature; defines the rule comparator ranking.
+sensitive_attribute_scan:
+  names: [age, gender, sex, ethnicity, race, nationality, income, socioeconomic, region, zip, postcode, birth, religion, marital]
+balance_tolerance: 0.01

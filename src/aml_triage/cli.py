@@ -90,8 +90,16 @@ def build_parser() -> argparse.ArgumentParser:
         p = sub.add_parser(name, help=f"{help_text} [{milestone}]")
         _add_common(p)
         _add_command_options(name, p)
-        p.set_defaults(handler=_not_implemented, milestone=milestone)
+        p.set_defaults(handler=_resolve_handler(name), milestone=milestone)
     return parser
+
+
+def _resolve_handler(name: str) -> Handler:
+    """Return the implemented handler for ``name`` or the not-implemented stub."""
+    from aml_triage.data.commands import HANDLERS as data_handlers
+
+    registry: dict[str, Handler] = {**data_handlers}
+    return registry.get(name, _not_implemented)
 
 
 def _not_implemented(args: argparse.Namespace, cfg: Config) -> int:

@@ -17,8 +17,10 @@ override.
 
 ## Status
 
-Milestone 1 of 9 (repository scaffold, configuration, quality tooling, starter tests) is complete.
-No data has been downloaded, no model trained, and no results exist yet. See
+Milestones 1 and 2 (scaffold, tooling, acquisition script, schema validation, profiling, data
+dictionary) are implemented and tested against a synthetic fixture. The PaySim download and its
+license verification (task T017) are a manual step that has not been performed yet, so no real
+data has been profiled, no model trained, and no results exist. See
 `specs/001-aml-risk-triage/tasks.md` for the plan.
 
 ## Provenance
@@ -43,6 +45,8 @@ make lint             # ruff check + format check
 make test             # pytest
 make coverage         # pytest with coverage gate (enforced from task T066)
 make ci               # lint + test + tracked-data check + smoke pipeline
+make data             # fetch PaySim (Kaggle API if KAGGLE_* set, else manual steps) and verify checksum
+python -m aml_triage validate-schema | profile | data-dictionary   # after paths.raw_csv is set
 python -m aml_triage --help
 ```
 

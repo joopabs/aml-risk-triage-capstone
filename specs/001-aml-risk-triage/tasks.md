@@ -43,7 +43,7 @@ before any data is touched. Gates G3, G10 (partial), G2 (secret scan).
 
 - [ ] T001 Create the repository directory skeleton with `.gitkeep` files per plan.md tree
   - Milestone M1 / Type: code / Depends: none
-  - Files: `src/aml_triage/{utils,data,features,models,evaluation,explain,fairness,reporting}/`, `tests/api/`, `notebooks/`, `configs/models/`, `data/{raw,processed}/`, `models/`, `reports/figures/{eda,features,models,explain,fairness}/`, `reports/slides/`, `scripts/`, `deployment/demo/`, `docs/`
+  - Files: `src/aml_triage/{utils,data,eda,features,models,evaluation,explain,fairness,reporting}/`, `tests/api/`, `notebooks/`, `configs/models/`, `data/{raw,processed}/`, `models/`, `reports/figures/{eda,features,models,explain,fairness}/`, `reports/slides/`, `scripts/`, `deployment/demo/`, `docs/`
   - Accept: every directory in the plan tree exists; `data/raw` and `data/processed` contain only `.gitkeep`
   - Verify: `find . -type d -not -path './.git*' | sort` matches plan tree
 
@@ -345,8 +345,8 @@ the selected model beats random and dummy at the same K (SC-001), with the rule 
 
 - [ ] T045 [P] [US1] Implement metric suite
   - Milestone M5 / Type: code / Depends: T032
-  - Files: `src/aml_triage/evaluation/metrics.py` (PR-AUC via average precision, ROC-AUC, precision/recall/F1 at threshold, FPR, Brier, ECE 10 bins, confusion matrix, accuracy always paired with prevalence)
-  - Accept: output matches `MetricSet` in data-model.md §6
+  - Files: `src/aml_triage/evaluation/metrics.py` (PR-AUC via average precision, ROC-AUC, precision/recall/F1 at threshold, FPR, Brier, ECE 10 bins, confusion matrix, accuracy always paired with prevalence; `degenerate_scores` flag when score standard deviation is below `evaluation.degenerate_eps` or all scores are equal, reported next to PR-AUC)
+  - Accept: output matches `MetricSet` in data-model.md §6 plus the `degenerate_scores` flag
   - Verify: covered by T047
 
 - [ ] T046 [P] [US1] Implement capacity metrics and review-queue ranking
@@ -357,7 +357,7 @@ the selected model beats random and dummy at the same K (SC-001), with the rule 
 
 - [ ] T047 [P] [US1] Write `tests/test_metrics.py` and `tests/test_capacity.py`
   - Milestone M5 / Type: tests / Depends: T044, T045, T046
-  - Files: `tests/test_metrics.py` (known small vectors; accuracy carries prevalence; ECE bins), `tests/test_capacity.py` (ties resolved deterministically; period shorter than K reports shortfall; zero-positive period excluded from mean; comparators deterministic)
+  - Files: `tests/test_metrics.py` (known small vectors; accuracy carries prevalence; ECE bins; a constant-score vector sets `degenerate_scores` and Recall@K still computes), `tests/test_capacity.py` (ties resolved deterministically; period shorter than K reports shortfall; zero-positive period excluded from mean; comparators deterministic)
   - Accept: all pass
   - Verify: `pytest tests/test_metrics.py tests/test_capacity.py -q`
 
@@ -395,8 +395,8 @@ the selected model beats random and dummy at the same K (SC-001), with the rule 
 
 - [ ] T053 [US1] Implement operating-point selection and `choose-operating-point` command
   - Milestone M6 / Type: code / Depends: T052
-  - Files: `src/aml_triage/evaluation/threshold.py` (F2-max threshold on validation; isotonic decision per calibration tolerance; writes `configs/operating_point.yaml` with `chosen_on: val`), `src/aml_triage/cli.py`
-  - Accept: file written with primary K, threshold, calibration decision and log
+  - Files: `src/aml_triage/evaluation/threshold.py` (F2-max threshold on validation; isotonic decision per calibration tolerance; `priority_rule` per data-model.md §8 and `k_score_cutoff` = score of the K-th ranked validation transaction; writes `configs/operating_point.yaml` with `chosen_on: val`), `src/aml_triage/cli.py`
+  - Accept: file written with primary K, threshold, priority rule, k_score_cutoff, calibration decision and log
   - Verify: `python -m aml_triage choose-operating-point --config configs/base.yaml && cat configs/operating_point.yaml`
 
 - [ ] T054 [US1] Implement `freeze`, test-access guard, bootstrap CIs, and `evaluate --split test`
@@ -425,8 +425,8 @@ the selected model beats random and dummy at the same K (SC-001), with the rule 
 
 - [ ] T058 [US1] Implement `queue --period` command
   - Milestone M6 / Type: code / Depends: T057
-  - Files: `src/aml_triage/cli.py`, `src/aml_triage/evaluation/capacity.py` (queue writer with only permitted columns: rank, row_index, step, type, risk_score, review_priority, model_version; disclaimer footer; shortfall note if `n_rows < K`)
-  - Accept: `reports/review_queue_period_<i>.md` has exactly the permitted columns
+  - Files: `src/aml_triage/cli.py`, `src/aml_triage/evaluation/capacity.py` (queue writer with only permitted columns: rank, row_index, step, type, risk_score, review_priority, model_version; `review_priority` derived by the `priority_rule` in `configs/operating_point.yaml`; disclaimer footer; shortfall note if `n_rows < K`)
+  - Accept: `reports/review_queue_period_<i>.md` has exactly the permitted columns; every rank ≤ K is `high`
   - Verify: `python -m aml_triage queue --config configs/base.yaml --period 0 && head -5 reports/review_queue_period_0.md`
 
 - [ ] T059 [US1] Write the selection, capacity, and model-card narratives from the test results
@@ -615,15 +615,15 @@ contains §1–§8; vocabulary test passes on all prose (SC-011).
 
 - [ ] T081 [P] [US5] Write export and slide-count scripts
   - Milestone M8 / Type: code / Depends: T001
-  - Files: `scripts/export_report.sh` (pandoc if present; else documented fallback message per research R-11), `scripts/check_slide_counts.py` (counts reveal.js sections in HTML and slides in PPTX; exits 1 unless 8 ≤ n ≤ 12)
+  - Files: `scripts/export_report.sh` (pandoc if present; else documented fallback message per research R-11), `scripts/check_slide_counts.py` (counts reveal.js sections in HTML and slides in PPTX; exits 1 unless 8 ≤ n ≤ 12; `--dump-text` mode writes `.pptx` slide text to `reports/slides/business_deck.txt` so the vocabulary scan covers the deck)
   - Accept: script rejects a 7-slide and a 13-slide fixture
   - Verify: `python scripts/check_slide_counts.py --self-test`
 
 - [ ] T082 [US5] Write the hand-authored report sections
   - Milestone M8 / Type: reports / Depends: T080
-  - Files: `reports/sections/01_problem.md` (from spec Business Context; K stated; KPI labeled illustrative), `reports/sections/07_limitations.md` (consolidates data-quality, model, fairness limitations), `reports/sections/08_reproducibility.md` (commands, seed, tolerance, artifact versions)
-  - Accept: every number cites a generated artifact; no currency; disclaimer present
-  - Verify: `python -m aml_triage build-report --config configs/base.yaml && pytest tests/test_vocabulary.py -q`
+  - Files: `reports/sections/01_problem.md` (from spec Business Context; K stated; KPI labeled illustrative; human review workflow, investigator role, and override capability described per FR-083), `reports/sections/07_limitations.md` (consolidates data-quality, model, fairness limitations), `reports/sections/08_reproducibility.md` (commands, seed, tolerance, artifact versions)
+  - Accept: every number cites a generated artifact; no currency; disclaimer present; FR-083 workflow paragraph present in §1
+  - Verify: `python -m aml_triage build-report --config configs/base.yaml && grep -qi 'override' reports/final_report.md && pytest tests/test_vocabulary.py -q`
 
 - [ ] T083 [US5] Build and export the final report
   - Milestone M8 / Type: reports, verification / Depends: T081, T082
@@ -646,8 +646,8 @@ contains §1–§8; vocabulary test passes on all prose (SC-011).
 - [ ] T086 [US5] Build the business deck from the outline and export
   - Milestone M8 / Type: reports / Depends: T085
   - Files: `reports/slides/business_deck.pptx`, `reports/slides/business_deck.pdf` (authored in PowerPoint, Canva, or Google Slides; manual step)
-  - Accept: content matches outline; disclaimer on title and closing slides
-  - Verify: `python scripts/check_slide_counts.py reports/slides/business_deck.pptx`
+  - Accept: content matches outline; disclaimer on title and closing slides; dumped text passes the vocabulary scan
+  - Verify: `python scripts/check_slide_counts.py reports/slides/business_deck.pptx --dump-text && pytest tests/test_vocabulary.py -q`
 
 - [ ] T087 [US5] Verify both decks and the report together
   - Milestone M8 / Type: verification / Depends: T084, T086
@@ -681,7 +681,7 @@ invalid payload returns 422; `tests/api` passes; core tests pass with the API pa
 
 - [ ] T090 [US6] Implement the scoring service and app
   - Milestone M9 / Type: code / Depends: T089
-  - Files: `src/aml_triage/api/service.py` (load `models/LATEST` bundle once; build feature row; derive `review_priority` from `configs/operating_point.yaml`; top contributing features via SHAP or coefficients; never logs request bodies), `src/aml_triage/api/main.py` (`GET /health`, `POST /score`; disclaimer in every response)
+  - Files: `src/aml_triage/api/service.py` (load `models/LATEST` bundle once; build feature row; derive `review_priority` with the score-only bands from `configs/operating_point.yaml` (high if score ≥ `k_score_cutoff`, medium if ≥ threshold, low otherwise); top contributing features via SHAP or coefficients; never logs request bodies), `src/aml_triage/api/main.py` (`GET /health`, `POST /score`; disclaimer in every response)
   - Accept: service starts with `uvicorn aml_triage.api.main:app`
   - Verify: `uvicorn aml_triage.api.main:app --port 8000 & sleep 3; curl -s localhost:8000/health; kill %1`
 
@@ -858,3 +858,4 @@ Task: "T039 Implement PCA analysis in src/aml_triage/features/pca.py"
 - Notebooks never define logic; they call `aml_triage` and display artifacts.
 - The test split is read by exactly one command run (T056). Everything downstream reads saved predictions.
 - Optional work (Phases 8–9) is gated behind T088 by constitution Principle XI.
+- All implementation commits land on `001-aml-risk-triage`. Merge to `main` only by pull request or squash merge after the T015, T060, T088, and T101 checkpoints (constitution Principle X).

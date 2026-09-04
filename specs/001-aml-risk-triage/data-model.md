@@ -111,7 +111,8 @@ One evaluation of one candidate on one split.
 
 **MetricSet**: pr_auc, roc_auc, precision, recall, f1, fpr, brier, ece, confusion_matrix
 (at operating point), accuracy (reported with prevalence, never headline), recall_at_k and
-precision_at_k for each K (mean over periods and pooled), prevalence.
+precision_at_k for each K (mean over periods and pooled), prevalence, degenerate_scores (bool;
+true when score standard deviation < `evaluation.degenerate_eps` or all scores equal).
 
 **PeriodResult**: period_index, step_range, n_rows, n_positives, k_effective, hits,
 recall_at_k (null if n_positives = 0), precision_at_k.
@@ -139,6 +140,7 @@ vocabulary test).
 | threshold | float in (0,1); chosen on validation by F2 maximization (R-09) |
 | calibration | enum {none, isotonic_val}; with decision log |
 | chosen_on | must be `val` |
+| priority_rule | high = rank ≤ primary_k within the review period; medium = rank > primary_k and score ≥ threshold; low = score < threshold. For single-transaction scoring with no period rank (optional API), high = score ≥ the score of the K-th ranked validation transaction (`k_score_cutoff`, recorded at freeze), medium = score ≥ threshold, low = otherwise |
 | frozen_at | timestamp; must precede any TestAccessRecord.first_evaluated_at |
 
 ## 9. TestAccessRecord (`data/processed/test_access.json`)

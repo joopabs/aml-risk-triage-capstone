@@ -143,7 +143,8 @@ the illustrative business KPI.
 1. **Given** a trained, selected model and a held-out test set split temporally, **When** the
    evaluation runs with capacity K from configuration, **Then** the system produces Recall@K
    and Precision@K for the selected model and every comparator, and the selected model's
-   Recall@K is greater than that of random selection and the dummy baseline.
+   Recall@K is greater than that of random selection and the dummy baseline, whose constant
+   scores rank as chronological order under the tie-break.
 2. **Given** the same inputs, **When** the top-K list for a review period is generated, **Then**
    each list item shows a risk score, rank, review-priority recommendation, model version, and
    the educational disclaimer, and contains no determination language.

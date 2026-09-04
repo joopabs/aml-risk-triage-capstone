@@ -169,6 +169,8 @@ specs/001-aml-risk-triage/
 │   │   ├── profiling.py             # data quality report (FR-021)
 │   │   ├── dictionary.py            # data dictionary generator (FR-023)
 │   │   └── split.py                 # temporal split by step; fallback stratified (FR-040/041)
+│   ├── eda/
+│   │   └── plots.py                 # EDA figures (M3)
 │   ├── features/
 │   │   ├── base.py                  # feature registry loader, prediction-time flags
 │   │   ├── transaction.py           # type encoding, log amount, ratios, buckets, deltas, flags

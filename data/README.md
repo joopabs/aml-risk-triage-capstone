@@ -27,7 +27,7 @@ redistribution, and adaptation for educational purposes with attribution and sha
 
 Attribution: PaySim synthetic dataset by E. A. Lopez-Rojas, Kaggle `ealaxi/paysim1`.
 
-Human confirmation of the License panel on the dataset page: **pending** (tracked in
+Human confirmation of the License panel on the dataset page: **done on 2026-09-05** (recorded in
 `configs/data_source.yaml` as `license_page_confirmed_by_human`). The dataset itself is not
 redistributed in this repository; only derived aggregates and code are.
 

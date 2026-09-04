@@ -159,6 +159,7 @@ specs/001-aml-risk-triage/
 │   ├── constants.py                 # DISCLAIMER, MODEL_OUTPUT_FIELDS, PROHIBITED_TERMS ref
 │   ├── config.py                    # pydantic models loading configs/*.yaml
 │   ├── cli.py                       # `python -m aml_triage <command>` (see contracts/cli-contract.md)
+│   ├── __main__.py                  # entry point delegating to cli.main
 │   ├── utils/
 │   │   ├── seed.py                  # set_global_seed(seed) → numpy, random, PYTHONHASHSEED note
 │   │   ├── io.py                    # parquet/json/joblib helpers, model_version()
@@ -246,6 +247,7 @@ specs/001-aml-risk-triage/
 │   ├── test_metrics.py
 │   ├── test_capacity.py             # ties, short periods
 │   ├── test_vocabulary.py           # FR-084
+│   ├── test_no_hardcoded_params.py  # FR-101: notebooks/scripts read seed, K, split, threshold from config
 │   ├── test_fairness.py             # DP/EO/DI on fixture with synthetic group column
 │   ├── test_core_without_optional.py
 │   └── api/test_scoring_api.py      # optional, skipped if fastapi missing

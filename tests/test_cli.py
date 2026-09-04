@@ -39,19 +39,19 @@ def test_no_command_prints_help_and_exits_0() -> None:
 def test_stub_exits_1_with_message(
     capsys: pytest.CaptureFixture[str], base_config_path: Path
 ) -> None:
-    rc = main(["split", "--config", str(base_config_path)])
+    rc = main(["select-features", "--config", str(base_config_path)])
     assert rc == EXIT_ERROR
     assert "not implemented" in capsys.readouterr().err
 
 
 def test_missing_config_exits_2(tmp_path: Path) -> None:
-    assert main(["split", "--config", str(tmp_path / "missing.yaml")]) == EXIT_VALIDATION
+    assert main(["select-features", "--config", str(tmp_path / "missing.yaml")]) == EXIT_VALIDATION
 
 
 def test_seed_override_reaches_config(
     base_config_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    main(["split", "--config", str(base_config_path), "--seed", "9"])
+    main(["select-features", "--config", str(base_config_path), "--seed", "9"])
     assert "seed=9" in capsys.readouterr().err
 
 

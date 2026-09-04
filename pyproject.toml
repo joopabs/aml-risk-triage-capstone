@@ -29,6 +29,9 @@ extend-exclude = [".venv", "notebooks", "data", "models", "reports"]
 select = ["E", "F", "I", "B", "UP", "W"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/aml_triage/eda/plots.py" = ["E702"]  # dense matplotlib call chains
+
 [tool.ruff.lint.isort]
 known-first-party = ["aml_triage"]
 

@@ -17,9 +17,11 @@ override.
 
 ## Status
 
-Milestones 1 and 2 are complete: scaffold and tooling, PaySim acquired with recorded provenance
-and license, schema validated on the real file, data quality profiled, data dictionary generated.
-No model has been trained and no results exist yet. See `specs/001-aml-risk-triage/tasks.md`.
+Milestones 1–3 are complete: scaffold and tooling, PaySim acquired with recorded provenance and
+license, schema validated, data quality profiled, temporal split (train steps 1–408, validation
+409–552, test 553–743), leakage-safe feature engineering with fit-scope guards, and applied EDA
+with reviewed observations. No model has been trained and no results exist yet. See
+`specs/001-aml-risk-triage/tasks.md`.
 
 ## Provenance
 

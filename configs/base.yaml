@@ -10,15 +10,15 @@ paths:
 
 split:
   strategy: temporal                   # temporal | stratified_fallback
-  train_end_step: null                 # set after V9
-  val_end_step: null                   # set after V9
-  min_positives_per_split: null        # set after V4
+  train_end_step: 408                  # V9: steps 1-408 = days 1-17 (5,987,417 rows, 4,589 positives); steps.cumulative_positives_by_step
+  val_end_step: 552                    # V9: steps 409-552 = days 18-23 (181,068 rows, 1,504 positives); test = 553-743 (194,135 rows, 2,120 positives). Val and test share the low-volume regime (DQ-10)
+  min_positives_per_split: 500         # V4: 8,213 positives total; every split above keeps >= 1,500 (target.positives, steps.cumulative_positives_by_step)
   fallback_reason: null
 
 review:
-  review_period_steps: null            # set after V8 (expected 24)
-  primary_k: null                      # set after V8
-  k_grid: []                           # set after V8
+  review_period_steps: 24              # V8: 743 contiguous hourly steps ~ 31 days (steps.n_steps, steps.min_step/max_step)
+  primary_k: 200                       # V8: ~1% of median transactions per review period in val+test (20,363; steps.transactions_by_step) and below median positives/day (264), so capacity binds
+  k_grid: [50, 100, 200, 300, 500]     # sensitivity around primary_k
   tie_break: [score_desc, step_asc, row_index_asc]
 
 features:
@@ -27,17 +27,17 @@ features:
   ablation_sets: [strict_pretx, posttx_ablation]
 
 selection:
-  mi_k: null                           # set after V10
-  l1_c: null                           # set after V10
+  mi_k: 12                             # V10: keep the 12 highest mutual-information features out of ~20 candidates (configs/features.yaml)
+  l1_c: 0.1                            # V10: L1 logistic regularisation strength for the embedded selector
   combine_rule: intersection_or_union_if_lt
-  min_size: null                       # set after V10
+  min_size: 6                          # V10: fall back to the union if the intersection has fewer than 6 features
 
 pca:
-  n_components: null                   # set after V10
+  n_components: 0.95                   # V10: retain components explaining 95% of training variance (diagnostic role)
   role: diagnostic_and_visualization
 
 tuning:
-  tune_sample_rows: null               # set after V3
+  tune_sample_rows: 1000000            # V3: stratified 1,000,000 of 5,987,417 training rows (~770 positives at 0.0766% prevalence); n_rows, target.prevalence
   n_iter: 30
   cv_folds: 3
   scoring: average_precision

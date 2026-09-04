@@ -1,0 +1,194 @@
+# Feature registry (spec FR-031, data-model.md §3). Every entry needs a one-line rationale and a
+# dictionary entry. `available_at_prediction_time`: realtime = known when the transaction is
+# observed; batch_only = post-transaction state, valid in end-of-period batch triage (research
+# R-06). Sets: primary (all modeling features), strict_pretx (realtime only), posttx_ablation
+# (type + batch-only features only, to isolate artifact-driven lift). `selected` and
+# `pca_variant` are filled by Milestone 4. Identifiers are never features (FR-033).
+- name: type_onehot
+  source_columns: [type]
+  transform: sklearn.preprocessing.OneHotEncoder
+  rationale: Simulated fraud occurs only in TRANSFER and CASH_OUT (DQ-09); type is the first-order signal.
+  available_at_prediction_time: realtime
+  kind: categorical
+  sets: [primary, strict_pretx, posttx_ablation]
+  dictionary_entry: {type: one-hot (5 columns), unit: indicator, range_or_values: "0/1 per observed type", description: "One column per transaction type observed in training; unknown types map to all zeros."}
+
+- name: log_amount
+  source_columns: [amount]
+  transform: aml_triage.features.transaction.log1p_amount
+  rationale: Amounts are heavy-tailed (DQ-07); log scale stabilises linear models and keeps tree splits interpretable.
+  available_at_prediction_time: realtime
+  kind: numeric
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: float, unit: log(currency units + 1), range_or_values: ">= 0", description: "log1p(amount)."}
+
+- name: amount_bucket
+  source_columns: [amount]
+  transform: aml_triage.features.transaction.AmountBucketizer
+  rationale: Quantile buckets fitted on training data give a monotone, outlier-robust view of amount for slice analysis and linear models.
+  available_at_prediction_time: realtime
+  kind: numeric
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: bucket index, range_or_values: "0..n_bins-1 (n_bins=10)", description: "Amount decile bucket; edges fitted on the training split only."}
+
+- name: log_oldbalance_org
+  source_columns: [oldbalanceOrg]
+  transform: aml_triage.features.transaction.log1p_oldbalance_org
+  rationale: Origin balance before the transaction is heavy-tailed with a mass at zero (DQ-07); log scale plus a zero flag captures both.
+  available_at_prediction_time: realtime
+  kind: numeric
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: float, unit: log(currency units + 1), range_or_values: ">= 0", description: "log1p(oldbalanceOrg)."}
+
+- name: log_oldbalance_dest
+  source_columns: [oldbalanceDest]
+  transform: aml_triage.features.transaction.log1p_oldbalance_dest
+  rationale: Destination balance before the transaction; merchants carry zero (DQ-06), customers vary widely.
+  available_at_prediction_time: realtime
+  kind: numeric
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: float, unit: log(currency units + 1), range_or_values: ">= 0", description: "log1p(oldbalanceDest)."}
+
+- name: amount_to_orig_balance_ratio
+  source_columns: [amount, oldbalanceOrg]
+  transform: aml_triage.features.transaction.amount_to_orig_balance_ratio
+  rationale: Emptying an account (ratio near 1) is a classic mule-account pattern; the +1 guard handles zero balances.
+  available_at_prediction_time: realtime
+  kind: numeric
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: float, unit: ratio, range_or_values: ">= 0", description: "amount / (oldbalanceOrg + 1)."}
+
+- name: orig_zero_balance_flag
+  source_columns: [oldbalanceOrg]
+  transform: aml_triage.features.transaction.orig_zero_balance_flag
+  rationale: 2.1M rows start from a zero origin balance (DQ-07); the flag separates this mass from the continuous scale.
+  available_at_prediction_time: realtime
+  kind: flag
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceOrg == 0."}
+
+- name: dest_zero_balance_flag
+  source_columns: [oldbalanceDest]
+  transform: aml_triage.features.transaction.dest_zero_balance_flag
+  rationale: Zero destination balance before the transaction marks merchants and fresh accounts (DQ-06).
+  available_at_prediction_time: realtime
+  kind: flag
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceDest == 0."}
+
+- name: zero_amount_flag
+  source_columns: [amount]
+  transform: aml_triage.features.transaction.zero_amount_flag
+  rationale: All 16 zero-amount rows are positives (DQ-03); kept as a feature but reported as a simulator artifact, never as transferable signal.
+  available_at_prediction_time: realtime
+  kind: flag
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "amount == 0. Simulator artifact (DQ-03)."}
+
+- name: dest_is_merchant
+  source_columns: [nameDest]
+  transform: aml_triage.features.transaction.dest_is_merchant
+  rationale: Merchant destinations (identifier prefix M) receive only PAYMENT and carry no positives or balance state (DQ-06); this is account type, not identity.
+  available_at_prediction_time: realtime
+  kind: flag
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "nameDest starts with 'M'. Derived account type; the identifier itself is dropped (FR-033)."}
+
+- name: step_hour_of_day
+  source_columns: [step]
+  transform: aml_triage.features.transaction.step_hour_of_day
+  rationale: Hourly position within the simulated day may carry volume seasonality; cyclic and in-range for every split.
+  available_at_prediction_time: realtime
+  kind: numeric
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: hour, range_or_values: "0..23", description: "(step - 1) mod 24."}
+
+- name: step_day_index
+  source_columns: [step]
+  transform: aml_triage.features.transaction.step_day_index
+  rationale: Diagnostic only. Under a temporal split the test days are out of the training range, so using it would encode regime rather than behaviour (DQ-10).
+  available_at_prediction_time: realtime
+  kind: numeric
+  sets: []
+  dictionary_entry: {type: int, unit: day, range_or_values: "0..30", description: "(step - 1) // 24. Excluded from every modeling set."}
+
+- name: orig_balance_delta
+  source_columns: [oldbalanceOrg, newbalanceOrig]
+  transform: aml_triage.features.transaction.orig_balance_delta
+  rationale: Posted change in origin balance; in batch triage the posted state is available and its mismatch with amount is informative (DQ-05).
+  available_at_prediction_time: batch_only
+  kind: numeric
+  sets: [primary, posttx_ablation]
+  dictionary_entry: {type: float, unit: currency units, range_or_values: "any", description: "oldbalanceOrg - newbalanceOrig."}
+
+- name: dest_balance_delta
+  source_columns: [oldbalanceDest, newbalanceDest]
+  transform: aml_triage.features.transaction.dest_balance_delta
+  rationale: Posted change in destination balance (DQ-06).
+  available_at_prediction_time: batch_only
+  kind: numeric
+  sets: [primary, posttx_ablation]
+  dictionary_entry: {type: float, unit: currency units, range_or_values: "any", description: "newbalanceDest - oldbalanceDest."}
+
+- name: orig_balance_inconsistent_flag
+  source_columns: [type, amount, oldbalanceOrg, newbalanceOrig]
+  transform: aml_triage.features.transaction.orig_balance_inconsistent_flag
+  rationale: Direction-aware arithmetic gap on the origin side is inconsistent for most CASH_OUT/TRANSFER rows (DQ-05); a simulator behaviour that correlates with the label.
+  available_at_prediction_time: batch_only
+  kind: flag
+  sets: [primary, posttx_ablation]
+  dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "|newbalanceOrig - expected| > 0.01 where expected = old + amount for CASH_IN, old - amount otherwise."}
+
+- name: dest_balance_inconsistent_flag
+  source_columns: [amount, oldbalanceDest, newbalanceDest]
+  transform: aml_triage.features.transaction.dest_balance_inconsistent_flag
+  rationale: Destination arithmetic gap (DQ-06); always inconsistent for merchant destinations.
+  available_at_prediction_time: batch_only
+  kind: flag
+  sets: [primary, posttx_ablation]
+  dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "|newbalanceDest - oldbalanceDest - amount| > 0.01."}
+
+- name: orig_zero_after_flag
+  source_columns: [oldbalanceOrg, newbalanceOrig]
+  transform: aml_triage.features.transaction.orig_zero_after_flag
+  rationale: Account emptied to exactly zero after the transaction (DQ-05); a strong mule pattern in the simulator.
+  available_at_prediction_time: batch_only
+  kind: flag
+  sets: [primary, posttx_ablation]
+  dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceOrg > 0 and newbalanceOrig == 0."}
+
+- name: orig_prior_txn_count
+  source_columns: [nameOrig, step]
+  transform: aml_triage.features.aggregates.causal
+  rationale: Number of strictly earlier transactions by the same origin; expected near zero because origins rarely repeat (DQ-11), kept to let V10 confirm.
+  available_at_prediction_time: realtime
+  kind: aggregate
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: count, range_or_values: ">= 0", description: "Count of earlier transactions with the same nameOrig (strictly earlier step, or earlier file position within the same step)."}
+
+- name: orig_prior_amount_sum
+  source_columns: [nameOrig, step, amount]
+  transform: aml_triage.features.aggregates.causal
+  rationale: Cumulative earlier outflow by the same origin (DQ-11).
+  available_at_prediction_time: realtime
+  kind: aggregate
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: float, unit: currency units, range_or_values: ">= 0", description: "Sum of amount over earlier transactions with the same nameOrig."}
+
+- name: dest_prior_txn_count
+  source_columns: [nameDest, step]
+  transform: aml_triage.features.aggregates.causal
+  rationale: Destinations repeat (16.9% appear more than once, max 113; DQ-11); accumulation into one destination is a laundering-style pattern.
+  available_at_prediction_time: realtime
+  kind: aggregate
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: int, unit: count, range_or_values: ">= 0", description: "Count of earlier transactions with the same nameDest."}
+
+- name: dest_prior_amount_sum
+  source_columns: [nameDest, step, amount]
+  transform: aml_triage.features.aggregates.causal
+  rationale: Cumulative earlier inflow to the same destination (DQ-11).
+  available_at_prediction_time: realtime
+  kind: aggregate
+  sets: [primary, strict_pretx]
+  dictionary_entry: {type: float, unit: currency units, range_or_values: ">= 0", description: "Sum of amount over earlier transactions with the same nameDest."}

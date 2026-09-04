@@ -200,7 +200,7 @@ leakage-safe features built, EDA produced. No modeling story can start before th
   - Accept: runs top to bottom; outputs stripped by nbstripout on commit
   - Verify: `jupyter nbconvert --to notebook --execute notebooks/01_data_acquisition_and_schema.ipynb --output /tmp/nb01.ipynb`
 
-- [ ] T025 Fill profiling-dependent config values (validation tasks V4, V8, V9)
+- [X] T025 Fill profiling-dependent config values (validation tasks V4, V8, V9)
   - Milestone M3 / Type: config / Depends: T022
   - Files: `configs/base.yaml` (`review.review_period_steps`, `review.primary_k`, `review.k_grid`, `split.min_positives_per_split`, `split.train_end_step`, `split.val_end_step`, `tuning.tune_sample_rows`, `selection.min_size`), each with a comment citing the `data_quality.json` key that justified it
   - Accept: no nulls remain for split/review/tuning keys; chosen split bounds leave ≥ `min_positives_per_split` positives in each split according to positives-by-step in `data_quality.json`; K is a stated fraction of median transactions per review period
@@ -208,55 +208,55 @@ leakage-safe features built, EDA produced. No modeling story can start before th
 
 ### Split and leakage guard (M3)
 
-- [ ] T026 Implement temporal split and `split` command
+- [X] T026 Implement temporal split and `split` command
   - Milestone M3 / Type: code / Depends: T025
   - Files: `src/aml_triage/data/split.py` (temporal by `step`; monotone ranges; min-positives guard exit 3; FR-041 stratified fallback with `fallback_reason`; excluded rows keyed by DQ decision id; writes `split_manifest.json` per contracts/artifacts-contract.md; refuses if manifest frozen), `src/aml_triage/cli.py`
   - Accept: parquet splits written; manifest fields complete; `config_hash` recorded
   - Verify: `python -m aml_triage split --config configs/base.yaml && python -c "import json;m=json.load(open('data/processed/split_manifest.json'));assert m['step_ranges']['train'][1]<m['step_ranges']['val'][0]<=m['step_ranges']['val'][1]<m['step_ranges']['test'][0]"`
 
-- [ ] T027 [P] Write `tests/test_split.py`
+- [X] T027 [P] Write `tests/test_split.py`
   - Milestone M3 / Type: tests / Depends: T026
   - Files: `tests/test_split.py` (monotone ranges; disjoint indices; min-positives guard exits 3; fallback records reason; frozen manifest refuses re-split)
   - Accept: all pass on fixture
   - Verify: `pytest tests/test_split.py -q`
 
-- [ ] T028 Author the feature registry and registry loader
+- [X] T028 Author the feature registry and registry loader
   - Milestone M3 / Type: config, code / Depends: T022
   - Files: `configs/features.yaml` (candidate features from data-model.md §3 with `rationale`, `available_at_prediction_time`, `kind`, `sets`, `dictionary_entry`), `src/aml_triage/features/base.py` (load, validate uniqueness, assert `strict_pretx` contains no `batch_only` feature, exit 2 otherwise)
   - Accept: registry loads; `strict_pretx` validation passes; every entry has a one-line rationale
   - Verify: `python -c "from aml_triage.features.base import load_registry;r=load_registry('configs/features.yaml');print(len(r))"`
 
-- [ ] T029 [P] Implement transaction-level feature transforms
+- [X] T029 [P] Implement transaction-level feature transforms
   - Milestone M3 / Type: code / Depends: T028
   - Files: `src/aml_triage/features/transaction.py` (type one-hot, `log1p_amount`, amount buckets with training-fitted edges, origin/destination balance deltas, balance-inconsistency flags with tolerance, amount-to-origin-balance ratio with zero guard, zero-balance flags, step hour-of-day and day index)
   - Accept: each function is pure, vectorized, and referenced by name in `configs/features.yaml`
   - Verify: `python -c "import aml_triage.features.transaction as t;print([f for f in dir(t) if not f.startswith('_')])"`
 
-- [ ] T030 [P] Implement causal prior-transaction aggregates
+- [X] T030 [P] Implement causal prior-transaction aggregates
   - Milestone M3 / Type: code / Depends: T028
   - Files: `src/aml_triage/features/aggregates.py` (stable sort by `(step, row_index)`; groupby cumulative count/sum shifted by one per origin and destination; drops identifiers after use; documents same-step ordering limitation)
   - Accept: a row's aggregate never includes itself or any later row
   - Verify: covered by T031
 
-- [ ] T031 [P] Write feature and causal-aggregate tests
+- [X] T031 [P] Write feature and causal-aggregate tests
   - Milestone M3 / Type: tests / Depends: T029, T030
   - Files: `tests/test_features.py` (transform shapes, zero guards, bucket edges fitted on train only), `tests/test_aggregates_causal.py` (brute-force O(n²) reference on fixture equals vectorized output; identifiers absent from output)
   - Accept: all pass
   - Verify: `pytest tests/test_features.py tests/test_aggregates_causal.py -q`
 
-- [ ] T032 Implement pipeline builder, fit-scope wrapper, and `build-features` command
+- [X] T032 Implement pipeline builder, fit-scope wrapper, and `build-features` command
   - Milestone M3 / Type: code / Depends: T029, T030
   - Files: `src/aml_triage/features/pipeline.py` (`ColumnTransformer`/`Pipeline` per feature set; `FitScopeRecorder` wrapper that records which split ids were passed to `fit`; imblearn-compatible), `src/aml_triage/cli.py` (`build-features --feature-set`, writes `data/processed/features_<set>_{train,val,test}.parquet`)
   - Accept: fitting on train and transforming val/test succeeds; recorder shows `fitted_on == ["train"]`
   - Verify: `python -m aml_triage build-features --config configs/base.yaml --feature-set primary && ls data/processed/features_primary_*.parquet`
 
-- [ ] T033 Write `tests/test_leakage.py` (FR-043)
+- [X] T033 Write `tests/test_leakage.py` (FR-043)
   - Milestone M3 / Type: tests / Depends: T032
   - Files: `tests/test_leakage.py` (no test row index in train/val; step ranges monotone; `FitScopeRecorder` never saw val/test; resampled rows, if any, exist only in train fold; `strict_pretx` matrix has no batch-only columns)
   - Accept: all assertions pass on fixture; a deliberately leaked fixture variant fails
   - Verify: `pytest tests/test_leakage.py -q`
 
-- [ ] T034 Run split and feature builds on the real data and inspect the manifest (validation task V9)
+- [X] T034 Run split and feature builds on the real data and inspect the manifest (validation task V9)
   - Milestone M3 / Type: verification, data / Depends: T026, T032, T033
   - Files: `data/processed/*` (local), `reports/data_quality.md` (append "Split summary" with figures copied from manifest)
   - Accept: positives per split ≥ minimum; strategy is temporal (or fallback documented with reason); both `primary` and `strict_pretx` matrices built
@@ -264,19 +264,19 @@ leakage-safe features built, EDA produced. No modeling story can start before th
 
 ### EDA (M3)
 
-- [ ] T035 Implement EDA plots, figure styling, and `eda` command
+- [X] T035 Implement EDA plots, figure styling, and `eda` command
   - Milestone M3 / Type: code / Depends: T034
   - Files: `src/aml_triage/reporting/figures.py` (consistent style, save helper adding caption + disclaimer), `src/aml_triage/eda/plots.py` (univariate distributions, class-conditional comparisons, correlation heatmap, positives over step, per-type amount distributions, 2-D scatter samples), `src/aml_triage/cli.py`
   - Accept: figures written to `reports/figures/eda/`; `reports/eda_summary.md` skeleton lists every figure with an empty "Observation" line; training split used for anything that could inform modeling
   - Verify: `python -m aml_triage eda --config configs/base.yaml && ls reports/figures/eda | wc -l`
 
-- [ ] T036 Review EDA figures and write observations; append engineered rows to the data dictionary (validation tasks V5, V10)
+- [X] T036 Review EDA figures and write observations; append engineered rows to the data dictionary (validation tasks V5, V10)
   - Milestone M3 / Type: reports / Depends: T035
   - Files: `reports/eda_summary.md` (one observation per figure, written after viewing it; note which candidate features look informative and which post-transaction fields appear artifact-like), `reports/data_dictionary.md` (regenerated with engineered features)
   - Accept: no "Observation" line left empty; every claim references a figure filename
   - Verify: `! grep -q 'Observation: *$' reports/eda_summary.md && python -m aml_triage data-dictionary --config configs/base.yaml`
 
-- [ ] T037 [P] Create notebooks 02 and 03
+- [X] T037 [P] Create notebooks 02 and 03
   - Milestone M3 / Type: notebooks / Depends: T036
   - Files: `notebooks/02_data_quality_and_eda.ipynb`, `notebooks/03_feature_engineering.ipynb` (call package functions; display registry, manifest, figures; no logic in cells)
   - Accept: both execute top to bottom from config

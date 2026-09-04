@@ -18,18 +18,14 @@ def test_load_base_config(base_config_path: Path) -> None:
     assert cfg.source_path == base_config_path
 
 
-def test_profiling_dependent_keys_are_null_in_base(base_config_path: Path) -> None:
-    """Keys resolved by later validation tasks (V3, V4, V8, V9) stay null until M3 (T025)."""
+def test_profiling_dependent_keys_are_set_from_profiling(base_config_path: Path) -> None:
+    """V4, V8, V9 and V10 were resolved in task T025 from reports/data_quality.json."""
     cfg = load(base_config_path)
-    for key in [
-        "split.train_end_step",
-        "split.val_end_step",
-        "split.min_positives_per_split",
-        "review.review_period_steps",
-        "review.primary_k",
-        "tuning.tune_sample_rows",
-    ]:
-        assert cfg.get(key) is None, f"{key} must stay null until profiling records it"
+    assert cfg.split.train_end_step == 408 and cfg.split.val_end_step == 552
+    assert cfg.split.min_positives_per_split == 500
+    assert cfg.review.review_period_steps == 24 and cfg.review.primary_k == 200
+    assert cfg.review.primary_k in cfg.review.k_grid
+    assert cfg.tuning.tune_sample_rows == 1_000_000
 
 
 def test_unknown_key_is_rejected(tmp_path: Path) -> None:
@@ -39,8 +35,10 @@ def test_unknown_key_is_rejected(tmp_path: Path) -> None:
         load(p)
 
 
-def test_require_exits_2_on_null(base_config_path: Path) -> None:
-    cfg = load(base_config_path)
+def test_require_exits_2_on_null(tmp_path: Path) -> None:
+    p = tmp_path / "null.yaml"
+    p.write_text(yaml.safe_dump({"seed": 1, "review": {"primary_k": None}}))
+    cfg = load(p)
     with pytest.raises(SystemExit) as exc:
         cfg.require(["review.primary_k"])
     assert exc.value.code == 2

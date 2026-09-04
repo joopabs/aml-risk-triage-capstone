@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v3
+      - name: Install pinned dependencies
+        run: |
+          uv pip sync --system requirements.txt requirements-dev.txt
+          uv pip install --system --no-deps -e .
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Secret scan
+        run: detect-secrets-hook --baseline .secrets.baseline $(git ls-files | grep -vE '^(requirements.*\.txt|\.secrets\.baseline)$')
+      - name: Tests
+        run: pytest -q
+      - name: Coverage report (gate raised to 80 in task T066)
+        run: pytest -q --cov=aml_triage --cov-report=xml --cov-fail-under=0
+      - name: No data or secrets tracked
+        run: make check-no-data PY=python
+      - name: Smoke pipeline on synthetic sample (no dataset download)
+        run: make smoke PY=python
+
+  api-optional:
+    if: ${{ hashFiles('src/aml_triage/api/main.py') != '' }}
+    runs-on: ubuntu-latest
+    needs: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v3
+      - run: |
+          uv pip sync --system requirements.txt requirements-dev.txt requirements-api.txt
+          uv pip install --system --no-deps -e .
+      - run: pytest tests/api -q

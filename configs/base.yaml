@@ -1,0 +1,71 @@
+# Base run configuration. Keys marked "set after Vn" are profiling-dependent and
+# MUST stay null until the corresponding spec validation task records the value.
+seed: 42
+
+paths:
+  raw_csv: null                        # set after V1 (data/raw/<filename> from data_source.yaml)
+  processed_dir: data/processed
+  models_dir: models
+  reports_dir: reports
+
+split:
+  strategy: temporal                   # temporal | stratified_fallback
+  train_end_step: null                 # set after V9
+  val_end_step: null                   # set after V9
+  min_positives_per_split: null        # set after V4
+  fallback_reason: null
+
+review:
+  review_period_steps: null            # set after V8 (expected 24)
+  primary_k: null                      # set after V8
+  k_grid: []                           # set after V8
+  tie_break: [score_desc, step_asc, row_index_asc]
+
+features:
+  registry: configs/features.yaml
+  default_set: primary
+  ablation_sets: [strict_pretx, posttx_ablation]
+
+selection:
+  mi_k: null                           # set after V10
+  l1_c: null                           # set after V10
+  combine_rule: intersection_or_union_if_lt
+  min_size: null                       # set after V10
+
+pca:
+  n_components: null                   # set after V10
+  role: diagnostic_and_visualization
+
+tuning:
+  tune_sample_rows: null               # set after V3
+  n_iter: 30
+  cv_folds: 3
+  scoring: average_precision
+
+calibration:
+  method: isotonic_val                 # none | isotonic_val
+  max_pr_auc_drop: 0.005
+
+operating_point_path: configs/operating_point.yaml
+
+bootstrap:
+  n_resamples: 200
+
+evaluation:
+  degenerate_eps: 1.0e-9
+
+explain:
+  shap_background_rows: 1000
+  shap_eval_rows: 2000
+  n_local_examples: 3
+  pdp_top_features: 5
+
+fairness:
+  slice_dimensions: [type, amount_band, orig_balance_band, step_band]
+  label: "operational error-slice analysis"
+
+compute:
+  n_jobs: 4
+  omp_num_threads: 4
+
+disclaimer_ref: aml_triage.constants.DISCLAIMER

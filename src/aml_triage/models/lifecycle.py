@@ -16,6 +16,7 @@ from aml_triage.constants import DISCLAIMER, SYNTHETIC_NOTICE
 from aml_triage.data.split import MANIFEST_NAME, SplitManifest
 from aml_triage.evaluation.bootstrap import bootstrap_ci
 from aml_triage.evaluation.capacity import rank_within_periods
+from aml_triage.evaluation.capacity_report import capacity_report
 from aml_triage.evaluation.compare import compare, render_selection_matrix, selection_matrix
 from aml_triage.evaluation.metrics import compute_metrics
 from aml_triage.evaluation.threshold import apply_operating_point, assign_priority, load_operating_point
@@ -37,10 +38,13 @@ def freeze(cfg: Config) -> dict[str, Any]:
         raise PrerequisiteError(f"{cfg.operating_point_path} not found; run `choose-operating-point` first")
     processed = Path(cfg.paths.processed_dir)
     state = test_access_state(processed)
-    if state.get("state") in ("frozen", "evaluated"):
-        raise TestAccessError(f"already {state['state']} at {state.get('frozen_at')}; freezing again is not allowed")
+    if state.get("state") == "evaluated" or state.get("first_evaluated_at"):
+        raise TestAccessError(f"test split already evaluated at {state.get('first_evaluated_at')}; the operating point cannot be re-frozen")
+    refreezes = list(state.get("refreezes", []))
+    if state.get("state") == "frozen":
+        refreezes.append({"previous_frozen_at": state.get("frozen_at"), "previous_operating_point": state.get("operating_point")})
     now = datetime.now(UTC).isoformat(timespec="seconds")
-    record = {"config_hash": cfg.config_hash(), "state": "frozen", "frozen_at": now, "first_evaluated_at": None, "reevaluations": [], "operating_point": {k: op[k] for k in ("selected_run", "threshold", "primary_k", "k_score_cutoff")}}
+    record = {"config_hash": cfg.config_hash(), "state": "frozen", "frozen_at": now, "first_evaluated_at": None, "reevaluations": [], "refreezes": refreezes, "operating_point": {k: op[k] for k in ("selected_run", "threshold", "primary_k", "k_score_cutoff")}}
     (processed / TEST_ACCESS).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     op["frozen_at"] = now
     Path(cfg.operating_point_path).write_text("# Frozen; do not edit. Written by `choose-operating-point`, sealed by `freeze`.\n" + yaml.safe_dump(op, sort_keys=False), encoding="utf-8")
@@ -75,6 +79,8 @@ def evaluate_test(cfg: Config, force: bool = False, reason: str | None = None) -
             cal = apply_operating_point(op, preds)
             res["operating_point_metrics"] = compute_metrics(cal["isFraud"], cal["score"], threshold=float(op["threshold"]), degenerate_eps=cfg.evaluation.degenerate_eps)
             res["operating_point_metrics"]["calibration_applied"] = bool((op.get("calibration") or {}).get("applied"))
+            calq = compute_metrics(cal["isFraud"], cal["calibrated_score"], threshold=0.5, degenerate_eps=cfg.evaluation.degenerate_eps)
+            res["operating_point_metrics"]["calibrated_probability"] = {"brier": calq["brier"], "ece": calq["ece"], "pr_auc": calq["pr_auc"], "note": "display probability after validation-fitted isotonic; ranking uses raw scores"}
         res["bootstrap_ci"] = bootstrap_ci(preds, cfg.review.primary_k, cfg.review.review_period_steps, cfg.bootstrap.n_resamples, cfg.seed)
         write_json(res, runs_dir(cfg) / rid / "test_metrics.json")
         results[rid] = res
@@ -126,6 +132,7 @@ def select(cfg: Config, headline_set: str | None = None) -> dict[str, Any]:
     shutil.copy(Path(cfg.features.registry), bundle_dir / "features.yaml")
     write_model_card(cfg, bundle_dir, version, mid, fset, op, val_metrics, test_metrics)
     (Path(cfg.paths.models_dir) / "LATEST").write_text(version + "\n", encoding="utf-8")
+    capacity_report(cfg, rid)
     return {"model_version": version, "bundle_dir": str(bundle_dir), "selected_run": rid}
 
 
@@ -167,7 +174,7 @@ def write_queue(cfg: Config, period_ordinal: int) -> Path:
         _, preds = load_run(cfg, rid, "val")
         split = "val"
     cal = apply_operating_point(op, preds)
-    ranked = rank_within_periods(cal[["row_index", "step", "isFraud", "score"]].join(cal["type"]), cfg.review.review_period_steps)
+    ranked = rank_within_periods(cal[["row_index", "step", "isFraud", "score", "calibrated_score"]].join(cal["type"]), cfg.review.review_period_steps)
     periods = sorted(ranked["period"].unique())
     if not 0 <= period_ordinal < len(periods):
         raise PrerequisiteError(f"period ordinal {period_ordinal} out of range 0..{len(periods) - 1} for the {split} split")
@@ -176,10 +183,10 @@ def write_queue(cfg: Config, period_ordinal: int) -> Path:
     g["review_priority"] = assign_priority(g, op)
     k = int(op["primary_k"])
     top = g[g["rank"] <= min(k, len(g))]
-    rows = [(int(r.rank), int(r.row_index), int(r.step), str(r.type), round(float(r.score), 6), r.review_priority, version) for r in top.itertuples()]
+    rows = [(int(r.rank), int(r.row_index), int(r.step), str(r.type), round(float(r.calibrated_score), 6), r.review_priority, version) for r in top.itertuples()]
     shortfall = k - len(top)
     sections = [
-        ("Scope", f"{split} split, review period ordinal {period_ordinal} (simulated day {int(period) + 1}, steps {int(g['step'].min())}–{int(g['step'].max())}); {len(g):,} transactions in the period; capacity K = {k}; model `{rid}` version `{version}`; calibration applied: {op['calibration']['applied']}. Labels are hidden from the queue; investigators review, decide, and may override."),
+        ("Scope", f"{split} split, review period ordinal {period_ordinal} (simulated day {int(period) + 1}, steps {int(g['step'].min())}–{int(g['step'].max())}); {len(g):,} transactions in the period; capacity K = {k}; model `{rid}` version `{version}`; ranking uses raw model scores, `risk_score` shows the validation-calibrated probability (calibration applied: {op['calibration']['applied']}). Labels are hidden from the queue; investigators review, decide, and may override."),
         ("Queue", md_table(QUEUE_COLUMNS, rows) + (f"\n\n**Shortfall:** only {len(top)} transactions exist in this period, {shortfall} below capacity." if shortfall > 0 else "")),
     ]
     return write_markdown(Path(cfg.paths.reports_dir) / f"review_queue_period_{period_ordinal}.md", f"Review Queue — period {period_ordinal}", sections)

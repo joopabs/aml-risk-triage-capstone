@@ -1,0 +1,376 @@
+{
+  "best_cv_score": 0.9924652612352464,
+  "best_params": {
+    "l2_regularization": 0.00015369603110608845,
+    "learning_rate": 0.27438159337282275,
+    "max_iter": 370,
+    "max_leaf_nodes": 76,
+    "min_samples_leaf": 465
+  },
+  "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
+  "feature_set": "primary",
+  "model_id": "hgb",
+  "seconds": 459.0,
+  "trials": [
+    {
+      "mean_score": 0.9914134148751247,
+      "params": {
+        "l2_regularization": 0.003148911647956862,
+        "learning_rate": 0.2536999076681772,
+        "max_iter": 206,
+        "max_leaf_nodes": 86,
+        "min_samples_leaf": 208
+      },
+      "rank": 8,
+      "std_score": 0.007790716946446777
+    },
+    {
+      "mean_score": 0.9917191960438144,
+      "params": {
+        "l2_regularization": 0.024400607090817518,
+        "learning_rate": 0.04555636200065778,
+        "max_iter": 314,
+        "max_leaf_nodes": 89,
+        "min_samples_leaf": 478
+      },
+      "rank": 4,
+      "std_score": 0.007924444387570893
+    },
+    {
+      "mean_score": 0.989970283942584,
+      "params": {
+        "l2_regularization": 0.29154431891537513,
+        "learning_rate": 0.07725378389307355,
+        "max_iter": 251,
+        "max_leaf_nodes": 17,
+        "min_samples_leaf": 169
+      },
+      "rank": 16,
+      "std_score": 0.006963565093014005
+    },
+    {
+      "mean_score": 0.991199952979938,
+      "params": {
+        "l2_regularization": 0.00016813042706040687,
+        "learning_rate": 0.11654126622287461,
+        "max_iter": 513,
+        "max_leaf_nodes": 52,
+        "min_samples_leaf": 405
+      },
+      "rank": 13,
+      "std_score": 0.007617510285676024
+    },
+    {
+      "mean_score": 0.9879340936429278,
+      "params": {
+        "l2_regularization": 0.000533703276260396,
+        "learning_rate": 0.018659959624904916,
+        "max_iter": 559,
+        "max_leaf_nodes": 72,
+        "min_samples_leaf": 41
+      },
+      "rank": 27,
+      "std_score": 0.007118882466388165
+    },
+    {
+      "mean_score": 0.9898021661132862,
+      "params": {
+        "l2_regularization": 0.00010672476836323731,
+        "learning_rate": 0.010815983055225093,
+        "max_iter": 574,
+        "max_leaf_nodes": 73,
+        "min_samples_leaf": 189
+      },
+      "rank": 24,
+      "std_score": 0.006740096265008241
+    },
+    {
+      "mean_score": 0.9924652612352464,
+      "params": {
+        "l2_regularization": 0.00015369603110608845,
+        "learning_rate": 0.27438159337282275,
+        "max_iter": 370,
+        "max_leaf_nodes": 76,
+        "min_samples_leaf": 465
+      },
+      "rank": 1,
+      "std_score": 0.008490219738121738
+    },
+    {
+      "mean_score": 0.9692872109292233,
+      "params": {
+        "l2_regularization": 0.13826232179369857,
+        "learning_rate": 0.019721610970574007,
+        "max_iter": 154,
+        "max_leaf_nodes": 78,
+        "min_samples_leaf": 150
+      },
+      "rank": 30,
+      "std_score": 0.021018833560574195
+    },
+    {
+      "mean_score": 0.9915766169477607,
+      "params": {
+        "l2_regularization": 0.27527173929429377,
+        "learning_rate": 0.10113389297817889,
+        "max_iter": 428,
+        "max_leaf_nodes": 53,
+        "min_samples_leaf": 293
+      },
+      "rank": 6,
+      "std_score": 0.007914170944575008
+    },
+    {
+      "mean_score": 0.9912056085367488,
+      "params": {
+        "l2_regularization": 0.6245139574743068,
+        "learning_rate": 0.26690431824362526,
+        "max_iter": 341,
+        "max_leaf_nodes": 23,
+        "min_samples_leaf": 365
+      },
+      "rank": 12,
+      "std_score": 0.007617771629369593
+    },
+    {
+      "mean_score": 0.9920869802020059,
+      "params": {
+        "l2_regularization": 0.00024586032763280086,
+        "learning_rate": 0.1024932221692416,
+        "max_iter": 466,
+        "max_leaf_nodes": 74,
+        "min_samples_leaf": 474
+      },
+      "rank": 2,
+      "std_score": 0.008241737805405765
+    },
+    {
+      "mean_score": 0.9914506938615463,
+      "params": {
+        "l2_regularization": 0.0275414392133203,
+        "learning_rate": 0.170110026976697,
+        "max_iter": 134,
+        "max_leaf_nodes": 92,
+        "min_samples_leaf": 100
+      },
+      "rank": 7,
+      "std_score": 0.00783819567595458
+    },
+    {
+      "mean_score": 0.9900999296026735,
+      "params": {
+        "l2_regularization": 0.0010842262717330165,
+        "learning_rate": 0.09519754482692679,
+        "max_iter": 101,
+        "max_leaf_nodes": 20,
+        "min_samples_leaf": 73
+      },
+      "rank": 15,
+      "std_score": 0.006929583522305226
+    },
+    {
+      "mean_score": 0.9899459066453241,
+      "params": {
+        "l2_regularization": 0.015375920235481757,
+        "learning_rate": 0.01875220945578641,
+        "max_iter": 290,
+        "max_leaf_nodes": 32,
+        "min_samples_leaf": 237
+      },
+      "rank": 19,
+      "std_score": 0.006869791066646446
+    },
+    {
+      "mean_score": 0.9898625125551447,
+      "params": {
+        "l2_regularization": 0.006295301484516136,
+        "learning_rate": 0.03834288724218001,
+        "max_iter": 583,
+        "max_leaf_nodes": 28,
+        "min_samples_leaf": 370
+      },
+      "rank": 23,
+      "std_score": 0.006894282006210258
+    },
+    {
+      "mean_score": 0.9897756797630718,
+      "params": {
+        "l2_regularization": 0.48696409415208936,
+        "learning_rate": 0.01351182947645082,
+        "max_iter": 314,
+        "max_leaf_nodes": 76,
+        "min_samples_leaf": 315
+      },
+      "rank": 25,
+      "std_score": 0.006826602699784546
+    },
+    {
+      "mean_score": 0.9916003926624182,
+      "params": {
+        "l2_regularization": 0.23885558178688573,
+        "learning_rate": 0.12702301555181256,
+        "max_iter": 466,
+        "max_leaf_nodes": 67,
+        "min_samples_leaf": 299
+      },
+      "rank": 5,
+      "std_score": 0.007930949642256031
+    },
+    {
+      "mean_score": 0.9891757963274038,
+      "params": {
+        "l2_regularization": 0.0026730883107816713,
+        "learning_rate": 0.026000059117302653,
+        "max_iter": 479,
+        "max_leaf_nodes": 123,
+        "min_samples_leaf": 60
+      },
+      "rank": 26,
+      "std_score": 0.007405282290277554
+    },
+    {
+      "mean_score": 0.9876508748437391,
+      "params": {
+        "l2_regularization": 0.0015314189711654778,
+        "learning_rate": 0.01754362390093243,
+        "max_iter": 444,
+        "max_leaf_nodes": 85,
+        "min_samples_leaf": 28
+      },
+      "rank": 28,
+      "std_score": 0.010367932502086924
+    },
+    {
+      "mean_score": 0.9899207025989251,
+      "params": {
+        "l2_regularization": 0.12273800987852965,
+        "learning_rate": 0.019657448966046126,
+        "max_iter": 571,
+        "max_leaf_nodes": 77,
+        "min_samples_leaf": 158
+      },
+      "rank": 20,
+      "std_score": 0.0068405756368965075
+    },
+    {
+      "mean_score": 0.991267197262436,
+      "params": {
+        "l2_regularization": 0.000624265905386057,
+        "learning_rate": 0.11239275523180359,
+        "max_iter": 518,
+        "max_leaf_nodes": 47,
+        "min_samples_leaf": 398
+      },
+      "rank": 11,
+      "std_score": 0.007667646848813996
+    },
+    {
+      "mean_score": 0.989905128949899,
+      "params": {
+        "l2_regularization": 0.00019777828512462724,
+        "learning_rate": 0.0338452204120114,
+        "max_iter": 140,
+        "max_leaf_nodes": 42,
+        "min_samples_leaf": 154
+      },
+      "rank": 21,
+      "std_score": 0.006811092090160068
+    },
+    {
+      "mean_score": 0.9911257955889292,
+      "params": {
+        "l2_regularization": 0.25127790999487254,
+        "learning_rate": 0.04612040833253006,
+        "max_iter": 132,
+        "max_leaf_nodes": 62,
+        "min_samples_leaf": 426
+      },
+      "rank": 14,
+      "std_score": 0.007582516115012287
+    },
+    {
+      "mean_score": 0.9899624048220601,
+      "params": {
+        "l2_regularization": 0.04735490946578577,
+        "learning_rate": 0.09630482955721024,
+        "max_iter": 271,
+        "max_leaf_nodes": 118,
+        "min_samples_leaf": 233
+      },
+      "rank": 18,
+      "std_score": 0.006856695550746546
+    },
+    {
+      "mean_score": 0.9918824949283277,
+      "params": {
+        "l2_regularization": 0.35387588647792356,
+        "learning_rate": 0.049833191601257244,
+        "max_iter": 200,
+        "max_leaf_nodes": 61,
+        "min_samples_leaf": 481
+      },
+      "rank": 3,
+      "std_score": 0.008108958900519018
+    },
+    {
+      "mean_score": 0.9913446325701655,
+      "params": {
+        "l2_regularization": 0.24868826764613225,
+        "learning_rate": 0.11643458936511251,
+        "max_iter": 354,
+        "max_leaf_nodes": 28,
+        "min_samples_leaf": 378
+      },
+      "rank": 9,
+      "std_score": 0.0077269830262360825
+    },
+    {
+      "mean_score": 0.9913233796823505,
+      "params": {
+        "l2_regularization": 0.00014512236862893177,
+        "learning_rate": 0.11213346937437467,
+        "max_iter": 445,
+        "max_leaf_nodes": 56,
+        "min_samples_leaf": 399
+      },
+      "rank": 10,
+      "std_score": 0.00770146230544827
+    },
+    {
+      "mean_score": 0.9864347720750329,
+      "params": {
+        "l2_regularization": 0.00027012557725439106,
+        "learning_rate": 0.011128194768838964,
+        "max_iter": 330,
+        "max_leaf_nodes": 127,
+        "min_samples_leaf": 71
+      },
+      "rank": 29,
+      "std_score": 0.005098492362256447
+    },
+    {
+      "mean_score": 0.9898707474385676,
+      "params": {
+        "l2_regularization": 0.017910276390244798,
+        "learning_rate": 0.10650293943002245,
+        "max_iter": 584,
+        "max_leaf_nodes": 37,
+        "min_samples_leaf": 250
+      },
+      "rank": 22,
+      "std_score": 0.006828670615977613
+    },
+    {
+      "mean_score": 0.9899654956567239,
+      "params": {
+        "l2_regularization": 0.004380580767905652,
+        "learning_rate": 0.1306293138834092,
+        "max_iter": 135,
+        "max_leaf_nodes": 27,
+        "min_samples_leaf": 179
+      },
+      "rank": 17,
+      "std_score": 0.006837291272112214
+    }
+  ]
+}

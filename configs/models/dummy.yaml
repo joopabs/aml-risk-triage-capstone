@@ -1,0 +1,8 @@
+id: dummy
+description: Prior-rate baseline; constant scores, so its ranking collapses to the tie-break (chronological) order (research R-10).
+estimator: sklearn.dummy.DummyClassifier
+params: {strategy: prior, random_state: "${seed}"}
+imbalance_strategy: none
+scale_inputs: false
+feature_set: primary
+search_space: {}

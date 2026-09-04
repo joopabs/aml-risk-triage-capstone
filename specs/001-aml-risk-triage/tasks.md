@@ -150,7 +150,7 @@ leakage-safe features built, EDA produced. No modeling story can start before th
   - Accept: script exits 2 on checksum mismatch; prints manual instructions without credentials
   - Verify: `bash -n scripts/fetch_data.sh && KAGGLE_USERNAME= scripts/fetch_data.sh --dry-run`
 
-- [ ] T017 Download PaySim and record provenance and license (validation task V1)
+- [X] T017 Download PaySim and record provenance and license (validation task V1)
   - Milestone M2 / Type: data, docs / Depends: T016
   - Files: `data/raw/<filename>.csv` (local only), `configs/data_source.yaml` (fill `filename`, `sha256`, `downloaded_on`, `license_text_verbatim`, `license_verified_on`), `data/README.md` (Provenance, License, Checksum sections)
   - Accept: license text copied verbatim from the Kaggle page; if it does not permit educational use, STOP and record the blocker instead of proceeding; file not tracked by git
@@ -168,7 +168,7 @@ leakage-safe features built, EDA produced. No modeling story can start before th
   - Accept: all cases pass
   - Verify: `pytest tests/test_schema.py -q`
 
-- [ ] T020 Reconcile `configs/schema.yaml` with the real file (validation task V2)
+- [X] T020 Reconcile `configs/schema.yaml` with the real file (validation task V2)
   - Milestone M2 / Type: verification, config / Depends: T018
   - Files: `configs/schema.yaml` (adjust to actual columns/dtypes), `data/README.md` (note any difference from expected)
   - Accept: `validate-schema` exits 0 on the real file; every deviation from research.md "expected" is written down
@@ -182,7 +182,7 @@ leakage-safe features built, EDA produced. No modeling story can start before th
   - Accept: writes `reports/data_quality.md` and `.json` with aggregates only, no row dumps; disclaimer footer present
   - Verify: `python -m aml_triage profile --config configs/base.yaml && python -c "import json;d=json.load(open('reports/data_quality.json'));print(sorted(d))"`
 
-- [ ] T022 Review profiling results and write the data-quality narrative (validation tasks V3, V4, V5, V6, V8)
+- [X] T022 Review profiling results and write the data-quality narrative (validation tasks V3, V4, V5, V6, V8)
   - Milestone M2 / Type: reports / Depends: T021
   - Files: `reports/data_quality.md` (narrative sections: findings, handling decision per finding with decision ids DQ-01…, source-data limitations, sensitive-attribute pre-scan result)
   - Accept: every number in the narrative is copied from `data_quality.json`; every finding has a handling decision (keep/correct/flag/exclude) with justification; text states whether positives exist in later steps and which types carry positives

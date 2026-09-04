@@ -17,17 +17,16 @@ override.
 
 ## Status
 
-Milestones 1 and 2 (scaffold, tooling, acquisition script, schema validation, profiling, data
-dictionary) are implemented and tested against a synthetic fixture. The PaySim download and its
-license verification (task T017) are a manual step that has not been performed yet, so no real
-data has been profiled, no model trained, and no results exist. See
-`specs/001-aml-risk-triage/tasks.md` for the plan.
+Milestones 1 and 2 are complete: scaffold and tooling, PaySim acquired with recorded provenance
+and license, schema validated on the real file, data quality profiled, data dictionary generated.
+No model has been trained and no results exist yet. See `specs/001-aml-risk-triage/tasks.md`.
 
 ## Provenance
 
-_To be completed in Milestone 2 (task T017)._ Source URL, download date, SHA-256 checksum, and the
-verbatim license text will be recorded here and in `data/README.md` and
-`configs/data_source.yaml`. Raw and processed data are never committed.
+PaySim (Kaggle `ealaxi/paysim1`), downloaded 2026-09-05 via the Kaggle API, license **CC BY-SA 4.0**
+as reported by the dataset metadata, SHA-256 recorded in `configs/data_source.yaml` and verified on
+every fetch. Full provenance, attribution, and the schema confirmation are in `data/README.md`.
+Raw and processed data are never committed.
 
 ## Setup
 

@@ -141,7 +141,38 @@ def test_cli_validate_schema_fails_on_missing_column(
     assert main(["validate-schema", "--config", str(fixture_config)]) == EXIT_VALIDATION
 
 
-def test_cli_requires_raw_csv(base_config_path: Path) -> None:
+def test_cli_requires_raw_csv(tmp_path: Path, repo_root: Path) -> None:
+    cfg = tmp_path / "null_raw.yaml"
+    cfg.write_text(
+        yaml.safe_dump(
+            {"_extends": str(repo_root / "configs" / "base.yaml"), "paths": {"raw_csv": None}}
+        )
+    )
     with pytest.raises(SystemExit) as exc:
-        main(["profile", "--config", str(base_config_path)])
+        main(["profile", "--config", str(cfg)])
     assert exc.value.code == EXIT_VALIDATION
+
+
+def test_balance_check_is_direction_aware(fixture_frame, schema) -> None:
+    """A CASH_IN row whose balance rises by exactly the amount is consistent."""
+    df = fixture_frame.copy()
+    cash_in = df.index[df["type"] == "CASH_IN"][:5]
+    df.loc[cash_in, "newbalanceOrig"] = df.loc[cash_in, "oldbalanceOrg"] + df.loc[cash_in, "amount"]
+    prof = profile_frame(df, schema)
+    assert prof["invalid_values"]["by_type"]["CASH_IN"]["orig_inconsistent"] < len(
+        df[df["type"] == "CASH_IN"]
+    )
+
+
+def test_narrative_file_is_included_and_survives_regeneration(
+    tmp_path: Path, fixture_frame, schema
+) -> None:
+    narrative = tmp_path / "data_quality_narrative.md"
+    narrative.write_text(
+        "## Findings and handling decisions\n\n| ID | x |\n|---|---|\n| DQ-01 | keep |\n\n## Source-data limitations\n\n- synthetic\n"
+    )
+    md, _ = run_profile(fixture_frame, schema, tmp_path, "fixture")
+    text = md.read_text()
+    assert "DQ-01" in text and "## Source-data limitations" in text
+    md, _ = run_profile(fixture_frame, schema, tmp_path, "fixture")  # regenerate
+    assert "DQ-01" in md.read_text()

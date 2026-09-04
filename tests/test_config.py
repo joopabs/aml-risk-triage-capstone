@@ -19,9 +19,9 @@ def test_load_base_config(base_config_path: Path) -> None:
 
 
 def test_profiling_dependent_keys_are_null_in_base(base_config_path: Path) -> None:
+    """Keys resolved by later validation tasks (V3, V4, V8, V9) stay null until M3 (T025)."""
     cfg = load(base_config_path)
     for key in [
-        "paths.raw_csv",
         "split.train_end_step",
         "split.val_end_step",
         "split.min_positives_per_split",

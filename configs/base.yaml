@@ -3,7 +3,7 @@
 seed: 42
 
 paths:
-  raw_csv: null                        # set after V1 (data/raw/<filename> from data_source.yaml)
+  raw_csv: data/raw/PS_20174392719_1491204439457_log.csv   # V1 recorded 2026-09-05; sha256 in configs/data_source.yaml
   processed_dir: data/processed
   models_dir: models
   reports_dir: reports

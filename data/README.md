@@ -14,15 +14,28 @@ detection effectiveness, fairness, or regulatory suitability.
 |-------|-------|
 | Name | PaySim - Synthetic Financial Datasets for Fraud Detection |
 | Source URL | https://www.kaggle.com/datasets/ealaxi/paysim1 |
-| Filename | _recorded at first download (task T017)_ |
-| Downloaded on | _recorded at first download_ |
-| SHA-256 | _recorded at first download_ |
+| Filename | `PS_20174392719_1491204439457_log.csv` |
+| Downloaded on | 2026-09-05 (Kaggle API, bearer token) |
+| SHA-256 | `16910f90577b0d981bf8ff289714510bb89bc71bff7d3f220f024e287e4eea6b` |
+| Size | 493,534,783 bytes |
 
 ## License
 
-_The license or usage terms shown on the Kaggle dataset page are copied here verbatim at download
-time, with the verification date (spec validation task V1). If the terms do not permit educational
-use, the project stops._
+**CC BY-SA 4.0** (Creative Commons Attribution-ShareAlike 4.0 International), as reported by the
+Kaggle dataset API metadata (`licenseName`) at download time on 2026-09-05. This permits use,
+redistribution, and adaptation for educational purposes with attribution and share-alike.
+
+Attribution: PaySim synthetic dataset by E. A. Lopez-Rojas, Kaggle `ealaxi/paysim1`.
+
+Human confirmation of the License panel on the dataset page: **pending** (tracked in
+`configs/data_source.yaml` as `license_page_confirmed_by_human`). The dataset itself is not
+redistributed in this repository; only derived aggregates and code are.
+
+## Schema confirmation (validation task V2)
+
+`python -m aml_triage validate-schema` on 2026-09-05: 6,362,620 rows; all 11 expected columns
+present with coercible types; no unexpected columns; no nulls; no allowed-value or minimum
+violations. No deviation from the expected schema recorded in `specs/001-aml-risk-triage/research.md`.
 
 ## Checksum
 

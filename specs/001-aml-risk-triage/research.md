@@ -169,7 +169,9 @@ asserts a dataset statistic or model result as fact.
   lower original row index. Random ranking comparator uses the global seed; the rule comparator
   ranks flagged rows first, then by amount descending. The illustrative KPI is the mean number
   of simulated-fraud transactions in T_p and the ratio of that to the random and rule
-  comparators.
+  comparators. The dummy comparator emits constant scores, so its ranking equals the
+  tie-break order (chronological); random ranking is therefore the primary null hypothesis
+  and the dummy comparison is reported as "chronological order" in tables.
 - **Rationale**: Deterministic, mirrors the daily capacity question, and handles short periods
   (edge case in spec).
 - **Alternatives considered**: global top-K over the whole test split only (ignores daily

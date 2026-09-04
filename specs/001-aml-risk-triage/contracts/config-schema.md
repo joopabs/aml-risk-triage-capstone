@@ -46,6 +46,8 @@ calibration:
 operating_point_path: configs/operating_point.yaml
 bootstrap:
   n_resamples: 200
+evaluation:
+  degenerate_eps: 1.0e-9              # score std below this sets degenerate_scores flag
 explain:
   shap_background_rows: 1000
   shap_eval_rows: 2000
@@ -109,6 +111,8 @@ search_space:
 primary_k: null
 threshold: null
 threshold_rule: f2_max_on_val
+priority_rule: {high: rank_le_k, medium: above_threshold, low: below_threshold}
+k_score_cutoff: null            # score of the K-th ranked validation transaction; API uses it in place of rank
 calibration: {method: null, decision_log: null}
 chosen_on: val
 frozen_at: null

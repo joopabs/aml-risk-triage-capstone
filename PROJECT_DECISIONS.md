@@ -1,0 +1,26 @@
+# Project Decisions
+
+- Domain: Finance — custom domain
+- Project title: Explainable AML Transaction-Risk Triage for SME and Corporate Banking
+- Dataset: PaySim — Synthetic Financial Datasets for Fraud Detection
+- Dataset source: https://www.kaggle.com/datasets/ealaxi/paysim1
+- Dataset nature: Synthetic mobile-money transaction data. It must not be represented as real SME, corporate, or Philippine banking data.
+- Dataset license/usage terms: Verify and record the license shown on the Kaggle dataset page at download time.
+- Unit of analysis: One synthetic financial transaction
+- Task type: Binary classification
+- Target: isFraud, where 1 indicates a simulated fraudulent transaction and 0 indicates a simulated normal transaction
+- Prediction objective: Assign a transaction-risk score to prioritize transactions for human investigator review.
+- Intended use: Educational decision-support prototype for review prioritization.
+- Explicit non-use: No automatic blocking, account closure, customer-risk rating, regulatory reporting, or actual AML determination.
+- Primary technical metric: PR-AUC
+- Operational metric: Recall at top K transactions, where K is an illustrative daily investigator-review capacity.
+- Secondary metrics: Precision@K, recall, precision, F1, ROC-AUC, confusion matrix, precision-recall curve, calibration curve, and false-positive rate.
+- Business KPI: Illustrative number of suspicious transactions prioritized for investigation and review-efficiency improvement at fixed capacity.
+- Feature-engineering focus: Transaction type, log amount, origin/destination balance deltas, balance-inconsistency flags, amount-to-origin-balance ratio, amount buckets, and causally derived prior-transaction aggregates only if temporal ordering supports them.
+- Sensitive attributes available: Verify during profiling. Do not assume the data includes age, gender, ethnicity, nationality, or socioeconomic attributes.
+- Fairness approach: Calculate demographic fairness metrics only if appropriate sensitive-group labels are present. Otherwise document the limitation, conduct clearly labeled operational error-slice analysis, and propose a governance-controlled fairness audit for real use.
+- Model candidates: Dummy baseline, class-weighted logistic regression, balanced random forest, and gradient boosting/XGBoost.
+- Explainability: SHAP global and local explanations; PDP/ICE where meaningful and technically valid.
+- Deployment: Optional FastAPI local demo that returns a risk score, review-priority recommendation, model version, and educational disclaimer.
+- Generative AI use: Optional. If used, document the tool, purpose, representative prompts/examples, human review, and limitations.
+- Key limitation: Simulated labels and synthetic data cannot establish actual fraud/AML detection effectiveness, fairness, or regulatory suitability.

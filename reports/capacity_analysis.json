@@ -1,0 +1,343 @@
+{
+  "k_grid": [
+    50,
+    100,
+    200,
+    300,
+    500
+  ],
+  "primary_k": 200,
+  "selected_run": "hgb__primary",
+  "splits": {
+    "test": {
+      "grid": [
+        [
+          50,
+          0.1892013761265404,
+          0.18867924528301888,
+          1.0,
+          1.0
+        ],
+        [
+          100,
+          0.3784027522530808,
+          0.37735849056603776,
+          1.0,
+          1.0
+        ],
+        [
+          200,
+          0.7568055045061616,
+          0.7547169811320755,
+          1.0,
+          1.0
+        ],
+        [
+          300,
+          1.0,
+          1.0,
+          0.895,
+          0.893760539629005
+        ],
+        [
+          500,
+          1.0,
+          1.0,
+          0.587,
+          0.5620360551431601
+        ]
+      ],
+      "kpi": [
+        [
+          "hgb [primary] (selected)",
+          200.0,
+          1.0,
+          0.7568055045061616
+        ],
+        [
+          "rule comparator (flag, then amount)",
+          83.2,
+          2.4,
+          0.31008567515836377
+        ],
+        [
+          "random ranking",
+          27.5,
+          7.3,
+          0.1012200303207465
+        ],
+        [
+          "dummy (chronological order)",
+          56.5,
+          3.5,
+          0.20761033451193894
+        ]
+      ],
+      "per_period": [
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 280,
+          "n_rows": 32709,
+          "period_index": 23,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.7142857142857143,
+          "shortfall": 0,
+          "step_range": [
+            553,
+            576
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 240,
+          "n_rows": 57853,
+          "period_index": 24,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.8333333333333334,
+          "shortfall": 0,
+          "step_range": [
+            577,
+            600
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 272,
+          "n_rows": 13885,
+          "period_index": 25,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.7352941176470589,
+          "shortfall": 0,
+          "step_range": [
+            601,
+            624
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 280,
+          "n_rows": 8578,
+          "period_index": 26,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.7142857142857143,
+          "shortfall": 0,
+          "step_range": [
+            625,
+            648
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 248,
+          "n_rows": 14661,
+          "period_index": 27,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.8064516129032258,
+          "shortfall": 0,
+          "step_range": [
+            649,
+            672
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 260,
+          "n_rows": 54890,
+          "period_index": 28,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.7692307692307693,
+          "shortfall": 0,
+          "step_range": [
+            673,
+            696
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 268,
+          "n_rows": 11287,
+          "period_index": 29,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.746268656716418,
+          "shortfall": 0,
+          "step_range": [
+            697,
+            720
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 272,
+          "n_rows": 272,
+          "period_index": 30,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.7352941176470589,
+          "shortfall": 0,
+          "step_range": [
+            721,
+            743
+          ]
+        }
+      ]
+    },
+    "val": {
+      "grid": [
+        [
+          50,
+          0.20072693030866862,
+          0.19946808510638298,
+          1.0,
+          1.0
+        ],
+        [
+          100,
+          0.40145386061733723,
+          0.39893617021276595,
+          1.0,
+          1.0
+        ],
+        [
+          200,
+          0.8029077212346745,
+          0.7978723404255319,
+          1.0,
+          1.0
+        ],
+        [
+          300,
+          1.0,
+          1.0,
+          0.8355555555555555,
+          0.8355555555555556
+        ],
+        [
+          500,
+          1.0,
+          1.0,
+          0.5013333333333333,
+          0.5013333333333333
+        ]
+      ],
+      "kpi": [
+        [
+          "hgb [primary] (selected)",
+          200.0,
+          1.0,
+          0.8029077212346745
+        ],
+        [
+          "rule comparator (flag, then amount)",
+          50.0,
+          4.0,
+          0.19654898712513647
+        ],
+        [
+          "random ranking",
+          2.7,
+          75.0,
+          0.010407579345297442
+        ],
+        [
+          "dummy (chronological order)",
+          16.7,
+          12.0,
+          0.0650063740853173
+        ]
+      ],
+      "per_period": [
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 268,
+          "n_rows": 20999,
+          "period_index": 17,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.746268656716418,
+          "shortfall": 0,
+          "step_range": [
+            409,
+            432
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 256,
+          "n_rows": 11300,
+          "period_index": 18,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.78125,
+          "shortfall": 0,
+          "step_range": [
+            433,
+            456
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 236,
+          "n_rows": 19727,
+          "period_index": 19,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.847457627118644,
+          "shortfall": 0,
+          "step_range": [
+            457,
+            480
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 272,
+          "n_rows": 24593,
+          "period_index": 20,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.7352941176470589,
+          "shortfall": 0,
+          "step_range": [
+            481,
+            504
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 256,
+          "n_rows": 53437,
+          "period_index": 21,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.78125,
+          "shortfall": 0,
+          "step_range": [
+            505,
+            528
+          ]
+        },
+        {
+          "hits": 200,
+          "k_effective": 200,
+          "n_positives": 216,
+          "n_rows": 51012,
+          "period_index": 22,
+          "precision_at_k": 1.0,
+          "recall_at_k": 0.9259259259259259,
+          "shortfall": 0,
+          "step_range": [
+            529,
+            552
+          ]
+        }
+      ]
+    }
+  }
+}

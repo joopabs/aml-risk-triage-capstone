@@ -102,6 +102,104 @@ Every candidate is trained on the training split of its feature set and scored o
 
 ![calibration_curves_val](figures/models/calibration_curves_val.png)
 
+## Test (single-touch evaluation): headline metrics
+
+| candidate [feature set] | PR-AUC | ROC-AUC | Recall@200 (mean/period) | Recall@200 (pooled) | Precision@200 (mean/period) | Brier | ECE | degenerate |
+|---|---|---|---|---|---|---|---|---|
+| hgb [primary] | 1.0000 | 1.0000 | 0.7568 | 0.7547 | 1.0000 | 0.0000 | 0.0000 |  |
+| hgb [posttx_ablation] | 1.0000 | 1.0000 | 0.7568 | 0.7547 | 1.0000 | 0.0007 | 0.0023 |  |
+| balanced_rf [strict_pretx] | 0.9997 | 1.0000 | 0.7568 | 0.7547 | 1.0000 | 0.0007 | 0.0043 |  |
+| balanced_rf [primary] | 0.9997 | 1.0000 | 0.7568 | 0.7547 | 1.0000 | 0.0003 | 0.0038 |  |
+| hgb [selected] | 0.9996 | 1.0000 | 0.7568 | 0.7547 | 1.0000 | 0.0004 | 0.0007 |  |
+| hgb [strict_pretx] | 0.9995 | 0.9995 | 0.7568 | 0.7547 | 1.0000 | 0.0000 | 0.0000 |  |
+| logreg [primary] | 0.9954 | 0.9971 | 0.7568 | 0.7547 | 1.0000 | 0.0004 | 0.0070 |  |
+| hgb [pca_variant] | 0.9025 | 0.9971 | 0.7313 | 0.7302 | 0.9675 | 0.0080 | 0.0127 |  |
+| logreg [strict_pretx] | 0.2908 | 0.9788 | 0.3539 | 0.3575 | 0.4738 | 0.0687 | 0.1022 |  |
+| rule comparator (flag, then amount) | 0.1856 | 0.7998 | 0.3101 | 0.3142 | 0.4163 | 0.0101 | 0.0054 |  |
+| random ranking | 0.0109 | 0.4990 | 0.1012 | 0.1038 | 0.1375 | 0.3334 | 0.4891 |  |
+| dummy (chronological order) [primary] | 0.0109 | 0.5000 | 0.2076 | 0.2132 | 0.2825 | 0.0109 | 0.0102 | yes |
+| dummy [strict_pretx] | 0.0109 | 0.5000 | 0.2076 | 0.2132 | 0.2825 | 0.0109 | 0.0102 | yes |
+
+## Test (single-touch evaluation): Recall@K across the capacity grid (mean over review periods)
+
+| candidate [feature set] | Recall@50 | Recall@100 | Recall@200 | Recall@300 | Recall@500 |
+|---|---|---|---|---|---|
+| hgb [primary] | 0.1892 | 0.3784 | 0.7568 | 1.0000 | 1.0000 |
+| hgb [posttx_ablation] | 0.1892 | 0.3784 | 0.7568 | 1.0000 | 1.0000 |
+| balanced_rf [strict_pretx] | 0.1892 | 0.3784 | 0.7568 | 0.9996 | 1.0000 |
+| balanced_rf [primary] | 0.1892 | 0.3784 | 0.7568 | 0.9990 | 0.9995 |
+| hgb [selected] | 0.1892 | 0.3784 | 0.7568 | 0.9995 | 1.0000 |
+| hgb [strict_pretx] | 0.1892 | 0.3784 | 0.7568 | 0.9995 | 0.9995 |
+| logreg [primary] | 0.1892 | 0.3784 | 0.7568 | 0.9967 | 0.9967 |
+| hgb [pca_variant] | 0.1892 | 0.3784 | 0.7313 | 0.8815 | 0.9384 |
+| logreg [strict_pretx] | 0.0876 | 0.1781 | 0.3539 | 0.4835 | 0.6324 |
+| rule comparator (flag, then amount) | 0.1119 | 0.1993 | 0.3101 | 0.3869 | 0.4451 |
+| random ranking | 0.0258 | 0.0507 | 0.1012 | 0.1385 | 0.1476 |
+| dummy (chronological order) [primary] | 0.0701 | 0.1099 | 0.2076 | 0.3188 | 0.3600 |
+| dummy [strict_pretx] | 0.0701 | 0.1099 | 0.2076 | 0.3188 | 0.3600 |
+
+## Test (single-touch evaluation): Precision@K across the capacity grid (mean over review periods)
+
+| candidate [feature set] | Precision@50 | Precision@100 | Precision@200 | Precision@300 | Precision@500 |
+|---|---|---|---|---|---|
+| hgb [primary] | 1.0000 | 1.0000 | 1.0000 | 0.8950 | 0.5870 |
+| hgb [posttx_ablation] | 1.0000 | 1.0000 | 1.0000 | 0.8950 | 0.5870 |
+| balanced_rf [strict_pretx] | 1.0000 | 1.0000 | 1.0000 | 0.8946 | 0.5870 |
+| balanced_rf [primary] | 1.0000 | 1.0000 | 1.0000 | 0.8942 | 0.5868 |
+| hgb [selected] | 1.0000 | 1.0000 | 1.0000 | 0.8946 | 0.5870 |
+| hgb [strict_pretx] | 1.0000 | 1.0000 | 1.0000 | 0.8946 | 0.5867 |
+| logreg [primary] | 1.0000 | 1.0000 | 1.0000 | 0.8921 | 0.5853 |
+| hgb [pca_variant] | 1.0000 | 1.0000 | 0.9675 | 0.7904 | 0.5547 |
+| logreg [strict_pretx] | 0.4700 | 0.4775 | 0.4738 | 0.4425 | 0.3942 |
+| rule comparator (flag, then amount) | 0.6000 | 0.5350 | 0.4163 | 0.3575 | 0.2953 |
+| random ranking | 0.1400 | 0.1375 | 0.1375 | 0.1371 | 0.1373 |
+| dummy (chronological order) [primary] | 0.3850 | 0.3000 | 0.2825 | 0.3004 | 0.2512 |
+| dummy [strict_pretx] | 0.3850 | 0.3000 | 0.2825 | 0.3004 | 0.2512 |
+
+## Test (single-touch evaluation): threshold metrics at 0.5
+
+| candidate [feature set] | threshold | precision | recall | F1 | FPR | TP | FP | FN | TN |
+|---|---|---|---|---|---|---|---|---|---|
+| hgb [primary] | 0.5000 | 1.0000 | 1.0000 | 1.0000 | 0.0000 | 2,120 | 0 | 0 | 192,015 |
+| hgb [posttx_ablation] | 0.5000 | 0.9532 | 1.0000 | 0.9761 | 0.0005 | 2,120 | 104 | 0 | 191,911 |
+| balanced_rf [strict_pretx] | 0.5000 | 0.9405 | 0.9995 | 0.9691 | 0.0007 | 2,119 | 134 | 1 | 191,881 |
+| balanced_rf [primary] | 0.5000 | 0.9972 | 0.9991 | 0.9981 | 0.0000 | 2,118 | 6 | 2 | 192,009 |
+| hgb [selected] | 0.5000 | 0.9751 | 0.9972 | 0.9860 | 0.0003 | 2,114 | 54 | 6 | 191,961 |
+| hgb [strict_pretx] | 0.5000 | 1.0000 | 0.9991 | 0.9995 | 0.0000 | 2,118 | 0 | 2 | 192,015 |
+| logreg [primary] | 0.5000 | 0.9943 | 0.9953 | 0.9948 | 0.0001 | 2,110 | 12 | 10 | 192,003 |
+| hgb [pca_variant] | 0.5000 | 0.4994 | 0.9075 | 0.6442 | 0.0100 | 1,924 | 1,929 | 196 | 190,086 |
+| logreg [strict_pretx] | 0.5000 | 0.1012 | 0.9844 | 0.1836 | 0.0965 | 2,087 | 18,529 | 33 | 173,486 |
+| rule comparator (flag, then amount) | 0.5000 | 1.0000 | 0.0047 | 0.0094 | 0.0000 | 10 | 0 | 2,110 | 192,015 |
+| random ranking | 0.5000 | 0.0107 | 0.4906 | 0.0210 | 0.5002 | 1,040 | 96,037 | 1,080 | 95,978 |
+| dummy (chronological order) [primary] | 0.5000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0 | 0 | 2,120 | 192,015 |
+| dummy [strict_pretx] | 0.5000 | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 0 | 0 | 2,120 | 192,015 |
+
+## Test (single-touch evaluation): accuracy (reported last, with prevalence)
+
+| candidate [feature set] | accuracy | prevalence | majority-class accuracy (1 - prevalence) |
+|---|---|---|---|
+| hgb [primary] | 1.0000 | 0.0109 | 0.9891 |
+| hgb [posttx_ablation] | 0.9995 | 0.0109 | 0.9891 |
+| balanced_rf [strict_pretx] | 0.9993 | 0.0109 | 0.9891 |
+| balanced_rf [primary] | 1.0000 | 0.0109 | 0.9891 |
+| hgb [selected] | 0.9997 | 0.0109 | 0.9891 |
+| hgb [strict_pretx] | 1.0000 | 0.0109 | 0.9891 |
+| logreg [primary] | 0.9999 | 0.0109 | 0.9891 |
+| hgb [pca_variant] | 0.9891 | 0.0109 | 0.9891 |
+| logreg [strict_pretx] | 0.9044 | 0.0109 | 0.9891 |
+| rule comparator (flag, then amount) | 0.9891 | 0.0109 | 0.9891 |
+| random ranking | 0.4997 | 0.0109 | 0.9891 |
+| dummy (chronological order) [primary] | 0.9891 | 0.0109 | 0.9891 |
+| dummy [strict_pretx] | 0.9891 | 0.0109 | 0.9891 |
+
+## Test (single-touch evaluation): curves
+
+![pr_curves_test](figures/models/pr_curves_test.png)
+
+![roc_curves_test](figures/models/roc_curves_test.png)
+
+![calibration_curves_test](figures/models/calibration_curves_test.png)
+
 ## Validation discussion (task T050, written 2026-09-05 after reviewing the tables and curves above)
 
 All numbers below are validation-split figures (steps 409–552, 181,068 rows, 1,504 positives, six
@@ -184,6 +282,41 @@ by project decision; the report will show `strict_pretx` beside it.
 - Perfect validation separability is a property of PaySim's generator and will not transfer to real
   banking data. Nothing here establishes real-world detection effectiveness.
 - Threshold metrics use 0.5 pending the validation-chosen operating point.
+
+## Test discussion (task T059, single-touch evaluation, written 2026-09-05 after the tables above)
+
+The test split (steps 553–743, 194,135 rows, 2,120 positives, prevalence 1.09%) was scored exactly
+once after the operating point was frozen; `data/processed/test_access.json` records the state and
+would record any re-evaluation with a reason. Every run was refitted on the full training split with
+its tuned parameters before scoring.
+
+**Validation-to-test shift.** Prevalence rises from 0.83% to 1.09% and daily volume stays in the
+low-volume regime. Rankings are stable: `hgb [primary]` and `hgb [posttx_ablation]` keep PR-AUC
+1.0000 (95% CI [1.0000, 1.0000]); `balanced_rf` on both sets holds at 0.9997; `hgb [strict_pretx]`
+moves from 1.0000 to 0.9995 [0.9986, 1.0000]; `hgb [selected]` from 0.9990 to 0.9996;
+`logreg [primary]` from 0.9987 to 0.9954 [0.9922, 0.9977]. The linear model on the strict set
+improves slightly (0.2776 → 0.2908) and the rule comparator improves from 0.1555 to 0.1856, both
+because higher prevalence makes precision easier. No candidate degrades materially, so the regime
+shift the split was designed to expose does not hurt tree models on this data.
+
+**Recall@200 is again a K ceiling.** All strong models score 0.7568 (mean) / 0.7547 (pooled) with
+Precision@200 = 1.0000, because every test period holds 240–280 positives. The dummy (chronological)
+comparator rises to 0.2076 and random to 0.1012 only because day 31 contains 272 rows, all positives,
+where any order scores 0.735. See `capacity_analysis.md`.
+
+**Calibration on test.** The reliability curves keep the class-weighting signature (observed rate
+below the diagonal in the middle bins), but the strong models place nearly all rows at scores near 0
+or 1, so Brier stays tiny: `hgb [primary]` 0.0000 (3 × 10⁻⁶), `hgb [strict_pretx]` 0.0000,
+`balanced_rf [primary]` 0.0003, `logreg [primary]` 0.0004. The validation-fitted isotonic
+calibrator, used only for the displayed probability, gives Brier 2.8 × 10⁻⁶ and ECE 6 × 10⁻⁶ on test.
+
+**Selected model at its operating point.** `hgb [primary]` at the frozen raw-score threshold 0.9719:
+2,115 true positives, 5 false negatives, 0 false positives across 192,015 normals (recall 0.9976,
+precision 1.0000). At the default 0.5 threshold it makes 0 errors of either kind on 194,135 rows.
+
+**Caveats carried forward.** Eight review periods; one of them (day 31) is a partial day with 272
+transactions. Perfect separation is a property of PaySim, not a transferable result. Bootstrap CIs
+resample rows and therefore understate uncertainty about future periods.
 
 
 ---

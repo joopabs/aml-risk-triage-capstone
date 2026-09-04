@@ -1,0 +1,459 @@
+{
+  "test": {
+    "bootstrap_ci": {
+      "k": 200,
+      "level": 0.95,
+      "n_resamples": 200,
+      "pr_auc": [
+        1.0,
+        1.0
+      ],
+      "recall_at_k_pooled": [
+        0.7252291320132905,
+        0.7866466912874829
+      ]
+    },
+    "candidate_id": "hgb",
+    "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
+    "description": "Histogram gradient boosting with balanced class weight (scikit-learn native; XGBoost is a documented optional swap, research R-03).",
+    "disclaimer": "Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.",
+    "feature_set": "primary",
+    "fit_scope": {
+      "fitted_on": [
+        "train"
+      ],
+      "transformed_on": [
+        "test"
+      ]
+    },
+    "fit_seconds": 28.3,
+    "imbalance_strategy": "class_weight",
+    "k_grid": [
+      50,
+      100,
+      200,
+      300,
+      500
+    ],
+    "metrics": {
+      "accuracy": 1.0,
+      "brier": 2.9329233806436074e-06,
+      "confusion_matrix": {
+        "fn": 0,
+        "fp": 0,
+        "tn": 192015,
+        "tp": 2120
+      },
+      "degenerate_scores": false,
+      "ece": 4.161147976728424e-05,
+      "f1": 1.0,
+      "fpr": 0.0,
+      "n": 194135,
+      "pr_auc": 1.0,
+      "precision": 1.0,
+      "prevalence": 0.010920235918304273,
+      "recall": 1.0,
+      "roc_auc": 1.0,
+      "threshold": 0.5
+    },
+    "n_train_positives": 4589,
+    "n_train_rows": 5987417,
+    "operating_point_metrics": {
+      "accuracy": 0.9999742447266078,
+      "brier": 2.9329233806436074e-06,
+      "calibrated_probability": {
+        "brier": 2.7521894909849255e-06,
+        "ece": 6.149841681553964e-06,
+        "note": "display probability after validation-fitted isotonic; ranking uses raw scores",
+        "pr_auc": 1.0
+      },
+      "calibration_applied": true,
+      "confusion_matrix": {
+        "fn": 5,
+        "fp": 0,
+        "tn": 192015,
+        "tp": 2115
+      },
+      "degenerate_scores": false,
+      "ece": 4.161147976728424e-05,
+      "f1": 0.998819362455726,
+      "fpr": 0.0,
+      "n": 194135,
+      "pr_auc": 1.0,
+      "precision": 1.0,
+      "prevalence": 0.010920235918304273,
+      "recall": 0.9976415094339622,
+      "roc_auc": 1.0,
+      "threshold": 0.971931
+    },
+    "params": {
+      "class_weight": "balanced",
+      "early_stopping": true,
+      "l2_regularization": 0.00015369603110608845,
+      "learning_rate": 0.27438159337282275,
+      "max_iter": 370,
+      "max_leaf_nodes": 76,
+      "min_samples_leaf": 465,
+      "n_iter_no_change": 20,
+      "random_state": 42,
+      "validation_fraction": 0.1
+    },
+    "per_period": [
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 280,
+        "n_rows": 32709,
+        "period_index": 23,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.7142857142857143,
+        "shortfall": 0,
+        "step_range": [
+          553,
+          576
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 240,
+        "n_rows": 57853,
+        "period_index": 24,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.8333333333333334,
+        "shortfall": 0,
+        "step_range": [
+          577,
+          600
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 272,
+        "n_rows": 13885,
+        "period_index": 25,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.7352941176470589,
+        "shortfall": 0,
+        "step_range": [
+          601,
+          624
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 280,
+        "n_rows": 8578,
+        "period_index": 26,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.7142857142857143,
+        "shortfall": 0,
+        "step_range": [
+          625,
+          648
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 248,
+        "n_rows": 14661,
+        "period_index": 27,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.8064516129032258,
+        "shortfall": 0,
+        "step_range": [
+          649,
+          672
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 260,
+        "n_rows": 54890,
+        "period_index": 28,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.7692307692307693,
+        "shortfall": 0,
+        "step_range": [
+          673,
+          696
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 268,
+        "n_rows": 11287,
+        "period_index": 29,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.746268656716418,
+        "shortfall": 0,
+        "step_range": [
+          697,
+          720
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 272,
+        "n_rows": 272,
+        "period_index": 30,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.7352941176470589,
+        "shortfall": 0,
+        "step_range": [
+          721,
+          743
+        ]
+      }
+    ],
+    "precision_at_k": {
+      "100": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "200": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "300": {
+        "mean_over_periods": 0.895,
+        "pooled": 0.893760539629005
+      },
+      "50": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "500": {
+        "mean_over_periods": 0.587,
+        "pooled": 0.5620360551431601
+      }
+    },
+    "primary_k": 200,
+    "recall_at_k": {
+      "100": {
+        "mean_over_periods": 0.3784027522530808,
+        "pooled": 0.37735849056603776
+      },
+      "200": {
+        "mean_over_periods": 0.7568055045061616,
+        "pooled": 0.7547169811320755
+      },
+      "300": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "50": {
+        "mean_over_periods": 0.1892013761265404,
+        "pooled": 0.18867924528301888
+      },
+      "500": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      }
+    },
+    "split": "test",
+    "split_manifest_hash": "sha256:d099f2d0939dfa0e48bdbdc5d6ad6f139eea60b799258458b5eaafe79ea31b8a",
+    "timestamp": "2026-09-04T22:49:06+00:00",
+    "tuned_params_used": true
+  },
+  "val": {
+    "candidate_id": "hgb",
+    "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
+    "description": "Histogram gradient boosting with balanced class weight (scikit-learn native; XGBoost is a documented optional swap, research R-03).",
+    "disclaimer": "Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.",
+    "feature_set": "primary",
+    "fit_scope": {
+      "fitted_on": [
+        "train"
+      ],
+      "transformed_on": [
+        "val"
+      ]
+    },
+    "fit_seconds": 20.92,
+    "imbalance_strategy": "class_weight",
+    "k_grid": [
+      50,
+      100,
+      200,
+      300,
+      500
+    ],
+    "metrics": {
+      "accuracy": 1.0,
+      "brier": 5.650912454745987e-07,
+      "confusion_matrix": {
+        "fn": 0,
+        "fp": 0,
+        "tn": 179564,
+        "tp": 1504
+      },
+      "degenerate_scores": false,
+      "ece": 3.1795380870108086e-05,
+      "f1": 1.0,
+      "fpr": 0.0,
+      "n": 181068,
+      "pr_auc": 1.0,
+      "precision": 1.0,
+      "prevalence": 0.00830627167693905,
+      "recall": 1.0,
+      "roc_auc": 1.0,
+      "threshold": 0.5
+    },
+    "n_train_positives": 4589,
+    "n_train_rows": 5987417,
+    "params": {
+      "class_weight": "balanced",
+      "early_stopping": true,
+      "l2_regularization": 0.00015369603110608845,
+      "learning_rate": 0.27438159337282275,
+      "max_iter": 370,
+      "max_leaf_nodes": 76,
+      "min_samples_leaf": 465,
+      "n_iter_no_change": 20,
+      "random_state": 42,
+      "validation_fraction": 0.1
+    },
+    "per_period": [
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 268,
+        "n_rows": 20999,
+        "period_index": 17,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.746268656716418,
+        "shortfall": 0,
+        "step_range": [
+          409,
+          432
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 256,
+        "n_rows": 11300,
+        "period_index": 18,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.78125,
+        "shortfall": 0,
+        "step_range": [
+          433,
+          456
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 236,
+        "n_rows": 19727,
+        "period_index": 19,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.847457627118644,
+        "shortfall": 0,
+        "step_range": [
+          457,
+          480
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 272,
+        "n_rows": 24593,
+        "period_index": 20,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.7352941176470589,
+        "shortfall": 0,
+        "step_range": [
+          481,
+          504
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 256,
+        "n_rows": 53437,
+        "period_index": 21,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.78125,
+        "shortfall": 0,
+        "step_range": [
+          505,
+          528
+        ]
+      },
+      {
+        "hits": 200,
+        "k_effective": 200,
+        "n_positives": 216,
+        "n_rows": 51012,
+        "period_index": 22,
+        "precision_at_k": 1.0,
+        "recall_at_k": 0.9259259259259259,
+        "shortfall": 0,
+        "step_range": [
+          529,
+          552
+        ]
+      }
+    ],
+    "precision_at_k": {
+      "100": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "200": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "300": {
+        "mean_over_periods": 0.8355555555555555,
+        "pooled": 0.8355555555555556
+      },
+      "50": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "500": {
+        "mean_over_periods": 0.5013333333333333,
+        "pooled": 0.5013333333333333
+      }
+    },
+    "primary_k": 200,
+    "recall_at_k": {
+      "100": {
+        "mean_over_periods": 0.40145386061733723,
+        "pooled": 0.39893617021276595
+      },
+      "200": {
+        "mean_over_periods": 0.8029077212346745,
+        "pooled": 0.7978723404255319
+      },
+      "300": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      },
+      "50": {
+        "mean_over_periods": 0.20072693030866862,
+        "pooled": 0.19946808510638298
+      },
+      "500": {
+        "mean_over_periods": 1.0,
+        "pooled": 1.0
+      }
+    },
+    "split": "val",
+    "split_manifest_hash": "sha256:d099f2d0939dfa0e48bdbdc5d6ad6f139eea60b799258458b5eaafe79ea31b8a",
+    "timestamp": "2026-09-04T22:01:34+00:00",
+    "tuned_params_used": true
+  }
+}

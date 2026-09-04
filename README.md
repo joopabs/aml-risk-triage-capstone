@@ -17,10 +17,11 @@ override.
 
 ## Status
 
-Milestones 1–3 are complete: scaffold and tooling, PaySim acquired with recorded provenance and
-license, schema validated, data quality profiled, temporal split (train steps 1–408, validation
-409–552, test 553–743), leakage-safe feature engineering with fit-scope guards, and applied EDA
-with reviewed observations. No model has been trained and no results exist yet. See
+Milestones 1–6 are complete: scaffold and tooling, PaySim acquired with recorded provenance and
+license, schema validated, data quality profiled, temporal split, leakage-safe features, EDA,
+feature selection and PCA, validation comparison, tuning, a validation-frozen operating point, a
+single-touch test evaluation, and a released model bundle (`models/LATEST`). Explainability, the
+Bias & Fairness Analysis, the report, and the decks follow in Milestones 7–8. See
 `specs/001-aml-risk-triage/tasks.md`.
 
 ## Provenance
@@ -71,8 +72,23 @@ specs/       Spec Kit constitution-driven specification, plan, and tasks
 
 ## Results
 
-_Not available yet._ Primary metric: PR-AUC. Operational metric: Recall@K at an illustrative
-daily review capacity K set in `configs/base.yaml` after profiling. No accuracy headline.
+Selected model: **histogram gradient boosting on the `primary` feature set** (tuned; verdict fixed on
+validation before the test split was unlocked). Single-touch test evaluation, steps 553–743,
+194,135 rows, 2,120 positives (prevalence 1.09%). Comparators and ablations are in
+`reports/model_comparison.md`; the verdict reasoning is in `reports/selection_matrix.md`.
+
+| metric | validation | test (95% bootstrap CI) |
+|---|---|---|
+| PR-AUC (primary) | 1.0000 | 1.0000 [1.0000, 1.0000] |
+| Recall@200 (operational, mean over review periods) | 0.8029 | 0.7568 (pooled CI [0.7252, 0.7866]) |
+| Precision@200 | 1.0000 | 1.0000 |
+| Random ranking Recall@200 / rule comparator Recall@200 (test) | – | 0.1012 / 0.3101 |
+
+Recall@200 is a ceiling set by capacity: every review period holds more than 200 positives and the
+top 200 are all positives, so the model catches 200 per day and the rest wait. **Illustrative** count
+on synthetic data: 200 positives surfaced per day versus 83 for the rule comparator and 28 for random
+ranking. Near-perfect separability is a property of the PaySim generator, not evidence of real-world
+AML capability. No accuracy headline (majority-class accuracy is 0.99).
 
 ## Reproducibility tolerance
 

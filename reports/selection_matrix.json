@@ -1,0 +1,234 @@
+{
+  "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
+  "headline_set": "primary",
+  "primary_k": 200,
+  "ranking_key": "val PR-AUC desc \u2192 val Recall@K desc \u2192 val Brier asc \u2192 explainability \u2192 fit time",
+  "rows": [
+    {
+      "candidate": "hgb",
+      "eligible": true,
+      "explainability": "medium: SHAP TreeExplainer exact; PDP/ICE valid on raw features",
+      "feature_set": "primary",
+      "fit_seconds": 20.92,
+      "investigator_workload": "val FP at 0.5 = 0; Precision@200 = 1.000",
+      "run_id": "hgb__primary",
+      "test_pr_auc": 1.0,
+      "test_pr_auc_ci": [
+        1.0,
+        1.0
+      ],
+      "test_recall_at_k": 0.7568055045061616,
+      "test_recall_at_k_pooled_ci": [
+        0.7252291320132905,
+        0.7866466912874829
+      ],
+      "val_brier": 5.650912454745987e-07,
+      "val_ece": 3.1795380870108086e-05,
+      "val_pr_auc": 1.0,
+      "val_precision_at_k": 1.0,
+      "val_recall_at_k": 0.8029077212346745,
+      "verdict": "selected"
+    },
+    {
+      "candidate": "balanced_rf",
+      "eligible": true,
+      "explainability": "medium: SHAP TreeExplainer over 300 trees; slower to explain locally",
+      "feature_set": "primary",
+      "fit_seconds": 135.74,
+      "investigator_workload": "val FP at 0.5 = 5; Precision@200 = 1.000",
+      "run_id": "balanced_rf__primary",
+      "test_pr_auc": 0.9996905501446199,
+      "test_pr_auc_ci": [
+        0.9992163088136186,
+        1.0
+      ],
+      "test_recall_at_k": 0.7568055045061616,
+      "test_recall_at_k_pooled_ci": [
+        0.7252291320132905,
+        0.7866466912874829
+      ],
+      "val_brier": 0.0003981455483402474,
+      "val_ece": 0.0046055855652970745,
+      "val_pr_auc": 1.0,
+      "val_precision_at_k": 1.0,
+      "val_recall_at_k": 0.8029077212346745,
+      "verdict": "eligible"
+    },
+    {
+      "candidate": "logreg",
+      "eligible": true,
+      "explainability": "high: linear coefficients on standardised features; SHAP linear explainer exact",
+      "feature_set": "primary",
+      "fit_seconds": 18.64,
+      "investigator_workload": "val FP at 0.5 = 5; Precision@200 = 1.000",
+      "run_id": "logreg__primary",
+      "test_pr_auc": 0.9953679435658118,
+      "test_pr_auc_ci": [
+        0.9922093220208882,
+        0.9977491419782148
+      ],
+      "test_recall_at_k": 0.7568055045061616,
+      "test_recall_at_k_pooled_ci": [
+        0.7252291320132905,
+        0.7866466912874829
+      ],
+      "val_brier": 0.0003308399581408954,
+      "val_ece": 0.006453896128900209,
+      "val_pr_auc": 0.9986890697562187,
+      "val_precision_at_k": 1.0,
+      "val_recall_at_k": 0.8029077212346745,
+      "verdict": "eligible"
+    },
+    {
+      "candidate": "hgb",
+      "eligible": false,
+      "explainability": "medium: SHAP TreeExplainer exact; PDP/ICE valid on raw features",
+      "feature_set": "posttx_ablation",
+      "fit_seconds": 12.25,
+      "investigator_workload": "val FP at 0.5 = 83; Precision@200 = 1.000",
+      "run_id": "hgb__posttx_ablation",
+      "test_pr_auc": 0.9999999999999999,
+      "test_pr_auc_ci": [
+        0.9999999999999999,
+        1.0000000000000002
+      ],
+      "test_recall_at_k": 0.7568055045061616,
+      "test_recall_at_k_pooled_ci": [
+        0.7252291320132905,
+        0.7866466912874829
+      ],
+      "val_brier": 0.0007125528016134767,
+      "val_ece": 0.0023659160800954897,
+      "val_pr_auc": 1.0,
+      "val_precision_at_k": 1.0,
+      "val_recall_at_k": 0.8029077212346745,
+      "verdict": "comparison only"
+    },
+    {
+      "candidate": "hgb",
+      "eligible": false,
+      "explainability": "medium: SHAP TreeExplainer exact; PDP/ICE valid on raw features",
+      "feature_set": "strict_pretx",
+      "fit_seconds": 23.67,
+      "investigator_workload": "val FP at 0.5 = 0; Precision@200 = 1.000",
+      "run_id": "hgb__strict_pretx",
+      "test_pr_auc": 0.9995325696477696,
+      "test_pr_auc_ci": [
+        0.9985878098547084,
+        1.0
+      ],
+      "test_recall_at_k": 0.7568055045061616,
+      "test_recall_at_k_pooled_ci": [
+        0.7252291320132905,
+        0.7866466912874829
+      ],
+      "val_brier": 4.635732120906966e-06,
+      "val_ece": 1.9286403479679678e-05,
+      "val_pr_auc": 0.9999995582102212,
+      "val_precision_at_k": 1.0,
+      "val_recall_at_k": 0.8029077212346745,
+      "verdict": "comparison only"
+    },
+    {
+      "candidate": "balanced_rf",
+      "eligible": false,
+      "explainability": "medium: SHAP TreeExplainer over 300 trees; slower to explain locally",
+      "feature_set": "strict_pretx",
+      "fit_seconds": 152.68,
+      "investigator_workload": "val FP at 0.5 = 116; Precision@200 = 1.000",
+      "run_id": "balanced_rf__strict_pretx",
+      "test_pr_auc": 0.9997470219423611,
+      "test_pr_auc_ci": [
+        0.9993853882371259,
+        0.9999451818692555
+      ],
+      "test_recall_at_k": 0.7568055045061616,
+      "test_recall_at_k_pooled_ci": [
+        0.7252291320132905,
+        0.7866466912874829
+      ],
+      "val_brier": 0.0007563310091110435,
+      "val_ece": 0.004759933585352045,
+      "val_pr_auc": 0.9999772661518971,
+      "val_precision_at_k": 1.0,
+      "val_recall_at_k": 0.8029077212346745,
+      "verdict": "comparison only"
+    },
+    {
+      "candidate": "hgb",
+      "eligible": false,
+      "explainability": "medium: SHAP TreeExplainer exact; PDP/ICE valid on raw features",
+      "feature_set": "selected",
+      "fit_seconds": 12.86,
+      "investigator_workload": "val FP at 0.5 = 51; Precision@200 = 1.000",
+      "run_id": "hgb__selected",
+      "test_pr_auc": 0.9996026412447799,
+      "test_pr_auc_ci": [
+        0.9992119482567386,
+        0.9998662731509393
+      ],
+      "test_recall_at_k": 0.7568055045061616,
+      "test_recall_at_k_pooled_ci": [
+        0.7252291320132905,
+        0.7866466912874829
+      ],
+      "val_brier": 0.00032825480745115655,
+      "val_ece": 0.0005934523587071799,
+      "val_pr_auc": 0.9990246930296447,
+      "val_precision_at_k": 1.0,
+      "val_recall_at_k": 0.8029077212346745,
+      "verdict": "comparison only"
+    },
+    {
+      "candidate": "hgb",
+      "eligible": false,
+      "explainability": "medium: SHAP TreeExplainer exact; PDP/ICE valid on raw features",
+      "feature_set": "pca_variant",
+      "fit_seconds": 14.48,
+      "investigator_workload": "val FP at 0.5 = 1,528; Precision@200 = 0.940",
+      "run_id": "hgb__pca_variant",
+      "test_pr_auc": 0.902499128235363,
+      "test_pr_auc_ci": [
+        0.8931190264739587,
+        0.9118010217414603
+      ],
+      "test_recall_at_k": 0.7312968876904861,
+      "test_recall_at_k_pooled_ci": [
+        0.7034781371963563,
+        0.7507910821703925
+      ],
+      "val_brier": 0.006968457959157538,
+      "val_ece": 0.011337168929554633,
+      "val_pr_auc": 0.906873637838603,
+      "val_precision_at_k": 0.9400000000000001,
+      "val_recall_at_k": 0.7525682077707362,
+      "verdict": "comparison only"
+    },
+    {
+      "candidate": "logreg",
+      "eligible": false,
+      "explainability": "high: linear coefficients on standardised features; SHAP linear explainer exact",
+      "feature_set": "strict_pretx",
+      "fit_seconds": 19.83,
+      "investigator_workload": "val FP at 0.5 = 14,834; Precision@200 = 0.394",
+      "run_id": "logreg__strict_pretx",
+      "test_pr_auc": 0.2907844552864012,
+      "test_pr_auc_ci": [
+        0.27285066452923623,
+        0.3071749201557079
+      ],
+      "test_recall_at_k": 0.35388363008808577,
+      "test_recall_at_k_pooled_ci": [
+        0.34257124401464106,
+        0.3743203872436242
+      ],
+      "val_brier": 0.05890832332186203,
+      "val_ece": 0.08925214717477231,
+      "val_pr_auc": 0.27764811501879466,
+      "val_precision_at_k": 0.3941666666666667,
+      "val_recall_at_k": 0.3116874411172002,
+      "verdict": "comparison only"
+    }
+  ],
+  "selected_run": "hgb__primary"
+}

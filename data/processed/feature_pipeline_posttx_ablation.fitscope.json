@@ -1,0 +1,10 @@
+{
+  "fitted_on": [
+    "train"
+  ],
+  "transformed_on": [
+    "train",
+    "val",
+    "test"
+  ]
+}

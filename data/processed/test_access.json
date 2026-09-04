@@ -1,0 +1,24 @@
+{
+  "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
+  "state": "evaluated",
+  "frozen_at": "2026-09-04T22:22:38+00:00",
+  "first_evaluated_at": "2026-09-04T22:51:34+00:00",
+  "reevaluations": [],
+  "refreezes": [
+    {
+      "previous_frozen_at": "2026-09-04T22:21:20+00:00",
+      "previous_operating_point": {
+        "selected_run": "hgb__primary",
+        "threshold": 1.0,
+        "primary_k": 200,
+        "k_score_cutoff": 1.0
+      }
+    }
+  ],
+  "operating_point": {
+    "selected_run": "hgb__primary",
+    "threshold": 0.971931,
+    "primary_k": 200,
+    "k_score_cutoff": 0.999977
+  }
+}

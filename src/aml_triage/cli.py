@@ -97,8 +97,16 @@ def build_parser() -> argparse.ArgumentParser:
 def _resolve_handler(name: str) -> Handler:
     """Return the implemented handler for ``name`` or the not-implemented stub."""
     from aml_triage.data.commands import HANDLERS as data_handlers
+    from aml_triage.data.split_command import run_split
+    from aml_triage.eda.commands import run_eda_cmd
+    from aml_triage.features.commands import run_build_features
 
-    registry: dict[str, Handler] = {**data_handlers}
+    registry: dict[str, Handler] = {
+        **data_handlers,
+        "split": run_split,
+        "build-features": run_build_features,
+        "eda": run_eda_cmd,
+    }
     return registry.get(name, _not_implemented)
 
 

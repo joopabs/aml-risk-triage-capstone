@@ -43,3 +43,25 @@ from `reports/data_quality.json`. Decisions are one of keep, correct, flag as fe
   (24 steps), not an observed business day.
 - **No demographics (DQ-13).** Demographic fairness cannot be measured; only operational
   error slices can be reported, and they must not be described as fairness across protected groups.
+
+## Split summary (validation task V9)
+
+Strategy: **temporal** by `step`; config hash `sha256:cac2e0e01afa…`; review period 24 steps;
+no rows excluded (every DQ finding was keep or flag). Figures copied from `data/processed/split_manifest.json`.
+
+| split | steps | days | rows | positives | prevalence |
+|---|---|---|---|---|---|
+| train | 1–408 | 1–17 | 5,987,417 | 4,589 | 0.0766% |
+| val | 409–552 | 18–23 | 181,068 | 1,504 | 0.8306% |
+| test | 553–743 | 24–31 | 194,135 | 2,120 | 1.0920% |
+
+Why these bounds: validation and test both sit in the low-volume regime (DQ-10), so the operating
+point chosen on validation applies to a test period with the same volume and prevalence character.
+Training spans both regimes (days 3–5 are also low-volume). Each split keeps at least 1,500 positives,
+three times the `min_positives_per_split` guard of 500. The prevalence jump from 0.08% in training to
+about 1% in validation and test is a property of the simulator, not of the split, and the report must
+present validation-versus-test shift explicitly (FR-045).
+
+Review capacity K = 200 is about 1% of the median daily volume across the validation and test days
+(20,363) and below the median positives per day (264), so capacity binds and Recall@K is a real
+constraint rather than a formality. The k_grid [50, 100, 200, 300, 500] shows sensitivity.

@@ -144,7 +144,7 @@ leakage-safe features built, EDA produced. No modeling story can start before th
 
 ### Acquisition and schema (M2)
 
-- [ ] T016 Write `configs/data_source.yaml` and `scripts/fetch_data.sh`
+- [X] T016 Write `configs/data_source.yaml` and `scripts/fetch_data.sh`
   - Milestone M2 / Type: code, config / Depends: T015
   - Files: `configs/data_source.yaml` (per contracts/artifacts-contract.md, nulls for sha256/dates/license), `scripts/fetch_data.sh` (Kaggle API path when `KAGGLE_*` env present; else print manual steps and wait; sha256 verify; refuse if `data/raw` tracked)
   - Accept: script exits 2 on checksum mismatch; prints manual instructions without credentials
@@ -156,13 +156,13 @@ leakage-safe features built, EDA produced. No modeling story can start before th
   - Accept: license text copied verbatim from the Kaggle page; if it does not permit educational use, STOP and record the blocker instead of proceeding; file not tracked by git
   - Verify: `python -c "import yaml,hashlib,glob;c=yaml.safe_load(open('configs/data_source.yaml'));f=glob.glob('data/raw/*.csv')[0];assert hashlib.sha256(open(f,'rb').read()).hexdigest()==c['sha256'];print('checksum OK')" && ! git ls-files data/raw | grep -q csv`
 
-- [ ] T018 Implement schema config, loader, and `validate-schema` command
+- [X] T018 Implement schema config, loader, and `validate-schema` command
   - Milestone M2 / Type: code, config / Depends: T017
   - Files: `configs/schema.yaml` (expected columns per contracts/config-schema.md), `src/aml_triage/data/load.py` (dtype map, category `type`), `src/aml_triage/data/schema.py` (presence, coercibility, nullability, allowed values; exit 2), `src/aml_triage/cli.py` (wire command)
   - Accept: missing column or bad dtype exits 2 with column named; success prints per-column summary
   - Verify: `python -m aml_triage validate-schema --config configs/base.yaml; echo exit=$?`
 
-- [ ] T019 [P] Write `tests/test_schema.py`
+- [X] T019 [P] Write `tests/test_schema.py`
   - Milestone M2 / Type: tests / Depends: T018
   - Files: `tests/test_schema.py` (fixture passes; dropped column → exit 2; string in numeric column → exit 2; identifiers flagged `role: identifier`)
   - Accept: all cases pass
@@ -176,7 +176,7 @@ leakage-safe features built, EDA produced. No modeling story can start before th
 
 ### Profiling and dictionary (M2)
 
-- [ ] T021 Implement profiling and the `profile` command
+- [X] T021 Implement profiling and the `profile` command
   - Milestone M2 / Type: code / Depends: T020
   - Files: `src/aml_triage/data/profiling.py` (row count; nulls per column; exact and near-duplicates; IQR and per-type quantile outliers; invalid values: negative/zero amounts, negative balances, balance-arithmetic inconsistency per type; class ratio overall, by type, by step; transactions per step; sensitive-attribute name scan; limitations template), `src/aml_triage/cli.py`
   - Accept: writes `reports/data_quality.md` and `.json` with aggregates only, no row dumps; disclaimer footer present
@@ -188,13 +188,13 @@ leakage-safe features built, EDA produced. No modeling story can start before th
   - Accept: every number in the narrative is copied from `data_quality.json`; every finding has a handling decision (keep/correct/flag/exclude) with justification; text states whether positives exist in later steps and which types carry positives
   - Verify: `grep -c 'DQ-' reports/data_quality.md` ≥ number of findings; `pytest tests/test_vocabulary.py -q`
 
-- [ ] T023 Implement data dictionary generator and `data-dictionary` command
+- [X] T023 Implement data dictionary generator and `data-dictionary` command
   - Milestone M2 / Type: code / Depends: T020
   - Files: `src/aml_triage/data/dictionary.py` (raw columns from `configs/schema.yaml`; engineered rows from feature registry when present; exit 2 if a feature lacks rationale), `src/aml_triage/cli.py`
   - Accept: `reports/data_dictionary.md` lists every raw column with type, unit, range/values, description, prediction-time availability
   - Verify: `python -m aml_triage data-dictionary --config configs/base.yaml && grep -c '|' reports/data_dictionary.md`
 
-- [ ] T024 [P] Create `notebooks/01_data_acquisition_and_schema.ipynb`
+- [X] T024 [P] Create `notebooks/01_data_acquisition_and_schema.ipynb`
   - Milestone M2 / Type: notebooks / Depends: T021, T023
   - Files: `notebooks/01_data_acquisition_and_schema.ipynb` (header with disclaimer; imports `aml_triage`; calls schema validation and profiling; displays tables from `reports/`; no logic defined in cells)
   - Accept: runs top to bottom; outputs stripped by nbstripout on commit

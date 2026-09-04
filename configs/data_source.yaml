@@ -1,0 +1,14 @@
+# Dataset provenance (constitution Principle II; spec FR-010). Null fields are filled by
+# `scripts/fetch_data.sh --record` at first successful download EXCEPT the license fields,
+# which a human copies verbatim from the Kaggle page and dates (spec validation task V1).
+name: PaySim - Synthetic Financial Datasets for Fraud Detection
+url: https://www.kaggle.com/datasets/ealaxi/paysim1
+kaggle_dataset: ealaxi/paysim1
+filename: null                 # set at first download (CSV inside the Kaggle zip)
+sha256: null                   # set at first download; verified on every later run
+size_bytes: null
+downloaded_on: null            # ISO date
+license_text_verbatim: null    # copied from the Kaggle dataset page (V1)
+license_verified_on: null      # ISO date the page was read
+license_permits_educational_use: null   # true/false, decided by a human after reading the text
+synthetic_notice: "PaySim is synthetic mobile-money transaction data. It is not real SME, corporate, or Philippine banking data."

@@ -40,3 +40,6 @@ submission/
 # Scratch
 *.tmp
 *.swp
+
+# local run logs
+.logs/

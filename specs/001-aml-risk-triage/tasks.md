@@ -331,55 +331,55 @@ the selected model beats random and dummy at the same K (SC-001), with the rule 
 
 ### Candidates, metrics, capacity (M5)
 
-- [ ] T043 [US1] Author model configs and the candidate registry
+- [X] T043 [US1] Author model configs and the candidate registry
   - Milestone M5 / Type: config, code / Depends: T038
   - Files: `configs/models/dummy.yaml`, `configs/models/logreg.yaml`, `configs/models/balanced_rf.yaml`, `configs/models/hgb.yaml` (per contracts/config-schema.md; `random_state: ${seed}`; `imbalance_strategy`; `search_space`), `src/aml_triage/models/registry.py` (factory by dotted estimator path; optional XGBoost switch documented but off)
   - Accept: all four instantiate with the global seed; deep learning absent
   - Verify: `python -c "from aml_triage.models.registry import build;[build(i,42) for i in ['dummy','logreg','balanced_rf','hgb']]"`
 
-- [ ] T044 [P] [US1] Implement ranking comparators
+- [X] T044 [P] [US1] Implement ranking comparators
   - Milestone M5 / Type: code / Depends: T043
   - Files: `src/aml_triage/models/comparators.py` (`random_rank` seeded; `rule_rank`: rule-flag first then amount desc, or documented amount rule if flag absent per T020)
   - Accept: both return scores usable by capacity metrics; deterministic under seed
   - Verify: covered by T047
 
-- [ ] T045 [P] [US1] Implement metric suite
+- [X] T045 [P] [US1] Implement metric suite
   - Milestone M5 / Type: code / Depends: T032
   - Files: `src/aml_triage/evaluation/metrics.py` (PR-AUC via average precision, ROC-AUC, precision/recall/F1 at threshold, FPR, Brier, ECE 10 bins, confusion matrix, accuracy always paired with prevalence; `degenerate_scores` flag when score standard deviation is below `evaluation.degenerate_eps` or all scores are equal, reported next to PR-AUC)
   - Accept: output matches `MetricSet` in data-model.md §6 plus the `degenerate_scores` flag
   - Verify: covered by T047
 
-- [ ] T046 [P] [US1] Implement capacity metrics and review-queue ranking
+- [X] T046 [P] [US1] Implement capacity metrics and review-queue ranking
   - Milestone M5 / Type: code / Depends: T032
   - Files: `src/aml_triage/evaluation/capacity.py` (periods from `review_period_steps`; tie-break score desc, step asc, row index asc; `k_effective = min(K, n_rows)`; Recall@K null when zero positives and excluded from mean; pooled figure; `PeriodResult` records)
   - Accept: matches research R-10 definitions
   - Verify: covered by T047
 
-- [ ] T047 [P] [US1] Write `tests/test_metrics.py` and `tests/test_capacity.py`
+- [X] T047 [P] [US1] Write `tests/test_metrics.py` and `tests/test_capacity.py`
   - Milestone M5 / Type: tests / Depends: T044, T045, T046
   - Files: `tests/test_metrics.py` (known small vectors; accuracy carries prevalence; ECE bins; a constant-score vector sets `degenerate_scores` and Recall@K still computes), `tests/test_capacity.py` (ties resolved deterministically; period shorter than K reports shortfall; zero-positive period excluded from mean; comparators deterministic)
   - Accept: all pass
   - Verify: `pytest tests/test_metrics.py tests/test_capacity.py -q`
 
-- [ ] T048 [US1] Implement training and the `train` command with test-split guard
+- [X] T048 [US1] Implement training and the `train` command with test-split guard
   - Milestone M5 / Type: code / Depends: T043, T045, T046
   - Files: `src/aml_triage/models/train.py` (fit pipeline+estimator on train for a feature set; predict val; save predictions parquet and `models/runs/<candidate>/val_metrics.json`), `src/aml_triage/cli.py` (`--split test` exits 3 unless `test_access.json` state is `frozen`)
   - Accept: val metrics written for every candidate; test refused before freeze
   - Verify: `python -m aml_triage train --config configs/base.yaml --models hgb --split test; test $? -eq 3`
 
-- [ ] T049 [US1] Implement calibration assessment, comparison tables, and `compare` command
+- [X] T049 [US1] Implement calibration assessment, comparison tables, and `compare` command
   - Milestone M5 / Type: code / Depends: T048
   - Files: `src/aml_triage/evaluation/calibration.py` (reliability curve, Brier, ECE; isotonic-on-validation helper with PR-AUC-drop tolerance), `src/aml_triage/evaluation/compare.py` (tables per contracts; PR/ROC/calibration curves; accuracy last with prevalence), `src/aml_triage/reporting/tables.py` (markdown writer with disclaimer footer), `src/aml_triage/cli.py`
   - Accept: `reports/model_comparison.md` validation section contains all candidates and comparators at every K in `k_grid`
   - Verify: `python -m aml_triage compare --config configs/base.yaml --split val && grep -c 'recall_at_k\|Recall@K' reports/model_comparison.md`
 
-- [ ] T050 [US1] Run validation training and comparison for all candidates on `primary` and `strict_pretx`; write the validation discussion
+- [X] T050 [US1] Run validation training and comparison for all candidates on `primary` and `strict_pretx`; write the validation discussion
   - Milestone M5 / Type: models, reports / Depends: T047, T049
   - Files: `models/runs/*/val_metrics.json`, `reports/model_comparison.md` (validation discussion written after tables exist; ablation gap between feature sets discussed as simulator-artifact evidence per research R-06)
   - Accept: discussion cites table values; no test numbers appear; accuracy not headlined
   - Verify: `python -m aml_triage train --config configs/base.yaml --models dummy,logreg,balanced_rf,hgb --split val && python -m aml_triage compare --config configs/base.yaml --split val && pytest tests/test_vocabulary.py -q`
 
-- [ ] T051 [P] [US1] Create `notebooks/05_model_comparison_validation.ipynb`
+- [X] T051 [P] [US1] Create `notebooks/05_model_comparison_validation.ipynb`
   - Milestone M5 / Type: notebooks / Depends: T050
   - Files: `notebooks/05_model_comparison_validation.ipynb`
   - Accept: executes; shows validation tables and curves only

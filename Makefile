@@ -40,10 +40,16 @@ pipeline: ## Full CLI sequence (contracts/cli-contract.md)
 	$(CLI) split --config $(CONFIG)
 	$(CLI) build-features --config $(CONFIG) --feature-set primary
 	$(CLI) build-features --config $(CONFIG) --feature-set strict_pretx
+	$(CLI) build-features --config $(CONFIG) --feature-set posttx_ablation
 	$(CLI) eda --config $(CONFIG)
 	$(CLI) select-features --config $(CONFIG)
+	$(CLI) build-features --config $(CONFIG) --feature-set selected
 	$(CLI) pca --config $(CONFIG)
-	$(CLI) train --config $(CONFIG) --models dummy,logreg,balanced_rf,hgb --split val
+	$(CLI) train --config $(CONFIG) --models dummy,logreg,balanced_rf,hgb --feature-set primary --split val
+	$(CLI) train --config $(CONFIG) --models dummy,logreg,balanced_rf,hgb --feature-set strict_pretx --split val
+	$(CLI) train --config $(CONFIG) --models hgb --feature-set posttx_ablation --split val
+	$(CLI) train --config $(CONFIG) --models hgb --feature-set selected --split val
+	$(CLI) train --config $(CONFIG) --models hgb --feature-set pca_variant --split val
 	$(CLI) compare --config $(CONFIG) --split val
 	$(CLI) tune --config $(CONFIG) --models logreg,balanced_rf,hgb
 	$(CLI) choose-operating-point --config $(CONFIG)

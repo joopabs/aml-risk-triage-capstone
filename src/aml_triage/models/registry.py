@@ -45,15 +45,27 @@ def _substitute(value: Any, cfg: Config) -> Any:
     return value
 
 
+def tuned_path(model_id: str, cfg: Config, models_dir: str | Path = MODELS_DIR) -> Path:
+    """Where tuned parameters live for this configuration.
+
+    The base run (``paths.models_dir == "models"``) keeps the documented location
+    ``configs/models/<id>.tuned.yaml``. Any other configuration (CI smoke, tests, experiments)
+    writes under its own ``<models_dir>/tuning/`` so it can never overwrite the real search results.
+    """
+    if Path(cfg.paths.models_dir).as_posix() == "models":
+        return Path(models_dir) / f"{model_id}.tuned.yaml"
+    return Path(cfg.paths.models_dir) / "tuning" / f"{model_id}.tuned.yaml"
+
+
 def load_spec(model_id: str, cfg: Config, prefer_tuned: bool = True, models_dir: str | Path = MODELS_DIR) -> ModelSpec:
     base = Path(models_dir) / f"{model_id}.yaml"
     if not base.exists():
         raise FileNotFoundError(f"unknown model id {model_id!r}: {base} not found")
     raw = yaml.safe_load(base.read_text(encoding="utf-8"))
-    tuned_path = Path(models_dir) / f"{model_id}.tuned.yaml"
+    tuned_path_ = tuned_path(model_id, cfg, models_dir)
     tuned = False
-    if prefer_tuned and tuned_path.exists():
-        tuned_raw = yaml.safe_load(tuned_path.read_text(encoding="utf-8")) or {}
+    if prefer_tuned and tuned_path_.exists():
+        tuned_raw = yaml.safe_load(tuned_path_.read_text(encoding="utf-8")) or {}
         raw["params"] = {**raw.get("params", {}), **tuned_raw.get("params", {})}
         tuned = True
     params = _substitute(raw.get("params", {}), cfg)

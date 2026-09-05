@@ -103,7 +103,8 @@ def test_full_chain_on_fixture(chain, monkeypatch) -> None:
     )
     assert _run(cfg, "compare", "--split", "val") == EXIT_OK
     assert _run(cfg, "tune", "--models", "logreg") == EXIT_OK
-    assert (tmp / "configs" / "models" / "logreg.tuned.yaml").exists()
+    assert (tmp / "models" / "tuning" / "logreg.tuned.yaml").exists()  # isolated per config
+    assert not (tmp / "configs" / "models" / "logreg.tuned.yaml").exists()
     assert _run(cfg, "choose-operating-point") == EXIT_OK
     assert _run(cfg, "freeze") == EXIT_OK
     assert _run(cfg, "evaluate", "--split", "test") == EXIT_OK

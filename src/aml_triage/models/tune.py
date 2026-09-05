@@ -20,7 +20,7 @@ from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 from aml_triage.config import Config
 from aml_triage.features.pipeline import load_feature_matrix
 from aml_triage.features.selection import stratified_subsample
-from aml_triage.models.registry import MODELS_DIR, estimator_param_prefix, instantiate, load_spec
+from aml_triage.models.registry import MODELS_DIR, estimator_param_prefix, instantiate, load_spec, tuned_path
 from aml_triage.utils.io import ensure_dir, write_json
 
 
@@ -75,8 +75,9 @@ def tune_candidate(cfg: Config, model_id: str, feature_set: str | None = None, m
     seconds = time.perf_counter() - t0
 
     best = {k[len(prefix):] if prefix and k.startswith(prefix) else k: _jsonable(v) for k, v in search.best_params_.items()}
-    tuned_path = Path(models_dir) / f"{model_id}.tuned.yaml"
-    tuned_path.write_text(
+    out_path = tuned_path(model_id, cfg, models_dir)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
         "# Written by `python -m aml_triage tune`; best RandomizedSearchCV params on a seeded training subsample.\n"
         + yaml.safe_dump(
             {

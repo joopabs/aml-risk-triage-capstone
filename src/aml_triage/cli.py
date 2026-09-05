@@ -107,6 +107,7 @@ def _resolve_handler(name: str) -> Handler:
     from aml_triage.features.selection_commands import run_pca_cmd, run_select_features
     from aml_triage.models.commands import run_compare, run_train
     from aml_triage.models.lifecycle_commands import HANDLERS as lifecycle_handlers
+    from aml_triage.reporting.commands import run_build_report
 
     registry: dict[str, Handler] = {
         **data_handlers,
@@ -121,6 +122,7 @@ def _resolve_handler(name: str) -> Handler:
         "explain": run_explain,
         "fairness-availability": run_fairness_availability,
         "fairness": run_fairness,
+        "build-report": run_build_report,
     }
     return registry.get(name, _not_implemented)
 

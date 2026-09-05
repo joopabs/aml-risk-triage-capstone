@@ -67,7 +67,10 @@ report: ## Assemble and export the final report
 	scripts/export_report.sh
 
 slides: ## Export the technical deck from the notebook
-	$(PY) -m jupyter nbconvert notebooks/90_technical_deck.ipynb --to slides --output-dir reports/slides --output technical_deck
+	$(PY) -m jupyter nbconvert notebooks/90_technical_deck.ipynb --to slides --output-dir reports/slides --output technical_deck && mv -f reports/slides/technical_deck.slides.html reports/slides/technical_deck.html
+	$(PY) -m jupyter nbconvert notebooks/90_technical_deck.ipynb --to markdown --output-dir reports/slides --output .technical_deck && $(PY) scripts/md_to_html.py reports/slides/.technical_deck.md reports/slides/.technical_deck.html abs && $(PY) scripts/html_to_pdf.py reports/slides/.technical_deck.html reports/slides/technical_deck.pdf --page-break-h2 && rm -f reports/slides/.technical_deck.md reports/slides/.technical_deck.html
+	$(PY) scripts/build_business_deck.py && $(PY) scripts/md_to_html.py reports/slides/business_deck_outline.md reports/slides/.business_deck.html abs && $(PY) scripts/html_to_pdf.py reports/slides/.business_deck.html reports/slides/business_deck.pdf --page-break-h2 && rm -f reports/slides/.business_deck.html
+	$(PY) scripts/check_slide_counts.py reports/slides/technical_deck.html reports/slides/business_deck.pptx --dump-text
 
 smoke: ## CI smoke pipeline on a synthetic sample (available from task T063)
 	@if [ -f scripts/make_sample.py ]; then \

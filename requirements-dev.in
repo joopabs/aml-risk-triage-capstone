@@ -9,3 +9,5 @@ nbstripout
 jupyter
 nbconvert
 httpx
+python-pptx
+xhtml2pdf

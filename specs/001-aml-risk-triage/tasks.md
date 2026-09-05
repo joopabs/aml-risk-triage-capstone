@@ -472,7 +472,7 @@ passes (SC-004); no data or secrets tracked (SC-005).
   - Accept: `make ci` completes the full CLI sequence on the sample in under 10 minutes with no dataset download
   - Verify: `time make ci`
 
-- [ ] T064 [US2] Complete README setup, commands, and repository map sections
+- [X] T064 [US2] Complete README setup, commands, and repository map sections
   - Milestone M8 / Type: docs / Depends: T062
   - Files: `README.md` (ordered commands: setup, data fetch incl. manual path, pipeline, tests, report, slides; repository map; provenance summary linking `data/README.md`)
   - Accept: every command in README exists as a Make target or CLI command in contracts/cli-contract.md
@@ -607,55 +607,55 @@ nbconvert slides; business deck from a committed outline; both 8–12 slides; RE
 **Independent Test**: `scripts/check_slide_counts.py` passes for both decks; `final_report.md`
 contains §1–§8; vocabulary test passes on all prose (SC-011).
 
-- [ ] T080 [US5] Implement the report builder and `build-report` command
+- [X] T080 [US5] Implement the report builder and `build-report` command
   - Milestone M8 / Type: code / Depends: T059, T071, T078
   - Files: `src/aml_triage/reporting/report_builder.py` (assembles `reports/final_report.md` from front matter + §1 Problem, §2 Data and Dictionary, §3 EDA + FE, §4 Models and Selection, §5 Explainability, §6 Bias & Fairness Analysis, §7 Limitations, §8 Reproducibility; exit 4 on any missing section file), `src/aml_triage/cli.py`
   - Accept: exit 4 when a section is missing; success writes the full report with disclaimer front matter
   - Verify: `python -m aml_triage build-report --config configs/base.yaml; echo exit=$?`
 
-- [ ] T081 [P] [US5] Write export and slide-count scripts
+- [X] T081 [P] [US5] Write export and slide-count scripts
   - Milestone M8 / Type: code / Depends: T001
   - Files: `scripts/export_report.sh` (pandoc if present; else documented fallback message per research R-11), `scripts/check_slide_counts.py` (counts reveal.js sections in HTML and slides in PPTX; exits 1 unless 8 ≤ n ≤ 12; `--dump-text` mode writes `.pptx` slide text to `reports/slides/business_deck.txt` so the vocabulary scan covers the deck)
   - Accept: script rejects a 7-slide and a 13-slide fixture
   - Verify: `python scripts/check_slide_counts.py --self-test`
 
-- [ ] T082 [US5] Write the hand-authored report sections
+- [X] T082 [US5] Write the hand-authored report sections
   - Milestone M8 / Type: reports / Depends: T080
   - Files: `reports/sections/01_problem.md` (from spec Business Context; K stated; KPI labeled illustrative; human review workflow, investigator role, and override capability described per FR-083), `reports/sections/07_limitations.md` (consolidates data-quality, model, fairness limitations), `reports/sections/08_reproducibility.md` (commands, seed, tolerance, artifact versions)
   - Accept: every number cites a generated artifact; no currency; disclaimer present; FR-083 workflow paragraph present in §1
   - Verify: `python -m aml_triage build-report --config configs/base.yaml && grep -qi 'override' reports/final_report.md && pytest tests/test_vocabulary.py -q`
 
-- [ ] T083 [US5] Build and export the final report
+- [X] T083 [US5] Build and export the final report
   - Milestone M8 / Type: reports, verification / Depends: T081, T082
   - Files: `reports/final_report.md`, `reports/final_report.pdf`
   - Accept: PDF opens; §1–§8 present; table of contents matches spec FR-090
   - Verify: `scripts/export_report.sh && grep -c '^## ' reports/final_report.md`
 
-- [ ] T084 [US5] Create the technical deck notebook and export slides
+- [X] T084 [US5] Create the technical deck notebook and export slides
   - Milestone M8 / Type: notebooks, reports / Depends: T083
   - Files: `notebooks/90_technical_deck.ipynb` (8–12 slides: framing, data, quality, features and split, comparison, selection, capacity, explainability, fairness, reproducibility, next steps; title and closing slides carry disclaimer), `reports/slides/technical_deck.html`, `reports/slides/technical_deck.pdf`
   - Accept: slide count within range; every metric slide cites `metrics.json` values
   - Verify: `jupyter nbconvert notebooks/90_technical_deck.ipynb --to slides --output-dir reports/slides --output technical_deck && python scripts/check_slide_counts.py reports/slides/technical_deck.html`
 
-- [ ] T085 [P] [US5] Write the business deck outline
+- [X] T085 [P] [US5] Write the business deck outline
   - Milestone M8 / Type: docs / Depends: T083
   - Files: `reports/slides/business_deck_outline.md` (8–12 slides: problem, what the tool does and does not do, investigator workflow and override, illustrative KPI vs random and rule, risks, governance and human-in-the-loop, what real deployment would require, next steps; no unexplained technical terms; every number prefixed "illustrative")
   - Accept: `grep -c illustrative` ≥ number of numeric claims; non-use list present
   - Verify: `pytest tests/test_vocabulary.py -q && grep -c illustrative reports/slides/business_deck_outline.md`
 
-- [ ] T086 [US5] Build the business deck from the outline and export
+- [X] T086 [US5] Build the business deck from the outline and export
   - Milestone M8 / Type: reports / Depends: T085
   - Files: `reports/slides/business_deck.pptx`, `reports/slides/business_deck.pdf` (authored in PowerPoint, Canva, or Google Slides; manual step)
   - Accept: content matches outline; disclaimer on title and closing slides; dumped text passes the vocabulary scan
   - Verify: `python scripts/check_slide_counts.py reports/slides/business_deck.pptx --dump-text && pytest tests/test_vocabulary.py -q`
 
-- [ ] T087 [US5] Verify both decks and the report together
+- [X] T087 [US5] Verify both decks and the report together
   - Milestone M8 / Type: verification / Depends: T084, T086
   - Files: none new
   - Accept: both decks 8–12 slides; report PDF present; vocabulary scan clean
   - Verify: `python scripts/check_slide_counts.py reports/slides/technical_deck.html reports/slides/business_deck.pptx && test -f reports/final_report.pdf && pytest tests/test_vocabulary.py -q`
 
-- [ ] T088 [US5] Complete README results and links
+- [X] T088 [US5] Complete README results and links
   - Milestone M8 / Type: docs / Depends: T087
   - Files: `README.md` (Results: primary PR-AUC and Recall@K with CIs copied from `models/<LATEST>/metrics.json`, comparators, "illustrative" KPI; Links: report, decks, model card; Optional Steps: status "not attempted" until Phase 8/9 change it)
   - Accept: numbers match `metrics.json`; disclaimer present; no accuracy headline
@@ -747,7 +747,7 @@ versioning/rollback.
 
 **Purpose**: Final gates, self-assessment, submission packaging.
 
-- [ ] T098 Write the rubric self-assessment
+- [X] T098 Write the rubric self-assessment
   - Milestone M8 / Type: reports / Depends: T088 (and T097 if optional work done)
   - Files: `reports/rubric_self_assessment.md` (criteria 1–7 plus bonus against the "Outstanding/Exemplary" descriptors from `CAPSTONE_BRIEF.md`; evidence link per descriptor; gaps closed or acknowledged)
   - Accept: every descriptor has an evidence link or an acknowledged gap

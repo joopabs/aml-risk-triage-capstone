@@ -17,12 +17,12 @@ override.
 
 ## Status
 
-Milestones 1–6 are complete: scaffold and tooling, PaySim acquired with recorded provenance and
+Milestones 1–8 are complete: scaffold and tooling, PaySim acquired with recorded provenance and
 license, schema validated, data quality profiled, temporal split, leakage-safe features, EDA,
 feature selection and PCA, validation comparison, tuning, a validation-frozen operating point, a
-single-touch test evaluation, a released model bundle (`models/LATEST`), SHAP/PDP explainability,
-and the Bias & Fairness Analysis (Milestones 1–7). The final report and decks follow in Milestone 8. See
-`specs/001-aml-risk-triage/tasks.md`.
+single-touch test evaluation, a released model bundle (`models/LATEST` = `20260904T225142-0dc8f82-hgb`),
+SHAP/PDP explainability, the Bias & Fairness Analysis, the final report, and two slide decks.
+Optional Steps 8 and 9 are tracked below. Task list: `specs/001-aml-risk-triage/tasks.md`.
 
 ## Provenance
 
@@ -44,30 +44,45 @@ source .venv/bin/activate
 
 ```bash
 make lint             # ruff check + format check
-make test             # pytest
-make coverage         # pytest with coverage gate (enforced from task T066)
+make test             # pytest (leakage guards, test-access state machine, vocabulary scan, notebooks compile)
+make coverage         # pytest with the coverage gate
 make ci               # lint + test + tracked-data check + smoke pipeline
-make data             # fetch PaySim (Kaggle API if KAGGLE_* set, else manual steps) and verify checksum
-python -m aml_triage validate-schema | profile | data-dictionary   # after paths.raw_csv is set
-python -m aml_triage --help
+make data             # fetch PaySim (Kaggle API token in .env, or manual steps) and verify SHA-256
+python -m aml_triage validate-schema | profile | data-dictionary
+make pipeline         # split -> build-features -> select-features -> pca -> train -> compare -> tune
+                      # -> choose-operating-point -> freeze -> evaluate --split test (single touch)
+                      # -> select -> reproduce-check -> explain -> fairness-availability -> fairness -> build-report
+make report           # assemble reports/final_report.md and export final_report.pdf
+make slides           # technical deck (reveal.js HTML + PDF) and business deck (PPTX + PDF), slide-count check
+python -m aml_triage --help   # all 22 commands; every command takes --config and --seed
 ```
 
-_Data fetch, pipeline, report, and slide commands are added as their milestones land._
+The test split can be scored once per configuration. A second `evaluate --split test` is refused
+unless `--force-reevaluate --reason "..."` is passed, and the reason is written to
+`data/processed/test_access.json`.
 
 ## Repository map
 
 ```text
-configs/     run configuration (base.yaml, vocabulary.yaml, smoke.yaml; schema/features later)
-src/aml_triage/  package: config, cli, utils, and one subpackage per pipeline stage
-tests/       pytest suite (config, cli, utils, vocabulary, hardcoded-params, optional isolation)
-notebooks/   numbered notebooks that call the package (added from Milestone 2)
-data/        README with provenance; raw/ and processed/ are gitignored
-models/      persisted model bundles (joblib files gitignored; checksums committed)
-reports/     data quality, EDA, comparison, fairness, final report, slides
-scripts/     fetch, sample, export, slide-count helpers
-deployment/  optional Step 8 (Docker, guide, demo)
-docs/        optional Step 8/9 documentation
-specs/       Spec Kit constitution-driven specification, plan, and tasks
+configs/         base.yaml (seed, split, K), schema.yaml, features.yaml (registry), data_source.yaml,
+                 vocabulary.yaml, operating_point.yaml (frozen), models/*.yaml (+ *.tuned.yaml)
+src/aml_triage/  config, cli, utils; data/ (load, schema, profiling, dictionary, split);
+                 features/ (transforms, causal aggregates, pipeline + fit-scope recorder, selection, pca);
+                 models/ (registry, comparators, train, tune, lifecycle: freeze/evaluate/select/queue/reproduce);
+                 evaluation/ (metrics, capacity, calibration, bootstrap, compare, threshold, capacity_report);
+                 explain/ (SHAP, PDP/ICE, captions); fairness/ (availability, slices, demographic, report);
+                 eda/, reporting/ (figures, tables, report_builder)
+tests/           131 tests: config, CLI, schema, split, features, causal aggregates, leakage + test-access
+                 guards, metrics, capacity, training, fairness, vocabulary, notebooks compile, report builder
+notebooks/       01–07 numbered notebooks that call the package; 90_technical_deck.ipynb (slides)
+data/            README (provenance, license, checksum); raw/ and processed/ gitignored except small
+                 governance JSON (split manifest, test-access record, feature lists, fit-scope records)
+models/          <version>/ bundle (pipeline.sha256, config snapshot, metrics, feature list, model card); LATEST
+reports/         data quality, dictionary, EDA, selection, PCA, comparison, selection matrix, capacity,
+                 explainability, Bias & Fairness Analysis, review queues, final_report.md/.pdf, slides/
+scripts/         fetch_data.sh, export_report.sh, md_to_html.py, html_to_pdf.py, build_business_deck.py,
+                 check_slide_counts.py
+specs/           Spec Kit constitution-driven specification, plan, research, data model, contracts, tasks
 ```
 
 ## Results
@@ -96,12 +111,15 @@ Measured by `python -m aml_triage reproduce-check` on 2026-09-05 (seed 42, OMP t
 
 ## Optional steps
 
-- Step 8 (Deployment & MLOps): not attempted yet.
-- Step 9 (Generative AI): not attempted yet. Usage, if any, will be documented in
-  `docs/genai_usage.md`.
+- Step 8 (Deployment & MLOps): **not attempted yet**.
+- Step 9 (Generative AI): **not attempted yet**. Usage, if any, will be documented in `docs/genai_usage.md`.
 
 ## Links
 
-- Specification, plan, and tasks: `specs/001-aml-risk-triage/`
-- Constitution: `.specify/memory/constitution.md`
-- Final report and decks: _added in Milestone 8_
+- Final report: `reports/final_report.md` (PDF: `reports/final_report.pdf`, self-contained HTML: `reports/final_report.html`)
+- Technical deck (11 slides): `reports/slides/technical_deck.html` / `.pdf` (source: `notebooks/90_technical_deck.ipynb`)
+- Business deck (10 slides): `reports/slides/business_deck.pptx` / `.pdf` (source outline: `reports/slides/business_deck_outline.md`)
+- Model card: `models/20260904T225142-0dc8f82-hgb/model_card.md`
+- Bias & Fairness Analysis: `reports/bias_fairness_analysis.md` · Explainability: `reports/explainability.md`
+- Selection matrix: `reports/selection_matrix.md` · Capacity analysis: `reports/capacity_analysis.md`
+- Specification, plan, and tasks: `specs/001-aml-risk-triage/` · Constitution: `.specify/memory/constitution.md`

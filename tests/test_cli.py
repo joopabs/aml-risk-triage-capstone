@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -36,23 +37,33 @@ def test_no_command_prints_help_and_exits_0() -> None:
     assert main([]) == EXIT_OK
 
 
-def test_stub_exits_1_with_message(
+def test_not_implemented_handler_exits_1(
     capsys: pytest.CaptureFixture[str], base_config_path: Path
 ) -> None:
-    rc = main(["build-report", "--config", str(base_config_path)])
-    assert rc == EXIT_ERROR
+    """Every contract command is implemented; the stub path is kept for future commands."""
+    from aml_triage.cli import COMMANDS, _not_implemented, _resolve_handler
+    from aml_triage.config import load
+
+    assert all(_resolve_handler(n) is not _not_implemented for n, _, _ in COMMANDS)
+    ns = argparse.Namespace(command="future-cmd", milestone="M99")
+    assert _not_implemented(ns, load(base_config_path)) == EXIT_ERROR
     assert "not implemented" in capsys.readouterr().err
-
-
-def test_missing_config_exits_2(tmp_path: Path) -> None:
-    assert main(["build-report", "--config", str(tmp_path / "missing.yaml")]) == EXIT_VALIDATION
 
 
 def test_seed_override_reaches_config(
     base_config_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    main(["build-report", "--config", str(base_config_path), "--seed", "9"])
-    assert "seed=9" in capsys.readouterr().err
+    from aml_triage.cli import _load_config
+
+    ns = argparse.Namespace(config=str(base_config_path), seed=9)
+    assert _load_config(ns).seed == 9
+
+
+def test_missing_config_exits_2(tmp_path: Path) -> None:
+    assert (
+        main(["queue", "--period", "0", "--config", str(tmp_path / "missing.yaml")])
+        == EXIT_VALIDATION
+    )
 
 
 def test_module_entry_point(base_config_path: Path) -> None:

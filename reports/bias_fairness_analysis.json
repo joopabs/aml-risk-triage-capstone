@@ -1,0 +1,367 @@
+{
+  "availability": {
+    "any_valid_label": false,
+    "attributes_checked": [
+      "age",
+      "gender",
+      "ethnicity",
+      "nationality",
+      "socioeconomic_status"
+    ],
+    "decided_on": "2026-09-05",
+    "per_attribute": {
+      "age": {
+        "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['age', 'birth', 'dob']",
+        "present": false
+      },
+      "ethnicity": {
+        "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['ethnicity', 'race']",
+        "present": false
+      },
+      "gender": {
+        "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['gender', 'sex']",
+        "present": false
+      },
+      "nationality": {
+        "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['nationality', 'country', 'citizen']",
+        "present": false
+      },
+      "socioeconomic_status": {
+        "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['income', 'socioeconomic', 'wealth', 'occupation', 'education', 'region', 'zip', 'postcode']",
+        "present": false
+      }
+    },
+    "proxy_scan_columns": [],
+    "proxy_scan_names": [
+      "age",
+      "birth",
+      "citizen",
+      "country",
+      "dob",
+      "education",
+      "ethnicity",
+      "gender",
+      "income",
+      "marital",
+      "nationality",
+      "occupation",
+      "postcode",
+      "race",
+      "region",
+      "religion",
+      "sex",
+      "socioeconomic",
+      "wealth",
+      "zip"
+    ],
+    "raw_columns": [
+      "step",
+      "type",
+      "amount",
+      "nameOrig",
+      "oldbalanceOrg",
+      "newbalanceOrig",
+      "nameDest",
+      "oldbalanceDest",
+      "newbalanceDest",
+      "isFraud",
+      "isFlaggedFraud"
+    ],
+    "source": "data/raw/PS_20174392719_1491204439457_log.csv"
+  },
+  "demographic": null,
+  "figures": [
+    "reports/figures/fairness/slice_type.png",
+    "reports/figures/fairness/slice_amount_band.png",
+    "reports/figures/fairness/slice_orig_balance_band.png",
+    "reports/figures/fairness/slice_step_band.png"
+  ],
+  "slices": {
+    "band_edges": {
+      "amount_band": [
+        9952.751953125,
+        36656.2625,
+        122966.15625,
+        247127.65625
+      ],
+      "orig_balance_band": [
+        13767.0,
+        51415.0,
+        301979.0
+      ]
+    },
+    "bands_fitted_on": "train",
+    "dimensions": [
+      "type",
+      "amount_band",
+      "orig_balance_band",
+      "step_band"
+    ],
+    "label": "operational error-slice analysis",
+    "primary_k": 200,
+    "results": {
+      "amount_band": [
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 38717,
+          "positives": 260,
+          "precision_at_k": 1.0,
+          "prevalence": 0.006715396337526151,
+          "recall_at_k": 0.9615384615384616,
+          "slice": "high"
+        },
+        {
+          "brier_calibrated": 9.941165384067647e-08,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 37166,
+          "positives": 106,
+          "precision_at_k": null,
+          "prevalence": 0.002852069095409783,
+          "recall_at_k": 0.0,
+          "slice": "low"
+        },
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 37413,
+          "positives": 342,
+          "precision_at_k": 1.0,
+          "prevalence": 0.009141207601635795,
+          "recall_at_k": 0.5409356725146199,
+          "slice": "mid"
+        },
+        {
+          "brier_calibrated": 1.181243843956047e-05,
+          "fnr_at_threshold": 0.0014947683109118087,
+          "fpr_at_threshold": 0.0,
+          "n": 37382,
+          "positives": 1338,
+          "precision_at_k": 1.0,
+          "prevalence": 0.03579262746776524,
+          "recall_at_k": 0.8707025411061285,
+          "slice": "very high"
+        },
+        {
+          "brier_calibrated": 2.048668788873285e-06,
+          "fnr_at_threshold": 0.04054054054054054,
+          "fpr_at_threshold": 0.0,
+          "n": 43457,
+          "positives": 74,
+          "precision_at_k": null,
+          "prevalence": 0.0017028326851830544,
+          "recall_at_k": 0.0,
+          "slice": "very low"
+        }
+      ],
+      "orig_balance_band": [
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 36916,
+          "positives": 72,
+          "precision_at_k": null,
+          "prevalence": 0.0019503738216491494,
+          "recall_at_k": 0.0,
+          "slice": "Q1"
+        },
+        {
+          "brier_calibrated": 1.0124221862888645e-07,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 36494,
+          "positives": 164,
+          "precision_at_k": 1.0,
+          "prevalence": 0.004493889406477777,
+          "recall_at_k": 0.04878048780487805,
+          "slice": "Q2"
+        },
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 34673,
+          "positives": 634,
+          "precision_at_k": 1.0,
+          "prevalence": 0.018285120987511897,
+          "recall_at_k": 0.8186119873817035,
+          "slice": "Q3"
+        },
+        {
+          "brier_calibrated": 1.3406581466060949e-05,
+          "fnr_at_threshold": 0.0016129032258064516,
+          "fpr_at_threshold": 0.0,
+          "n": 32937,
+          "positives": 1240,
+          "precision_at_k": 1.0,
+          "prevalence": 0.037647630324559006,
+          "recall_at_k": 0.8653225806451613,
+          "slice": "Q4"
+        },
+        {
+          "brier_calibrated": 1.6761555033054005e-06,
+          "fnr_at_threshold": 0.3,
+          "fpr_at_threshold": 0.0,
+          "n": 53115,
+          "positives": 10,
+          "precision_at_k": null,
+          "prevalence": 0.00018827073331450627,
+          "recall_at_k": 0.0,
+          "slice": "zero"
+        }
+      ],
+      "step_band": [
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 32709,
+          "positives": 280,
+          "precision_at_k": 1.0,
+          "prevalence": 0.008560335075972973,
+          "recall_at_k": 0.7142857142857143,
+          "slice": "day 24"
+        },
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 57853,
+          "positives": 240,
+          "precision_at_k": 1.0,
+          "prevalence": 0.004148445197310425,
+          "recall_at_k": 0.8333333333333334,
+          "slice": "day 25"
+        },
+        {
+          "brier_calibrated": 2.6609532060803614e-07,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 13885,
+          "positives": 272,
+          "precision_at_k": 1.0,
+          "prevalence": 0.019589485055815627,
+          "recall_at_k": 0.7352941176470589,
+          "slice": "day 26"
+        },
+        {
+          "brier_calibrated": 5.424603818740303e-05,
+          "fnr_at_threshold": 0.010714285714285714,
+          "fpr_at_threshold": 0.0,
+          "n": 8578,
+          "positives": 280,
+          "precision_at_k": 1.0,
+          "prevalence": 0.03264164140825367,
+          "recall_at_k": 0.7142857142857143,
+          "slice": "day 27"
+        },
+        {
+          "brier_calibrated": 4.452239114545244e-06,
+          "fnr_at_threshold": 0.004032258064516129,
+          "fpr_at_threshold": 0.0,
+          "n": 14661,
+          "positives": 248,
+          "precision_at_k": 1.0,
+          "prevalence": 0.016915626492053748,
+          "recall_at_k": 0.8064516129032258,
+          "slice": "day 28"
+        },
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 54890,
+          "positives": 260,
+          "precision_at_k": 1.0,
+          "prevalence": 0.004736746219712151,
+          "recall_at_k": 0.7692307692307693,
+          "slice": "day 29"
+        },
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": 0.0,
+          "fpr_at_threshold": 0.0,
+          "n": 11287,
+          "positives": 268,
+          "precision_at_k": 1.0,
+          "prevalence": 0.023744130415522282,
+          "recall_at_k": 0.746268656716418,
+          "slice": "day 30"
+        },
+        {
+          "brier_calibrated": 1.7573808179515177e-08,
+          "fnr_at_threshold": 0.003676470588235294,
+          "fpr_at_threshold": null,
+          "n": 272,
+          "positives": 272,
+          "precision_at_k": 1.0,
+          "prevalence": 1.0,
+          "recall_at_k": 0.7352941176470589,
+          "slice": "day 31"
+        }
+      ],
+      "type": [
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": null,
+          "fpr_at_threshold": 0.0,
+          "n": 44564,
+          "positives": 0,
+          "precision_at_k": null,
+          "prevalence": 0.0,
+          "recall_at_k": null,
+          "slice": "CASH_IN"
+        },
+        {
+          "brier_calibrated": 1.4681930660234173e-06,
+          "fnr_at_threshold": 0.002830188679245283,
+          "fpr_at_threshold": 0.0,
+          "n": 63155,
+          "positives": 1060,
+          "precision_at_k": 1.0,
+          "prevalence": 0.016784102604702717,
+          "recall_at_k": 0.7688679245283019,
+          "slice": "CASH_OUT"
+        },
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": null,
+          "fpr_at_threshold": 0.0,
+          "n": 1510,
+          "positives": 0,
+          "precision_at_k": null,
+          "prevalence": 0.0,
+          "recall_at_k": null,
+          "slice": "DEBIT"
+        },
+        {
+          "brier_calibrated": 0.0,
+          "fnr_at_threshold": null,
+          "fpr_at_threshold": 0.0,
+          "n": 66334,
+          "positives": 0,
+          "precision_at_k": null,
+          "prevalence": 0.0,
+          "recall_at_k": null,
+          "slice": "PAYMENT"
+        },
+        {
+          "brier_calibrated": 2.377625316323764e-05,
+          "fnr_at_threshold": 0.0018867924528301887,
+          "fpr_at_threshold": 0.0,
+          "n": 18572,
+          "positives": 1060,
+          "precision_at_k": 1.0,
+          "prevalence": 0.057075166917940984,
+          "recall_at_k": 0.7405660377358491,
+          "slice": "TRANSFER"
+        }
+      ]
+    },
+    "threshold": 0.971931
+  }
+}

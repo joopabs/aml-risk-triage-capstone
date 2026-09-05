@@ -1,0 +1,70 @@
+{
+  "any_valid_label": false,
+  "attributes_checked": [
+    "age",
+    "gender",
+    "ethnicity",
+    "nationality",
+    "socioeconomic_status"
+  ],
+  "decided_on": "2026-09-05",
+  "per_attribute": {
+    "age": {
+      "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['age', 'birth', 'dob']",
+      "present": false
+    },
+    "ethnicity": {
+      "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['ethnicity', 'race']",
+      "present": false
+    },
+    "gender": {
+      "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['gender', 'sex']",
+      "present": false
+    },
+    "nationality": {
+      "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['nationality', 'country', 'citizen']",
+      "present": false
+    },
+    "socioeconomic_status": {
+      "evidence": "no column among ['step', 'type', 'amount', 'nameOrig', 'oldbalanceOrg', 'newbalanceOrig', 'nameDest', 'oldbalanceDest', 'newbalanceDest', 'isFraud', 'isFlaggedFraud'] contains any of ['income', 'socioeconomic', 'wealth', 'occupation', 'education', 'region', 'zip', 'postcode']",
+      "present": false
+    }
+  },
+  "proxy_scan_columns": [],
+  "proxy_scan_names": [
+    "age",
+    "birth",
+    "citizen",
+    "country",
+    "dob",
+    "education",
+    "ethnicity",
+    "gender",
+    "income",
+    "marital",
+    "nationality",
+    "occupation",
+    "postcode",
+    "race",
+    "region",
+    "religion",
+    "sex",
+    "socioeconomic",
+    "wealth",
+    "zip"
+  ],
+  "raw_columns": [
+    "step",
+    "type",
+    "amount",
+    "nameOrig",
+    "oldbalanceOrg",
+    "newbalanceOrig",
+    "nameDest",
+    "oldbalanceDest",
+    "newbalanceDest",
+    "isFraud",
+    "isFlaggedFraud"
+  ],
+  "source": "data/raw/PS_20174392719_1491204439457_log.csv"
+}

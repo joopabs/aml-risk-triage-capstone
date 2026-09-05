@@ -20,8 +20,8 @@ override.
 Milestones 1–6 are complete: scaffold and tooling, PaySim acquired with recorded provenance and
 license, schema validated, data quality profiled, temporal split, leakage-safe features, EDA,
 feature selection and PCA, validation comparison, tuning, a validation-frozen operating point, a
-single-touch test evaluation, and a released model bundle (`models/LATEST`). Explainability, the
-Bias & Fairness Analysis, the report, and the decks follow in Milestones 7–8. See
+single-touch test evaluation, a released model bundle (`models/LATEST`), SHAP/PDP explainability,
+and the Bias & Fairness Analysis (Milestones 1–7). The final report and decks follow in Milestone 8. See
 `specs/001-aml-risk-triage/tasks.md`.
 
 ## Provenance

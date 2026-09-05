@@ -123,3 +123,29 @@ def test_fairness_labeling_rules(repo_root: Path) -> None:
         assert vocab["required_literal"] in text.lower()
         for phrase in vocab["fairness_forbidden_when_unavailable"]:
             assert not _phrase_re(phrase).search(text), f"forbidden fairness claim: {phrase}"
+
+
+def test_fairness_report_heading_order_and_mislabel_detection(tmp_path: Path) -> None:
+    """The six headings must appear in contract order; a mislabelled slice section must fail."""
+    from aml_triage.fairness.report import HEADINGS, NON_MEASURABLE
+
+    vocab = _load_vocab()
+    good = "# Bias & Fairness Analysis\n\n" + "\n\n".join(f"## {h}\n\ntext" for h in HEADINGS)
+    good = good.replace(
+        "## Demographic Fairness\n\ntext", f"## Demographic Fairness\n\n{NON_MEASURABLE}"
+    )
+    good = good.replace(
+        "## Operational Error-Slice Analysis\n\ntext",
+        "## Operational Error-Slice Analysis\n\nLabel: operational error-slice analysis.",
+    )
+    positions = [good.index(f"## {h}") for h in HEADINGS]
+    assert positions == sorted(positions)
+    assert vocab["required_literal"] in good.lower()
+    bad = re.sub(
+        r"operational error-slice analysis",
+        "demographic fairness result by transaction type",
+        good,
+        flags=re.IGNORECASE,
+    )
+    assert any(_phrase_re(p).search(bad) for p in vocab["fairness_forbidden_when_unavailable"])
+    assert vocab["required_literal"] not in bad.lower()

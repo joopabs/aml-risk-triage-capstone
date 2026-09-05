@@ -503,37 +503,37 @@ checks or documented alternatives, plain-language captions, consistency discussi
 `reports/explainability.md` and figures; each local explanation carries a caption and the
 disclaimer; each top feature has a PDP/ICE figure or a stated reason and alternative (SC-008).
 
-- [ ] T067 [US3] Implement SHAP global and local explanations
+- [X] T067 [US3] Implement SHAP global and local explanations
   - Milestone M7 / Type: code / Depends: T057
   - Files: `src/aml_triage/explain/shap_reports.py` (explainer chosen by estimator type; seeded train background of `shap_background_rows`; seeded test sample of `shap_eval_rows`; summary and mean-|SHAP| bar; local waterfalls for `n_local_examples` top-K rows from period 0)
   - Accept: figures saved under `reports/figures/explain/`; feature names match `feature_list.json`
   - Verify: covered by T070
 
-- [ ] T068 [P] [US3] Implement PDP/ICE with validity checks
+- [X] T068 [P] [US3] Implement PDP/ICE with validity checks
   - Milestone M7 / Type: code / Depends: T057
   - Files: `src/aml_triage/explain/pdp_ice.py` (top features from SHAP; correlation check against other top features with threshold; status `produced`/`omitted` with reason; permutation importance as documented alternative)
   - Accept: returns `pdp_ice` records per data-model.md §12
   - Verify: covered by T070
 
-- [ ] T069 [P] [US3] Implement plain-language captions
+- [X] T069 [P] [US3] Implement plain-language captions
   - Milestone M7 / Type: code / Depends: T008
   - Files: `src/aml_triage/explain/captions.py` (template sentences per feature from registry `rationale`; direction words "raised/lowered the risk score"; never determination words; appends disclaimer)
   - Accept: captions contain no term from `configs/vocabulary.yaml` prohibited list
   - Verify: `pytest tests/test_vocabulary.py -q`
 
-- [ ] T070 [US3] Implement the `explain` command
+- [X] T070 [US3] Implement the `explain` command
   - Milestone M7 / Type: code / Depends: T067, T068, T069
   - Files: `src/aml_triage/cli.py` (`explain --model LATEST`; writes `reports/explainability.md` with sections Global, Local Examples, PDP/ICE Validity, Consistency Notes (empty placeholder to be filled in T071), disclaimer)
   - Accept: command runs against `models/LATEST` and saved test predictions only
   - Verify: `python -m aml_triage explain --config configs/base.yaml --model LATEST && ls reports/figures/explain | wc -l`
 
-- [ ] T071 [US3] Review attributions against EDA and write the consistency discussion
+- [X] T071 [US3] Review attributions against EDA and write the consistency discussion
   - Milestone M7 / Type: reports / Depends: T070
   - Files: `reports/explainability.md` (Consistency Notes: agreement or surprise per top feature referencing `reports/eda_summary.md` figures; plain-language summary for business audience; explicit note on any post-transaction feature dominance as artifact evidence)
   - Accept: every top feature discussed; surprises not omitted; no empty section
   - Verify: `! grep -q 'TODO' reports/explainability.md && pytest tests/test_vocabulary.py -q`
 
-- [ ] T072 [US3] Create `notebooks/07_explainability_and_fairness.ipynb` (explainability section)
+- [X] T072 [US3] Create `notebooks/07_explainability_and_fairness.ipynb` (explainability section)
   - Milestone M7 / Type: notebooks / Depends: T071
   - Files: `notebooks/07_explainability_and_fairness.ipynb` (header, explainability cells; fairness section added in T079)
   - Accept: executes; displays saved figures
@@ -553,43 +553,43 @@ labeled exactly as such; limitations; mitigations; governance audit plan.
 the availability record, the correct branch, and the literal label; `tests/test_vocabulary.py`
 passes its fairness assertions (SC-009).
 
-- [ ] T073 [US4] Implement the availability check and `fairness-availability` command
+- [X] T073 [US4] Implement the availability check and `fairness-availability` command
   - Milestone M7 / Type: code / Depends: T020
   - Files: `src/aml_triage/fairness/availability.py` (fixed attribute list; proxy name scan from `configs/schema.yaml`; evidence strings; `any_valid_label`), `src/aml_triage/cli.py` (writes `reports/fairness_availability.json`)
   - Accept: record conforms to contracts/artifacts-contract.md; result is derived from actual columns, not assumed
   - Verify: `python -m aml_triage fairness-availability --config configs/base.yaml && cat reports/fairness_availability.json`
 
-- [ ] T074 [P] [US4] Implement operational error-slice analysis
+- [X] T074 [P] [US4] Implement operational error-slice analysis
   - Milestone M7 / Type: code / Depends: T057
   - Files: `src/aml_triage/fairness/slices.py` (slices from config: type, amount band, origin-balance band, step band; per-slice n, prevalence, Recall@K, Precision@K, FPR, FNR, Brier; `label` fixed to the config literal)
   - Accept: output conforms to data-model.md §14; band edges computed from training split
   - Verify: covered by T076
 
-- [ ] T075 [P] [US4] Implement demographic fairness metrics (conditional path)
+- [X] T075 [P] [US4] Implement demographic fairness metrics (conditional path)
   - Milestone M7 / Type: code / Depends: T057
   - Files: `src/aml_triage/fairness/demographic.py` (demographic parity difference, equalized odds difference, disparate impact ratio; executed only when `any_valid_label` is true; unit-tested on fixture with a synthetic group column)
   - Accept: correct on hand-computed fixture values
   - Verify: `pytest tests/test_fairness.py -q` (add file in this task)
 
-- [ ] T076 [US4] Implement the `fairness` command and report writer
+- [X] T076 [US4] Implement the `fairness` command and report writer
   - Milestone M7 / Type: code / Depends: T073, T074, T075
   - Files: `src/aml_triage/cli.py`, `src/aml_triage/fairness/report.py` (writes `reports/bias_fairness_analysis.md` with headings in order: Sensitive-Attribute Availability Record; Demographic Fairness; Operational Error-Slice Analysis; Limitations; Mitigations; Governance-Controlled Fairness Audit Plan; branch text per contracts; figures to `reports/figures/fairness/`; prose sections left as marked placeholders for T078)
   - Accept: headings present and ordered; non-measurability sentence present when `any_valid_label` is false
   - Verify: `python -m aml_triage fairness --config configs/base.yaml && grep -n '^## ' reports/bias_fairness_analysis.md`
 
-- [ ] T077 [US4] Extend `tests/test_vocabulary.py` with fairness-labeling assertions
+- [X] T077 [US4] Extend `tests/test_vocabulary.py` with fairness-labeling assertions
   - Milestone M7 / Type: tests / Depends: T076
   - Files: `tests/test_vocabulary.py` (when `fairness_availability.json.any_valid_label` is false: report must contain `required_literal`, must not contain any `fairness_forbidden_when_unavailable` term; heading order check)
   - Accept: passes on generated report; fails on a fixture report that mislabels slices
   - Verify: `pytest tests/test_vocabulary.py -q`
 
-- [ ] T078 [US4] Review slice results and write Limitations, Mitigations, and the Governance Audit Plan
+- [X] T078 [US4] Review slice results and write Limitations, Mitigations, and the Governance Audit Plan
   - Milestone M7 / Type: reports / Depends: T077
   - Files: `reports/bias_fairness_analysis.md` (Limitations: imbalance handling, leakage controls, overfitting evidence from val-vs-test, synthetic-label validity, simulator artifacts, non-transferability, and the sentence that results cannot establish real AML effectiveness, fairness, or regulatory suitability; Mitigations: concrete and feasible; Audit Plan: data, metrics, owners, cadence)
   - Accept: slice observations cite the generated tables; no operational slice described with protected-group language; placeholders removed
   - Verify: `! grep -q 'PLACEHOLDER' reports/bias_fairness_analysis.md && pytest tests/test_vocabulary.py -q`
 
-- [ ] T079 [US4] Append the fairness section to `notebooks/07_explainability_and_fairness.ipynb`
+- [X] T079 [US4] Append the fairness section to `notebooks/07_explainability_and_fairness.ipynb`
   - Milestone M7 / Type: notebooks / Depends: T078
   - Files: `notebooks/07_explainability_and_fairness.ipynb`
   - Accept: executes; displays availability record and slice tables

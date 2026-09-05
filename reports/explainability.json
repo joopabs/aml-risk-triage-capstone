@@ -1,0 +1,286 @@
+{
+  "background_rows": 1000,
+  "candidate_id": "hgb",
+  "eval_rows": 2000,
+  "explainer": "TreeExplainer (exact)",
+  "feature_set": "primary",
+  "global_figures": [
+    "reports/figures/explain/shap_01_global_bar.png",
+    "reports/figures/explain/shap_02_summary_beeswarm.png"
+  ],
+  "global_mean_abs_shap": {
+    "amount_bucket": 0.005583365797756372,
+    "amount_to_orig_balance_ratio": 0.19661788529073845,
+    "dest_balance_delta": 0.1074548261295122,
+    "dest_balance_inconsistent_flag": 0.01021978066874659,
+    "dest_is_merchant": 0.0,
+    "dest_prior_amount_sum": 0.03035574035445126,
+    "dest_prior_txn_count": 0.01614418884986538,
+    "dest_zero_balance_flag": 0.013424748429334546,
+    "log_amount": 0.07982036390566066,
+    "log_oldbalance_dest": 0.08256135493004557,
+    "log_oldbalance_org": 0.07677519906162886,
+    "orig_balance_delta": 0.19842604667798708,
+    "orig_balance_inconsistent_flag": 0.445758607625508,
+    "orig_prior_amount_sum": 0.0,
+    "orig_prior_txn_count": 0.0,
+    "orig_zero_after_flag": 0.3313352280925007,
+    "orig_zero_balance_flag": 0.0029431007742516846,
+    "step_hour_of_day": 0.03719456227949858,
+    "type_CASH_IN": 0.013143766971981038,
+    "type_CASH_OUT": 0.17952664963738305,
+    "type_DEBIT": 0.00030889655932004196,
+    "type_PAYMENT": 0.07956208833589024,
+    "type_TRANSFER": 0.08020432793672568,
+    "zero_amount_flag": 0.0
+  },
+  "local_examples": [
+    {
+      "caption": "Ranked #1 for review in test review period 1 (simulated day 24) with risk score 1.0000. The largest influences: posted change in origin balance (= 1,688,761.12) raised the risk score by 4.25 log-odds; amount relative to the origin balance (= 1.00) raised the risk score by 3.81 log-odds; origin account emptied to zero (= 1) raised the risk score by 3.24 log-odds. This is a prioritisation for human review, not a finding. Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.",
+      "figure": "reports/figures/explain/shap_local_rank1.png",
+      "rank": 1,
+      "row_index": 6168485,
+      "score": 0.9999768967879094,
+      "step": 553,
+      "top_contributions": [
+        {
+          "contribution": 4.250883841437685,
+          "feature": "orig_balance_delta",
+          "value": 1688761.125
+        },
+        {
+          "contribution": 3.8066090888657405,
+          "feature": "amount_to_orig_balance_ratio",
+          "value": 0.9999994078502915
+        },
+        {
+          "contribution": 3.2356606122780387,
+          "feature": "orig_zero_after_flag",
+          "value": 1.0
+        }
+      ],
+      "type": "TRANSFER"
+    },
+    {
+      "caption": "Ranked #2 for review in test review period 1 (simulated day 24) with risk score 1.0000. The largest influences: origin account emptied to zero (= 1) raised the risk score by 6.01 log-odds; origin balance arithmetic does not reconcile (= 0) raised the risk score by 4.13 log-odds; amount relative to the origin balance (= 1.00) raised the risk score by 3.94 log-odds. This is a prioritisation for human review, not a finding. Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.",
+      "figure": "reports/figures/explain/shap_local_rank2.png",
+      "rank": 2,
+      "row_index": 6168486,
+      "score": 0.9999768967879094,
+      "step": 553,
+      "top_contributions": [
+        {
+          "contribution": 6.009403926516848,
+          "feature": "orig_zero_after_flag",
+          "value": 1.0
+        },
+        {
+          "contribution": 4.133681109352668,
+          "feature": "orig_balance_inconsistent_flag",
+          "value": 0.0
+        },
+        {
+          "contribution": 3.9394656800414665,
+          "feature": "amount_to_orig_balance_ratio",
+          "value": 0.9999994078502915
+        }
+      ],
+      "type": "CASH_OUT"
+    },
+    {
+      "caption": "Ranked #3 for review in test review period 1 (simulated day 24) with risk score 1.0000. The largest influences: origin account emptied to zero (= 1) raised the risk score by 6.61 log-odds; origin balance arithmetic does not reconcile (= 0) raised the risk score by 4.02 log-odds; amount relative to the origin balance (= 1.00) raised the risk score by 3.90 log-odds. This is a prioritisation for human review, not a finding. Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.",
+      "figure": "reports/figures/explain/shap_local_rank3.png",
+      "rank": 3,
+      "row_index": 6168487,
+      "score": 0.9999768967879094,
+      "step": 553,
+      "top_contributions": [
+        {
+          "contribution": 6.608477770307062,
+          "feature": "orig_zero_after_flag",
+          "value": 1.0
+        },
+        {
+          "contribution": 4.018398811288508,
+          "feature": "orig_balance_inconsistent_flag",
+          "value": 0.0
+        },
+        {
+          "contribution": 3.9041492762269128,
+          "feature": "amount_to_orig_balance_ratio",
+          "value": 0.9999960711864189
+        }
+      ],
+      "type": "TRANSFER"
+    }
+  ],
+  "model_version": "20260904T225142-0dc8f82-hgb",
+  "pdp_ice": {
+    "figures": [
+      "reports/figures/explain/pdp_ice_top_features.png",
+      "reports/figures/explain/permutation_importance.png"
+    ],
+    "permutation_importance": [
+      {
+        "feature": "orig_balance_inconsistent_flag",
+        "mean_drop_in_pr_auc": 0.5195222239861449,
+        "std": 0.05125912871966591
+      },
+      {
+        "feature": "orig_zero_after_flag",
+        "mean_drop_in_pr_auc": 0.4781432705606636,
+        "std": 0.07114365410354255
+      },
+      {
+        "feature": "amount_to_orig_balance_ratio",
+        "mean_drop_in_pr_auc": 0.007764790764790863,
+        "std": 0.011114918858051754
+      },
+      {
+        "feature": "orig_balance_delta",
+        "mean_drop_in_pr_auc": 8.881784197001253e-17,
+        "std": 8.30814836211045e-17
+      },
+      {
+        "feature": "type_CASH_IN",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "dest_is_merchant",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "dest_prior_txn_count",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "orig_prior_amount_sum",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "orig_prior_txn_count",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "dest_balance_inconsistent_flag",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "dest_balance_delta",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "step_hour_of_day",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "zero_amount_flag",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "type_CASH_OUT",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "dest_zero_balance_flag",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "orig_zero_balance_flag",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "log_oldbalance_dest",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "log_oldbalance_org",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "log_amount",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "amount_bucket",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "type_TRANSFER",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "type_PAYMENT",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "type_DEBIT",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "dest_prior_amount_sum",
+        "mean_drop_in_pr_auc": 0.0,
+        "std": 0.0
+      }
+    ],
+    "produced": [
+      "orig_balance_inconsistent_flag",
+      "orig_zero_after_flag",
+      "orig_balance_delta",
+      "amount_to_orig_balance_ratio",
+      "type_CASH_OUT"
+    ],
+    "validity": [
+      {
+        "alternative": null,
+        "feature": "orig_balance_inconsistent_flag",
+        "reason": "binary flag: the curve has two points",
+        "status": "produced"
+      },
+      {
+        "alternative": null,
+        "feature": "orig_zero_after_flag",
+        "reason": "binary flag: the curve has two points",
+        "status": "produced"
+      },
+      {
+        "alternative": null,
+        "feature": "orig_balance_delta",
+        "reason": "max |Spearman \u03c1| with other top features = 0.58",
+        "status": "produced"
+      },
+      {
+        "alternative": null,
+        "feature": "amount_to_orig_balance_ratio",
+        "reason": "max |Spearman \u03c1| with other top features = 0.47",
+        "status": "produced"
+      },
+      {
+        "alternative": null,
+        "feature": "type_CASH_OUT",
+        "reason": "binary flag: the curve has two points",
+        "status": "produced"
+      }
+    ]
+  },
+  "units": "log-odds"
+}

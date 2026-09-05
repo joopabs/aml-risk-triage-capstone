@@ -101,6 +101,8 @@ def _resolve_handler(name: str) -> Handler:
     from aml_triage.data.commands import HANDLERS as data_handlers
     from aml_triage.data.split_command import run_split
     from aml_triage.eda.commands import run_eda_cmd
+    from aml_triage.explain.commands import run_explain
+    from aml_triage.fairness.commands import run_fairness, run_fairness_availability
     from aml_triage.features.commands import run_build_features
     from aml_triage.features.selection_commands import run_pca_cmd, run_select_features
     from aml_triage.models.commands import run_compare, run_train
@@ -116,6 +118,9 @@ def _resolve_handler(name: str) -> Handler:
         "train": run_train,
         "compare": run_compare,
         **lifecycle_handlers,
+        "explain": run_explain,
+        "fairness-availability": run_fairness_availability,
+        "fairness": run_fairness,
     }
     return registry.get(name, _not_implemented)
 

@@ -274,3 +274,13 @@ def test_single_touch_test_evaluation(m6) -> None:
     assert "isFraud" not in q and "high" in q
     matrix = _json.loads((Path(cfg.paths.reports_dir) / "selection_matrix.json").read_text())
     assert sum(1 for r in matrix["rows"] if r["verdict"] == "selected") == 1
+
+
+def test_reproduce_check_is_exact_on_fixture(m6) -> None:
+    cfg, cfg_path = m6
+    assert _main(["choose-operating-point", "--config", str(cfg_path)]) == EXIT_OK
+    from aml_triage.models.lifecycle import reproduce_check
+
+    out = reproduce_check(cfg)
+    assert out["exact"] is True and out["tolerance"] == 0.0
+    assert (Path(cfg.paths.reports_dir) / "reproducibility.json").exists()

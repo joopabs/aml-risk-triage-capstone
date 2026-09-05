@@ -22,7 +22,7 @@ from aml_triage.evaluation.capacity_report import capacity_report
 from aml_triage.evaluation.compare import compare, render_selection_matrix, selection_matrix
 from aml_triage.evaluation.metrics import compute_metrics
 from aml_triage.evaluation.threshold import apply_operating_point, assign_priority, load_operating_point
-from aml_triage.models.train import TEST_ACCESS, TestAccessError, list_runs, load_run, runs_dir, test_access_state, train_and_score
+from aml_triage.models.train import TEST_ACCESS, TestAccessError, list_runs, load_run, run_id, runs_dir, test_access_state, train_and_score
 from aml_triage.reporting.tables import md_table, write_markdown
 from aml_triage.utils.io import ensure_dir, load_joblib, model_version, read_json, save_joblib, sha256_file, write_json
 
@@ -209,4 +209,83 @@ def write_queue(cfg: Config, period_ordinal: int) -> Path:
     return write_markdown(Path(cfg.paths.reports_dir) / f"review_queue_period_{period_ordinal}.md", f"Review Queue — period {period_ordinal}", sections)
 
 
-__all__ = ["freeze", "evaluate_test", "select", "write_queue", "PrerequisiteError", "pd"]
+__all__ = ["freeze", "evaluate_test", "select", "write_queue", "reproduce_check", "PrerequisiteError", "pd"]
+
+
+# ---- reproduce-check (research R-13, spec V13) ------------------------------------------------
+SCALAR_METRICS = ("pr_auc", "roc_auc", "precision", "recall", "f1", "fpr", "brier", "ece", "accuracy")
+
+
+def _refit_once(config_path: str, seed: int, mid: str, fset: str, tag: str) -> dict[str, Any]:
+    """Refit the selected candidate on train and score validation in a fresh process; return metrics
+    and the score vector path. Writes to a scratch run id so the released run is untouched."""
+    from aml_triage.config import load as load_cfg
+
+    cfg = load_cfg(config_path, overrides={"seed": seed})
+    res = train_and_score(cfg, mid, fset, "val", context="train")
+    src = runs_dir(cfg) / run_id(mid, fset)
+    dst = ensure_dir(runs_dir(cfg) / "reproduce" / f"{run_id(mid, fset)}__{tag}")
+    shutil.copy(src / "val_predictions.parquet", dst / "val_predictions.parquet")
+    return {"metrics": res["metrics"], "recall_at_k": res["recall_at_k"], "fit_seconds": res["fit_seconds"], "predictions": str(dst / "val_predictions.parquet")}
+
+
+def reproduce_check(cfg: Config) -> dict[str, Any]:
+    op = load_operating_point(cfg)
+    if op is None:
+        raise PrerequisiteError("operating point not found; nothing selected to reproduce")
+    rid = op["selected_run"]
+    mid, fset = rid.split("__", 1)
+    ctx = multiprocessing.get_context("spawn")
+    runs = []
+    for tag in ("a", "b"):
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1, mp_context=ctx) as pool:
+            runs.append(pool.submit(_refit_once, str(cfg.source_path), cfg.seed, mid, fset, tag).result())
+    a, b = runs
+    diffs = {k: abs(a["metrics"][k] - b["metrics"][k]) for k in SCALAR_METRICS if a["metrics"][k] == a["metrics"][k]}
+    K = str(cfg.review.primary_k)
+    diffs[f"recall_at_{K}_mean"] = abs((a["recall_at_k"][K]["mean_over_periods"] or 0) - (b["recall_at_k"][K]["mean_over_periods"] or 0))
+    pa = pd.read_parquet(a["predictions"]).sort_values("row_index")["score"].to_numpy()
+    pb = pd.read_parquet(b["predictions"]).sort_values("row_index")["score"].to_numpy()
+    score_diff = float(abs(pa - pb).max())
+    # compare against the released bundle's validation metrics as well
+    latest = Path(cfg.paths.models_dir) / "LATEST"
+    released = None
+    if latest.exists():
+        bundle_metrics = read_json(Path(cfg.paths.models_dir) / latest.read_text().strip() / "metrics.json")["val"]["metrics"]
+        released = {k: abs(a["metrics"][k] - bundle_metrics[k]) for k in SCALAR_METRICS if bundle_metrics.get(k) == bundle_metrics.get(k)}
+    tolerance = max([*diffs.values(), score_diff, *((released or {}).values())])
+    out = {
+        "selected_run": rid,
+        "seed": cfg.seed,
+        "omp_num_threads": cfg.compute.omp_num_threads,
+        "n_jobs": cfg.compute.n_jobs,
+        "refit_a": {k: v for k, v in a.items() if k != "predictions"},
+        "refit_b": {k: v for k, v in b.items() if k != "predictions"},
+        "max_abs_metric_diff_between_refits": diffs,
+        "max_abs_score_diff_between_refits": score_diff,
+        "max_abs_metric_diff_vs_released_bundle": released,
+        "tolerance": tolerance,
+        "exact": tolerance == 0.0,
+        "checked_at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "config_hash": cfg.config_hash(),
+    }
+    write_json(out, Path(cfg.paths.reports_dir) / "reproducibility.json")
+    return out
+
+
+def render_reproducibility_readme(readme_path: str | Path, out: dict[str, Any]) -> None:
+    """Replace the README 'Reproducibility tolerance' section body with the measured result."""
+    p = Path(readme_path)
+    text = p.read_text(encoding="utf-8")
+    start = text.index("## Reproducibility tolerance")
+    end = text.index("## ", start + 5)
+    verdict = "**Exact.** Two independent refits of the selected model produced identical validation scores and metrics." if out["exact"] else f"**Tolerance {out['tolerance']:.2e}.** Two independent refits differed by at most this amount (max over metrics and per-row scores)."
+    body = (
+        "## Reproducibility tolerance\n\n"
+        f"Measured by `python -m aml_triage reproduce-check` on {out['checked_at'][:10]} (seed {out['seed']}, "
+        f"OMP threads {out['omp_num_threads']}, n_jobs {out['n_jobs']}): {verdict} "
+        f"Max abs score difference between refits: {out['max_abs_score_diff_between_refits']:.2e}; "
+        f"vs the released bundle's validation metrics: {max((out['max_abs_metric_diff_vs_released_bundle'] or {'x': 0.0}).values()):.2e}. "
+        "Details in `reports/reproducibility.json`.\n\n"
+    )
+    p.write_text(text[:start] + body + text[end:], encoding="utf-8")

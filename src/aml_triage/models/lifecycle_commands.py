@@ -8,7 +8,7 @@ import sys
 from aml_triage.config import Config
 from aml_triage.constants import EXIT_GUARD, EXIT_MISSING_PREREQ, EXIT_OK, EXIT_VALIDATION
 from aml_triage.evaluation.threshold import choose_operating_point
-from aml_triage.models.lifecycle import PrerequisiteError, evaluate_test, freeze, select, write_queue
+from aml_triage.models.lifecycle import PrerequisiteError, evaluate_test, freeze, render_reproducibility_readme, reproduce_check, select, write_queue
 from aml_triage.models.train import TestAccessError, train_and_score
 from aml_triage.models.tune import tune_candidate
 from aml_triage.utils.logging import get_logger
@@ -82,6 +82,15 @@ def run_select(args: argparse.Namespace, cfg: Config) -> int:
 
 
 @_guarded
+def run_reproduce_check(args: argparse.Namespace, cfg: Config) -> int:
+    out = reproduce_check(cfg)
+    render_reproducibility_readme("README.md", out)
+    log.info("reproduce-check %s: exact=%s tolerance=%.3e", out["selected_run"], out["exact"], out["tolerance"])
+    print(f"wrote {cfg.paths.reports_dir}/reproducibility.json; README tolerance section updated (exact={out['exact']})")
+    return EXIT_OK
+
+
+@_guarded
 def run_queue(args: argparse.Namespace, cfg: Config) -> int:
     print(f"wrote {write_queue(cfg, args.period)}")
     return EXIT_OK
@@ -94,4 +103,5 @@ HANDLERS = {
     "evaluate": run_evaluate,
     "select": run_select,
     "queue": run_queue,
+    "reproduce-check": run_reproduce_check,
 }

@@ -454,13 +454,13 @@ tolerance measured, not assumed; CI smoke passes; coverage ≥80%.
 make pipeline && make report`, then diff metrics against committed values (SC-003); `pytest`
 passes (SC-004); no data or secrets tracked (SC-005).
 
-- [ ] T061 [US2] Implement `reproduce-check` command
+- [X] T061 [US2] Implement `reproduce-check` command
   - Milestone M6 / Type: code / Depends: T057
   - Files: `src/aml_triage/cli.py` (refit the selected candidate twice with identical config; diff `metrics.json`; write `reports/reproducibility.json` with max absolute difference per metric), `README.md` (Reproducibility Tolerance section populated by the command or by hand from the JSON)
   - Accept: command exits 0 and records tolerance (target 0.0)
   - Verify: `python -m aml_triage reproduce-check --config configs/base.yaml && cat reports/reproducibility.json`
 
-- [ ] T062 [US2] Run reproduce-check and record the tolerance (validation task V13)
+- [X] T062 [US2] Run reproduce-check and record the tolerance (validation task V13)
   - Milestone M6 / Type: verification, docs / Depends: T061
   - Files: `README.md` (tolerance value and, if non-zero, the thread-count decision from research R-13)
   - Accept: README states the measured tolerance; if non-zero, `compute.n_jobs`/`omp_num_threads` were revisited and the outcome recorded

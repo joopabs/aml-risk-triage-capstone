@@ -29,8 +29,8 @@ jobs:
         run: detect-secrets-hook --baseline .secrets.baseline $(git ls-files | grep -vE '^(requirements.*\.txt|\.secrets\.baseline)$')
       - name: Tests
         run: pytest -q
-      - name: Coverage report (gate raised to 80 in task T066)
-        run: pytest -q --cov=aml_triage --cov-report=xml --cov-fail-under=0
+      - name: Coverage gate (>= 80% on src/aml_triage)
+        run: pytest -q --cov=aml_triage --cov-report=xml --cov-fail-under=80
       - name: No data or secrets tracked
         run: make check-no-data PY=python
       - name: Smoke pipeline on synthetic sample (no dataset download)

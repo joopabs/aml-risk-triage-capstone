@@ -1,15 +1,15 @@
 # Written by `python -m aml_triage tune`; best RandomizedSearchCV params on a seeded training subsample.
 id: logreg
 params:
-  C: 0.005337032762603957
+  C: 0.03148911647956861
 tuned_on:
   feature_set: primary
-  subsample_rows: 1000000
-  subsample_positives: 766
-  n_iter: 30
-  cv_folds: 3
+  subsample_rows: 5000
+  subsample_positives: 50
+  n_iter: 3
+  cv_folds: 2
   scoring: average_precision
-  best_cv_score: 0.9880686421808064
-  seconds: 115.5
+  best_cv_score: 1.0000000000000002
+  seconds: 0.7
   seed: 42
-  date: '2026-09-04'
+  date: '2026-09-05'

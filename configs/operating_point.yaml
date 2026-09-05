@@ -3,8 +3,8 @@ selected_run: hgb__primary
 candidate_id: hgb
 feature_set: primary
 selection_basis: validation metrics only (see reports/selection_matrix.md)
-primary_k: 200
-threshold: 0.971931
+primary_k: 25
+threshold: 0.999998
 threshold_rule: f2_max_on_val_raw_scores
 ranking_scores: raw model scores (calibrated probability is display-only)
 threshold_f2: 1.0
@@ -12,22 +12,22 @@ priority_rule:
   high: rank_le_k
   medium: above_threshold
   low: below_threshold
-k_score_cutoff: 0.999977
+k_score_cutoff: 1.0
 calibration:
   method: isotonic_val
   applied: true
   decision_log:
     method: isotonic_val
     before:
-      brier: 5.650912454745987e-07
-      pr_auc: 1.0
+      brier: 6.166005386485944e-12
+      pr_auc: 1.0000000000000002
     after:
       brier: 0.0
       pr_auc: 1.0
     applied: true
     chosen_on: val
-  calibrator_path: models/runs/hgb__primary/calibrator_isotonic.joblib
+  calibrator_path: models/smoke/runs/hgb__primary/calibrator_isotonic.joblib
 chosen_on: val
-chosen_at: '2026-09-04T22:22:37+00:00'
-frozen_at: '2026-09-04T22:22:38+00:00'
-config_hash: sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9
+chosen_at: '2026-09-05T16:32:22+00:00'
+frozen_at: '2026-09-05T16:32:23+00:00'
+config_hash: sha256:609e6238cb88e940f3557308d68f094f1fb28ab45617537df97c4f71cf19f0a5

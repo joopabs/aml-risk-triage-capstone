@@ -59,7 +59,16 @@ def _subsection_name(path: Path) -> str:
 
 def build_report(cfg: Config, version: str | None = None) -> Path:
     reports = Path(cfg.paths.reports_dir)
-    missing = [f for _, files in SECTIONS for f in files if not (reports / f).exists()]
+
+    def locate(f: str) -> Path:
+        p = reports / f
+        if not p.exists() and f.startswith("sections/") and Path("reports", f).exists():
+            return Path(
+                "reports", f
+            )  # hand-authored sections are shared across runs (e.g. CI smoke)
+        return p
+
+    missing = [f for _, files in SECTIONS for f in files if not locate(f).exists()]
     if missing:
         raise MissingSectionError(f"missing report section files: {missing}")
     latest = Path(cfg.paths.models_dir) / "LATEST"
@@ -88,7 +97,7 @@ def build_report(cfg: Config, version: str | None = None) -> Path:
     for title, files in SECTIONS:
         parts += [f"## {title}", ""]
         for f in files:
-            p = reports / f
+            p = locate(f)
             body = _demote(_strip_footer(p.read_text(encoding="utf-8")))
             if len(files) > 1 or not f.startswith("sections/"):
                 parts += [f"### {_subsection_name(p)}", ""]

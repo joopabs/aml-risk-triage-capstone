@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
 from aml_triage.config import Config
 from aml_triage.constants import EXIT_GUARD, EXIT_MISSING_PREREQ, EXIT_OK, EXIT_VALIDATION
@@ -84,7 +85,10 @@ def run_select(args: argparse.Namespace, cfg: Config) -> int:
 @_guarded
 def run_reproduce_check(args: argparse.Namespace, cfg: Config) -> int:
     out = reproduce_check(cfg)
-    render_reproducibility_readme("README.md", out)
+    if Path("README.md").exists():
+        render_reproducibility_readme("README.md", out)
+    else:
+        log.info("README.md not found in the working directory; tolerance recorded in reports only")
     log.info("reproduce-check %s: exact=%s tolerance=%.3e", out["selected_run"], out["exact"], out["tolerance"])
     print(f"wrote {cfg.paths.reports_dir}/reproducibility.json; README tolerance section updated (exact={out['exact']})")
     return EXIT_OK

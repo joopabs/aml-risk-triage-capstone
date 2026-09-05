@@ -19,7 +19,7 @@
   rationale: Amounts are heavy-tailed (DQ-07); log scale stabilises linear models and keeps tree splits interpretable.
   available_at_prediction_time: realtime
   kind: numeric
-  sets: [primary, strict_pretx]
+  sets: [primary, strict_pretx, selected]
   dictionary_entry: {type: float, unit: log(currency units + 1), range_or_values: ">= 0", description: "log1p(amount)."}
 
 - name: amount_bucket
@@ -28,7 +28,7 @@
   rationale: Quantile buckets fitted on training data give a monotone, outlier-robust view of amount for slice analysis and linear models.
   available_at_prediction_time: realtime
   kind: numeric
-  sets: [primary, strict_pretx, selected]
+  sets: [primary, strict_pretx]
   dictionary_entry: {type: int, unit: bucket index, range_or_values: "0..n_bins-1 (n_bins=10)", description: "Amount decile bucket; edges fitted on the training split only."}
 
 - name: log_oldbalance_org
@@ -64,7 +64,7 @@
   rationale: 2.1M rows start from a zero origin balance (DQ-07); the flag separates this mass from the continuous scale.
   available_at_prediction_time: realtime
   kind: flag
-  sets: [primary, strict_pretx, selected]
+  sets: [primary, strict_pretx]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceOrg == 0."}
 
 - name: dest_zero_balance_flag
@@ -73,7 +73,7 @@
   rationale: Zero destination balance before the transaction marks merchants and fresh accounts (DQ-06).
   available_at_prediction_time: realtime
   kind: flag
-  sets: [primary, strict_pretx, selected]
+  sets: [primary, strict_pretx]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "oldbalanceDest == 0."}
 
 - name: zero_amount_flag
@@ -91,7 +91,7 @@
   rationale: Merchant destinations (identifier prefix M) receive only PAYMENT and carry no positives or balance state (DQ-06); this is account type, not identity.
   available_at_prediction_time: realtime
   kind: flag
-  sets: [primary, strict_pretx]
+  sets: [primary, strict_pretx, selected]
   dictionary_entry: {type: int, unit: indicator, range_or_values: "0/1", description: "nameDest starts with 'M'. Derived account type; the identifier itself is dropped (FR-033)."}
 
 - name: step_hour_of_day
@@ -100,7 +100,7 @@
   rationale: Hourly position within the simulated day may carry volume seasonality; cyclic and in-range for every split.
   available_at_prediction_time: realtime
   kind: numeric
-  sets: [primary, strict_pretx, selected]
+  sets: [primary, strict_pretx]
   dictionary_entry: {type: int, unit: hour, range_or_values: "0..23", description: "(step - 1) mod 24."}
 
 - name: step_day_index
@@ -118,7 +118,7 @@
   rationale: Posted change in origin balance; in batch triage the posted state is available and its mismatch with amount is informative (DQ-05).
   available_at_prediction_time: batch_only
   kind: numeric
-  sets: [primary, posttx_ablation]
+  sets: [primary, posttx_ablation, selected]
   dictionary_entry: {type: float, unit: currency units, range_or_values: "any", description: "oldbalanceOrg - newbalanceOrig."}
 
 - name: dest_balance_delta
@@ -127,7 +127,7 @@
   rationale: Posted change in destination balance (DQ-06).
   available_at_prediction_time: batch_only
   kind: numeric
-  sets: [primary, posttx_ablation]
+  sets: [primary, posttx_ablation, selected]
   dictionary_entry: {type: float, unit: currency units, range_or_values: "any", description: "newbalanceDest - oldbalanceDest."}
 
 - name: orig_balance_inconsistent_flag

@@ -52,3 +52,8 @@ submission/
 # self-contained HTML render of the report (regenerate with make report; the PDF is the deliverable)
 reports/final_report.html
 reports/.final_report_pdf.html
+
+# CI smoke pipeline outputs
+models/smoke/
+reports/smoke/
+data/processed/smoke/

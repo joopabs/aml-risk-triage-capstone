@@ -3,6 +3,7 @@ documented alternative when a partial-dependence view would mislead."""
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ from sklearn.inspection import PartialDependenceDisplay, permutation_importance
 from aml_triage.config import Config
 from aml_triage.explain.captions import human_name
 from aml_triage.reporting.figures import apply_style, save_figure
+
+warnings.filterwarnings("ignore", message="No positive class found in y_true")
 
 CORR_THRESHOLD = 0.8
 

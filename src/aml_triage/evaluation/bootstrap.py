@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Any
 
 import numpy as np
@@ -9,6 +10,8 @@ import pandas as pd
 from sklearn.metrics import average_precision_score
 
 from aml_triage.evaluation.capacity import recall_precision_at_k
+
+warnings.filterwarnings("ignore", message="No positive class found in y_true")
 
 
 def bootstrap_ci(

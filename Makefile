@@ -74,7 +74,9 @@ slides: ## Export the technical deck from the notebook
 
 smoke: ## CI smoke pipeline on a synthetic sample (available from task T063)
 	@if [ -f scripts/make_sample.py ]; then \
-		$(PY) scripts/make_sample.py --config configs/smoke.yaml && $(MAKE) pipeline CONFIG=configs/smoke.yaml; \
+		$(PY) scripts/make_sample.py --config configs/smoke.yaml && $(CLI) validate-schema --config configs/smoke.yaml \
+		&& $(CLI) profile --config configs/smoke.yaml && $(CLI) data-dictionary --config configs/smoke.yaml \
+		&& $(MAKE) pipeline CONFIG=configs/smoke.yaml && $(CLI) queue --config configs/smoke.yaml --period 0; \
 	else echo "smoke pipeline not available yet (task T063); skipping"; fi
 
 check-no-data: ## Fail if any data file is tracked by git

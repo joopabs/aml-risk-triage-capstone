@@ -466,7 +466,7 @@ passes (SC-004); no data or secrets tracked (SC-005).
   - Accept: README states the measured tolerance; if non-zero, `compute.n_jobs`/`omp_num_threads` were revisited and the outcome recorded
   - Verify: `grep -A3 'Reproducibility Tolerance' README.md`
 
-- [ ] T063 [P] [US2] Implement the CI smoke sample and `make ci`
+- [X] T063 [P] [US2] Implement the CI smoke sample and `make ci`
   - Milestone M1 / Type: code / Depends: T057
   - Files: `scripts/make_sample.py` (writes a seeded synthetic sample shaped like the schema from the test fixture generator, not from PaySim), `configs/smoke.yaml` (paths to sample; tiny K; small `n_iter`; `n_resamples` small), `Makefile` (`ci` target), `.github/workflows/ci.yml` (run `make ci`)
   - Accept: `make ci` completes the full CLI sequence on the sample in under 10 minutes with no dataset download
@@ -484,7 +484,7 @@ passes (SC-004); no data or secrets tracked (SC-005).
   - Accept: pipeline and report regenerate from README commands alone; `git diff --stat reports/*.md models/*/metrics.json` shows no metric changes (or within recorded tolerance); `git ls-files` shows no data, `.env`, or joblib files; `detect-secrets scan` finds nothing new
   - Verify: `git clone . "$SCRATCH/clone" && cd "$SCRATCH/clone" && make setup && make data && make pipeline && make report && git status --porcelain`
 
-- [ ] T066 [US2] Raise test coverage to ≥80% on `src/aml_triage`
+- [X] T066 [US2] Raise test coverage to ≥80% on `src/aml_triage`
   - Milestone M1 / Type: tests / Depends: T060
   - Files: `tests/*.py` (fill gaps reported by coverage; no test reads real data)
   - Accept: coverage gate in `pyproject.toml` passes

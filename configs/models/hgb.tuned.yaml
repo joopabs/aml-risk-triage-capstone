@@ -1,19 +1,19 @@
 # Written by `python -m aml_triage tune`; best RandomizedSearchCV params on a seeded training subsample.
 id: hgb
 params:
-  l2_regularization: 0.003148911647956862
-  learning_rate: 0.2536999076681772
-  max_iter: 206
-  max_leaf_nodes: 86
-  min_samples_leaf: 208
+  l2_regularization: 0.00015369603110608845
+  learning_rate: 0.27438159337282275
+  max_iter: 370
+  max_leaf_nodes: 76
+  min_samples_leaf: 465
 tuned_on:
   feature_set: primary
-  subsample_rows: 5000
-  subsample_positives: 50
-  n_iter: 3
-  cv_folds: 2
+  subsample_rows: 1000000
+  subsample_positives: 766
+  n_iter: 30
+  cv_folds: 3
   scoring: average_precision
-  best_cv_score: 1.0
-  seconds: 0.7
+  best_cv_score: 0.9924652612352464
+  seconds: 459.0
   seed: 42
-  date: '2026-09-05'
+  date: '2026-09-04'

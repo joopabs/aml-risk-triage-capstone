@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-05T10:27:10+00:00",
+  "checked_at": "2026-09-05T16:49:20+00:00",
   "config_hash": "sha256:cac2e0e01afa8f630a950133c63a9fe2dab208974594d3cf962de63b639fe1a9",
   "exact": true,
   "max_abs_metric_diff_between_refits": {
@@ -29,7 +29,7 @@
   "n_jobs": 4,
   "omp_num_threads": 4,
   "refit_a": {
-    "fit_seconds": 12.63,
+    "fit_seconds": 12.27,
     "metrics": {
       "accuracy": 1.0,
       "brier": 5.650912454745987e-07,
@@ -75,7 +75,7 @@
     }
   },
   "refit_b": {
-    "fit_seconds": 12.45,
+    "fit_seconds": 12.55,
     "metrics": {
       "accuracy": 1.0,
       "brier": 5.650912454745987e-07,

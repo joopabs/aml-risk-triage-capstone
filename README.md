@@ -107,7 +107,7 @@ AML capability. No accuracy headline (majority-class accuracy is 0.99).
 
 ## Reproducibility tolerance
 
-Measured by `python -m aml_triage reproduce-check` on 2026-09-05 (seed 42, OMP threads 2, n_jobs 2): **Exact.** Two independent refits of the selected model produced identical validation scores and metrics. Max abs score difference between refits: 0.00e+00; vs the released bundle's validation metrics: 0.00e+00. Details in `reports/reproducibility.json`.
+Measured by `python -m aml_triage reproduce-check` on 2026-09-05 (seed 42, OMP threads 4, n_jobs 4): **Exact.** Two independent refits of the selected model produced identical validation scores and metrics. Max abs score difference between refits: 0.00e+00; vs the released bundle's validation metrics: 0.00e+00. Details in `reports/reproducibility.json`.
 
 ## Optional steps
 

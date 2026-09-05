@@ -94,3 +94,23 @@ def test_compare_cli_writes_report_with_comparators(m5_cfg) -> None:
         assert needle in text, needle
     summary = json.loads((Path(cfg.paths.reports_dir) / "model_comparison_val.json").read_text())
     assert {"random_rank", "rule_rank", "dummy__primary", "logreg__primary"} <= set(summary["runs"])
+
+
+def test_tuned_params_path_is_isolated_per_config(tmp_path: Path, repo_root: Path) -> None:
+    """Only the base run may write configs/models/<id>.tuned.yaml; other configs stay in their models_dir."""
+    from aml_triage.models.registry import tuned_path
+
+    base = load(repo_root / "configs" / "base.yaml")
+    assert tuned_path("hgb", base) == Path("configs/models/hgb.tuned.yaml")
+    other = tmp_path / "cfg.yaml"
+    other.write_text(
+        yaml.safe_dump(
+            {
+                "_extends": str(repo_root / "configs" / "base.yaml"),
+                "paths": {"models_dir": str(tmp_path / "models")},
+            }
+        )
+    )
+    assert tuned_path("hgb", load(other)) == tmp_path / "models" / "tuning" / "hgb.tuned.yaml"
+    smoke = load(repo_root / "configs" / "smoke.yaml")
+    assert tuned_path("hgb", smoke) == Path("models/smoke/tuning/hgb.tuned.yaml")

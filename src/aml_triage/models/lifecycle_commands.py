@@ -8,7 +8,7 @@ from pathlib import Path
 
 from aml_triage.config import Config
 from aml_triage.constants import EXIT_GUARD, EXIT_MISSING_PREREQ, EXIT_OK, EXIT_VALIDATION
-from aml_triage.evaluation.threshold import choose_operating_point
+from aml_triage.evaluation.threshold import DEFAULT_PROCESSED_DIR, choose_operating_point
 from aml_triage.models.lifecycle import PrerequisiteError, evaluate_test, freeze, render_reproducibility_readme, reproduce_check, select, write_queue
 from aml_triage.models.train import TestAccessError, train_and_score
 from aml_triage.models.tune import tune_candidate
@@ -91,12 +91,17 @@ def run_select(args: argparse.Namespace, cfg: Config) -> int:
 @_guarded
 def run_reproduce_check(args: argparse.Namespace, cfg: Config) -> int:
     out = reproduce_check(cfg)
-    if Path("README.md").exists():
+    # The README describes the real run only; isolated configurations (smoke/CI, tests) must not rewrite it.
+    isolated = cfg.paths.processed_dir != DEFAULT_PROCESSED_DIR
+    if isolated:
+        readme_note = "README left untouched (isolated configuration)"
+    elif Path("README.md").exists():
         render_reproducibility_readme("README.md", out)
+        readme_note = "README tolerance section updated"
     else:
-        log.info("README.md not found in the working directory; tolerance recorded in reports only")
+        readme_note = "README.md not found in the working directory; tolerance recorded in reports only"
     log.info("reproduce-check %s: exact=%s tolerance=%.3e", out["selected_run"], out["exact"], out["tolerance"])
-    print(f"wrote {cfg.paths.reports_dir}/reproducibility.json; README tolerance section updated (exact={out['exact']})")
+    print(f"wrote {cfg.paths.reports_dir}/reproducibility.json; {readme_note} (exact={out['exact']})")
     return EXIT_OK
 
 

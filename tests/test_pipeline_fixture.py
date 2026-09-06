@@ -109,7 +109,11 @@ def test_full_chain_on_fixture(chain, monkeypatch) -> None:
     assert _run(cfg, "freeze") == EXIT_OK
     assert _run(cfg, "evaluate", "--split", "test") == EXIT_OK
     assert _run(cfg, "select") == EXIT_OK
+    # An isolated configuration must not rewrite the (real-run) README tolerance section
+    readme = tmp / "README.md"
+    readme.write_text("# x\n\n## Reproducibility tolerance\n\nreal run text\n\n## Next\n")
     assert _run(cfg, "reproduce-check") == EXIT_OK
+    assert "real run text" in readme.read_text()
     assert _run(cfg, "queue", "--period", "0") == EXIT_OK
     assert _run(cfg, "explain", "--model", "LATEST") == EXIT_OK
     assert _run(cfg, "fairness-availability") == EXIT_OK

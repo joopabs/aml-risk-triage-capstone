@@ -111,7 +111,7 @@ git diff --stat reports/*.md models/*/metrics.json   # expected: no metric diffe
 ## 10. Optional Step 8 demo
 
 ```bash
-uv pip sync requirements.txt requirements-api.txt
+uv pip sync --python .venv/bin/python requirements.txt requirements-dev.txt requirements-api.txt
 make api &                                        # uvicorn on :8000
 curl -s localhost:8000/health
 curl -s -X POST localhost:8000/score -H 'content-type: application/json' \

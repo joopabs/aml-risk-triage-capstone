@@ -27,7 +27,7 @@
 ## CI checks
 
 `.github/workflows/ci.yml` on every push and pull request: ruff lint and format; `detect-secrets`
-against a baseline; 126 tests including leakage guards, the test-access state machine, the vocabulary
+against a baseline; 127 tests including leakage guards, the test-access state machine, the vocabulary
 scan for determination language, and notebook compilation; coverage gate at 80% (currently ~92%);
 a tracked-data check; and a smoke run of the complete 22-command pipeline on a synthetic sample
 (no dataset download). The optional API job runs the contract tests when the API module exists.

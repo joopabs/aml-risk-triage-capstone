@@ -84,7 +84,7 @@ src/aml_triage/  config, cli, utils; data/ (load, schema, profiling, dictionary,
                  evaluation/ (metrics, capacity, calibration, bootstrap, compare, threshold, capacity_report);
                  explain/ (SHAP, PDP/ICE, captions); fairness/ (availability, slices, demographic, report);
                  eda/, reporting/ (figures, tables, report_builder)
-tests/           126 tests: config, CLI, schema, split, features, causal aggregates, leakage + test-access
+tests/           127 tests: config, CLI, schema, split, features, causal aggregates, leakage + test-access
                  guards, metrics, capacity, training, fairness, vocabulary, notebooks compile, report builder
 notebooks/       01–07 numbered notebooks that call the package; 90_technical_deck.ipynb (slides)
 data/            README (provenance, license, checksum); raw/ and processed/ gitignored except small
@@ -120,6 +120,16 @@ AML capability. No accuracy headline (majority-class accuracy is 0.99).
 ## Reproducibility tolerance
 
 Measured by `python -m aml_triage reproduce-check` on 2026-09-05 (seed 42, OMP threads 4, n_jobs 4): **Exact.** Two independent refits of the selected model produced identical validation scores and metrics. Max abs score difference between refits: 0.00e+00; vs the released bundle's validation metrics: 0.00e+00. Details in `reports/reproducibility.json`.
+
+## Clean-clone check
+
+On 2026-09-06 the commands above were run in a fresh clone (data re-downloaded and checksum-verified).
+All 301 metric values in the released bundle's `metrics.json` reproduced exactly (only fit seconds and
+timestamps differed), the regenerated estimator scores all 181,068 validation rows identically to the
+released one, and the split, selected feature set, tuned parameters and sealed operating point were
+regenerated identically. `pipeline.joblib` is not byte-identical (the bundle embeds its version string
+and a timestamp), so score equality, not the file checksum, is the reproducibility criterion. Details
+in the final report's Reproducibility section.
 
 ## Optional steps
 

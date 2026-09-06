@@ -57,3 +57,7 @@ reports/.final_report_pdf.html
 models/smoke/
 reports/smoke/
 data/processed/smoke/
+
+# Microsoft Office lock files
+~$*
+**/~$*

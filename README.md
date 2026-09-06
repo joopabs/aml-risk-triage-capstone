@@ -61,6 +61,17 @@ The test split can be scored once per configuration. A second `evaluate --split 
 unless `--force-reevaluate --reason "..."` is passed, and the reason is written to
 `data/processed/test_access.json`.
 
+The split manifest and that test-access record are tracked in git, so a clean clone starts frozen
+and already evaluated. Replaying the pipeline from a clone (the reproducibility check) is therefore
+an audited re-evaluation:
+
+```bash
+make pipeline EVALUATE_FLAGS='--force-reevaluate --reason "clean-clone reproducibility run"' && make report
+```
+
+`split` and `freeze` verify that the recomputed partition and operating point are identical to the
+frozen ones and leave the tracked records untouched; any difference is refused (exit 3).
+
 ## Repository map
 
 ```text

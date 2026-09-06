@@ -102,8 +102,10 @@ python scripts/check_slide_counts.py reports/slides/technical_deck.html reports/
 ## 9. Full reproducibility run (SC-003)
 
 ```bash
-make clean-derived && make pipeline && make report
+# The split manifest and test-access record are tracked, so the replay is an audited re-evaluation:
+make clean-derived && make pipeline EVALUATE_FLAGS='--force-reevaluate --reason "reproducibility run"' && make report
 git diff --stat reports/*.md models/*/metrics.json   # expected: no metric differences (or within README tolerance)
+# expected: data/processed/test_access.json gains one `reevaluations` entry with that reason; split_manifest.json unchanged
 ```
 
 ## 10. Optional Step 8 demo

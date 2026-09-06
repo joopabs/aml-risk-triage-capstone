@@ -237,9 +237,19 @@ def test_single_touch_test_evaluation(m6) -> None:
     )
     state = _json.loads((Path(cfg.paths.processed_dir) / "test_access.json").read_text())
     assert state["reevaluations"][0]["reason"] == "unit test of the audit trail"
+    # After test access, `freeze` is a no-op for the identical sealed operating point (so a clean
+    # clone can replay `make pipeline`) and refuses anything different.
+    access_path = Path(cfg.paths.processed_dir) / "test_access.json"
+    before = access_path.read_bytes()
+    assert _main(["freeze", "--config", str(cfg_path)]) == EXIT_OK
+    assert access_path.read_bytes() == before  # nothing rewritten
+    op_path = Path(cfg.operating_point_path)
+    op_text = op_path.read_text()
+    op_path.write_text(op_text.replace("primary_k:", "primary_k: 7\n_tampered:"))
     assert (
         _main(["freeze", "--config", str(cfg_path)]) == EXIT_GUARD
-    )  # never re-freeze after the test split was evaluated
+    )  # never re-freeze a different operating point after the test split was evaluated
+    op_path.write_text(op_text)
     test_metrics = _json.loads(
         (Path(cfg.paths.models_dir) / "runs" / "logreg__primary" / "test_metrics.json").read_text()
     )

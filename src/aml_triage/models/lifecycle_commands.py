@@ -61,6 +61,12 @@ def run_choose_operating_point(args: argparse.Namespace, cfg: Config) -> int:
 @_guarded
 def run_freeze(args: argparse.Namespace, cfg: Config) -> int:
     rec = freeze(cfg)
+    if rec.get("noop"):
+        print(
+            f"already frozen at {rec['frozen_at']} and evaluated at {rec['first_evaluated_at']} for this config hash "
+            "and operating point; nothing to do (another test evaluation requires `evaluate --force-reevaluate --reason`)"
+        )
+        return EXIT_OK
     print(f"frozen at {rec['frozen_at']} (config {rec['config_hash'][:19]}…); test split unlocked for a single `evaluate --split test`")
     return EXIT_OK
 

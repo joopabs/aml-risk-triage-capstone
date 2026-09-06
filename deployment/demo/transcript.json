@@ -1,0 +1,30 @@
+[
+  {
+    "cmd": "make api   # uvicorn aml_triage.api.main:app --port 8000",
+    "out": "INFO: Uvicorn running on http://127.0.0.1:8000  (Ctrl+C to quit)",
+    "hold_ms": 1500
+  },
+  {
+    "cmd": "curl -s localhost:8000/health | jq",
+    "out": "{\n  \"status\": \"ok\",\n  \"model_version\": \"20260904T225142-0dc8f82-hgb\",\n  \"disclaimer\": \"Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.\"\n}"
+  },
+  {
+    "cmd": "curl -s -X POST localhost:8000/score -H 'content-type: application/json' -d @specs/001-aml-risk-triage/contracts/examples/score_request.json | jq   # routine transfer",
+    "out": "{\n  \"risk_score\": 0.0,\n  \"review_priority\": \"low\",\n  \"model_version\": \"20260904T225142-0dc8f82-hgb\",\n  \"top_contributing_features\": [\n    {\n      \"feature\": \"step_hour_of_day\",\n      \"contribution\": 1.5010823662631168,\n      \"plain_language\": \"hour of the simulated day (= 0.00) raised the risk score by 1.50 log-odds\"\n    },\n    {\n      \"feature\": \"log_oldbalance_dest\",\n      \"contribution\": 1.0277608481432845,\n      \"plain_language\": \"destination balance before the transaction (log scale) (= 0.00) raised the risk score by 1.03 log-odds\"\n    },\n    {\n      \"feature\": \"type_TRANSFER\",\n      \"contribution\": 0.9288040370946036,\n      \"plain_language\": \"transaction type is TRANSFER (= 1.00) raised the risk score by 0.93 log-odds\"\n    }\n  ],\n  \"disclaimer\": \"Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.\"\n}"
+  },
+  {
+    "cmd": "curl -s -X POST localhost:8000/score -d '{\"step\": 600, \"type\": \"TRANSFER\", \"amount\": 250000, \"oldbalanceOrg\": 250000, \"newbalanceOrig\": 0, \"oldbalanceDest\": 0, \"newbalanceDest\": 250000}' | jq   # account emptied by the transfer",
+    "out": "{\n  \"risk_score\": 1.0,\n  \"review_priority\": \"medium\",\n  \"model_version\": \"20260904T225142-0dc8f82-hgb\",\n  \"top_contributing_features\": [\n    {\n      \"feature\": \"orig_zero_after_flag\",\n      \"contribution\": 7.559432633806536,\n      \"plain_language\": \"origin account emptied to zero (= 1.00) raised the risk score by 7.56 log-odds\"\n    },\n    {\n      \"feature\": \"orig_balance_inconsistent_flag\",\n      \"contribution\": 4.693632582364516,\n      \"plain_language\": \"origin balance arithmetic does not reconcile (= 0.00) raised the risk score by 4.69 log-odds\"\n    },\n    {\n      \"feature\": \"amount_to_orig_balance_ratio\",\n      \"contribution\": 4.512139457286594,\n      \"plain_language\": \"amount relative to the origin balance (= 1.00) raised the risk score by 4.51 log-odds\"\n    }\n  ],\n  \"disclaimer\": \"Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.\"\n}",
+    "hold_ms": 4500
+  },
+  {
+    "cmd": "curl -s -w '\\nHTTP %{http_code}\\n' -X POST localhost:8000/score -d '{\"step\": 1, \"type\": \"TRANSFER\"}'   # missing fields",
+    "out": "{\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"amount\"],\"msg\":\"Field required\",\"input\":{\"step\":1,\"type\":\"TRANSFER\"}},{\"type\":\"missing\",\"loc\":[\"body\",\"oldbalanceOrg\"],\"msg\":\"Field required\",\"input\":{\"step\":1,\"type\":\"TRANSFER\"}},{\"type\":\"missing\",\"loc\":[\"body\",\"newbalanceOrig\"],\"msg\":\"Field required\",\"input\":{\"step\":1,\"type\":\"TRANSFER\"}},{\"type\":\"missing\",\"loc\":[\"body\",\"oldbalanceDest\"],\"msg\":\"Field required\",\"input\":{\"step\":1,\"type\":\"TRANSFER\"}},{\"type\":\"missing\",\"loc\":[\"body\",\"newbalanceDest\"],\"msg\":\"Field required\",\"input\":{\"step\":1,\"type\":\"TRANSFER\"}}]}\nHTTP 422\n",
+    "hold_ms": 3000
+  },
+  {
+    "cmd": "# No allow/block/decision field exists in any response. A human reviews, decides, and can override.",
+    "out": "",
+    "hold_ms": 2500
+  }
+]

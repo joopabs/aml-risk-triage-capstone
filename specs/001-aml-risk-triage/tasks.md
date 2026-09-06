@@ -673,37 +673,37 @@ decision field; deployment guide, Docker image, demo recording.
 **Independent Test**: Service answers `/health` and `/score` per contracts/scoring-api.yaml;
 invalid payload returns 422; `tests/api` passes; core tests pass with the API package absent.
 
-- [ ] T089 [US6] Implement API schemas from the OpenAPI contract
+- [X] T089 [US6] Implement API schemas from the OpenAPI contract
   - Milestone M9 / Type: code / Depends: T088
   - Files: `src/aml_triage/api/__init__.py`, `src/aml_triage/api/schemas.py` (pydantic models mirroring `TransactionRequest` and `ScoreResponse`; `extra="forbid"`; no allow/block/decision fields)
   - Accept: generated OpenAPI matches contracts/scoring-api.yaml field-for-field
   - Verify: covered by T091
 
-- [ ] T090 [US6] Implement the scoring service and app
+- [X] T090 [US6] Implement the scoring service and app
   - Milestone M9 / Type: code / Depends: T089
   - Files: `src/aml_triage/api/service.py` (load `models/LATEST` bundle once; build feature row; derive `review_priority` with the score-only bands from `configs/operating_point.yaml` (high if score ≥ `k_score_cutoff`, medium if ≥ threshold, low otherwise); top contributing features via SHAP or coefficients; never logs request bodies), `src/aml_triage/api/main.py` (`GET /health`, `POST /score`; disclaimer in every response)
   - Accept: service starts with `uvicorn aml_triage.api.main:app`
   - Verify: `uvicorn aml_triage.api.main:app --port 8000 & sleep 3; curl -s localhost:8000/health; kill %1`
 
-- [ ] T091 [US6] Write `tests/api/test_scoring_api.py`
+- [X] T091 [US6] Write `tests/api/test_scoring_api.py`
   - Milestone M9 / Type: tests / Depends: T090
   - Files: `tests/api/test_scoring_api.py` (skip if fastapi missing; health fields; score fields exactly per contract; 422 on missing field; 422 on unknown extra field; no prohibited output field; disclaimer present)
   - Accept: all pass
   - Verify: `pytest tests/api -q`
 
-- [ ] T092 [US6] Run the demo end to end and re-verify core isolation
+- [X] T092 [US6] Run the demo end to end and re-verify core isolation
   - Milestone M9 / Type: verification / Depends: T091
   - Files: none new
   - Accept: example request from `specs/001-aml-risk-triage/contracts/examples/score_request.json` returns the four required fields; core tests pass with `aml_triage.api` blocked
   - Verify: `curl -s -X POST localhost:8000/score -H 'content-type: application/json' -d @specs/001-aml-risk-triage/contracts/examples/score_request.json && pytest tests/test_core_without_optional.py -q`
 
-- [ ] T093 [P] [US6] Write Dockerfile and deployment guide
+- [X] T093 [P] [US6] Write Dockerfile and deployment guide
   - Milestone M9 / Type: code, docs / Depends: T090
   - Files: `deployment/Dockerfile` (copies `src/`, `configs/`, selected `models/<version>/` only; no `data/`; requires a locally regenerated `pipeline.joblib` since joblib files are never committed), `deployment/DEPLOYMENT.md` (run locally, run container, config, model version, rollback via `models/LATEST`, limits and disclaimer)
   - Accept: image builds and answers `/health`
   - Verify: `docker build -t aml-triage-api -f deployment/Dockerfile . && docker run --rm -d -p 8000:8000 --name aml aml-triage-api && sleep 3 && curl -s localhost:8000/health && docker stop aml`
 
-- [ ] T094 [US6] Record the demo
+- [X] T094 [US6] Record the demo
   - Milestone M9 / Type: docs / Depends: T092
   - Files: `deployment/demo/demo.gif` or `deployment/demo/demo.mp4` (health, valid score, invalid payload)
   - Accept: recording shows disclaimer in response; under 2 minutes
@@ -721,19 +721,19 @@ invalid payload returns 422; `tests/api` passes; core tests pass with the API pa
 states "not used"; `docs/mlops_plan.md` covers env, config runs, tracking, CI, monitoring,
 versioning/rollback.
 
-- [ ] T095 [P] [US7] Write `docs/genai_usage.md`
+- [X] T095 [P] [US7] Write `docs/genai_usage.md`
   - Milestone M9 / Type: docs / Depends: T088
   - Files: `docs/genai_usage.md` (per use: tool and model, purpose, representative prompt and output, human review performed, limitations or corrections; include the Spec Kit-assisted specification and planning work in this repository; state that all factual text was verified against pipeline outputs)
   - Accept: no use lacks any of the five fields; or an explicit "not used" statement
   - Verify: `grep -c 'Human review' docs/genai_usage.md`
 
-- [ ] T096 [P] [US7] Write `docs/mlops_plan.md`
+- [X] T096 [P] [US7] Write `docs/mlops_plan.md`
   - Milestone M9 / Type: docs / Depends: T088
   - Files: `docs/mlops_plan.md` (reproducible environment, config-driven runs, recommended MLflow tracking, CI checks, monitoring plan: score-distribution drift, Recall@K on labeled batches, latency; versioning via `models/<version>` and rollback via `models/LATEST`)
   - Accept: each MLOps bullet from the assignment brief addressed
   - Verify: `grep -ciE 'monitor|rollback|version|tracking|CI' docs/mlops_plan.md`
 
-- [ ] T097 [US7] Update README Optional Steps status
+- [X] T097 [US7] Update README Optional Steps status
   - Milestone M9 / Type: docs / Depends: T094, T095, T096
   - Files: `README.md` (Steps 8 and 9 attempted/not attempted, with links)
   - Accept: status matches what exists in the repository

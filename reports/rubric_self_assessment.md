@@ -69,13 +69,13 @@ not hidden. Bonus points sit inside the 100-point total.
 
 | Descriptor | Evidence | Status |
 |---|---|---|
-| Exceptional creativity, originality, clear presentation; goes beyond expectations | Governance mechanics: single-touch test with audited access record, fit-scope recorder, vocabulary scan for determination language, validation-frozen operating point, narrative files that survive regeneration. Optional Steps 8 (local scoring API) and 9 (GenAI usage record) not yet attempted. | partially met; Step 8/9 pending |
+| Exceptional creativity, originality, clear presentation; goes beyond expectations | Governance mechanics: single-touch test with audited access record, fit-scope recorder, vocabulary scan for determination language, validation-frozen operating point, narrative files that survive regeneration. Optional Step 8 attempted: FastAPI scoring service with contract tests, Docker image, deployment guide, demo ([`deployment/DEPLOYMENT.md`](../deployment/DEPLOYMENT.md), `deployment/demo/demo.gif`, [`docs/mlops_plan.md`](../docs/mlops_plan.md)). Optional Step 9 attempted: honest GenAI usage record incl. corrections ([`docs/genai_usage.md`](../docs/genai_usage.md)). | met |
 
 ## Summary
 
 All seven criteria have evidence at the exemplary level except the protected-group bias audit, which
 this dataset cannot support and which the report addresses honestly with an operational error-slice
-analysis and an audit plan for real data. The bonus depends on the optional steps (Milestone 9).
+analysis and an audit plan for real data. Optional Steps 8 and 9 were attempted and documented.
 Test result of the released model for reference: PR-AUC 1.0000, Recall@200 0.7568 on synthetic data.
 
 ---

@@ -72,7 +72,7 @@ src/aml_triage/  config, cli, utils; data/ (load, schema, profiling, dictionary,
                  evaluation/ (metrics, capacity, calibration, bootstrap, compare, threshold, capacity_report);
                  explain/ (SHAP, PDP/ICE, captions); fairness/ (availability, slices, demographic, report);
                  eda/, reporting/ (figures, tables, report_builder)
-tests/           131 tests: config, CLI, schema, split, features, causal aggregates, leakage + test-access
+tests/           126 tests: config, CLI, schema, split, features, causal aggregates, leakage + test-access
                  guards, metrics, capacity, training, fairness, vocabulary, notebooks compile, report builder
 notebooks/       01–07 numbered notebooks that call the package; 90_technical_deck.ipynb (slides)
 data/            README (provenance, license, checksum); raw/ and processed/ gitignored except small
@@ -111,8 +111,13 @@ Measured by `python -m aml_triage reproduce-check` on 2026-09-05 (seed 42, OMP t
 
 ## Optional steps
 
-- Step 8 (Deployment & MLOps): **not attempted yet**.
-- Step 9 (Generative AI): **not attempted yet**. Usage, if any, will be documented in `docs/genai_usage.md`.
+- **Step 8 (Deployment & MLOps): attempted.** Local FastAPI scoring service (`src/aml_triage/api/`,
+  `make api`, contract in `specs/001-aml-risk-triage/contracts/scoring-api.yaml`), Docker image
+  (`deployment/Dockerfile`, `make docker-build`), deployment guide (`deployment/DEPLOYMENT.md`),
+  demo (`deployment/demo/demo.gif`, a rendered transcript of real responses), MLOps plan
+  (`docs/mlops_plan.md`). Cloud deployment not attempted.
+- **Step 9 (Generative AI): attempted.** The build was AI-assisted end to end; the record of tools,
+  purposes, prompts, outputs, human review, and corrections is `docs/genai_usage.md`.
 
 ## Links
 

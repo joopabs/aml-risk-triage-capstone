@@ -3,6 +3,9 @@ SHELL := /bin/bash
 PY ?= .venv/bin/python
 UV ?= uv
 CONFIG ?= configs/base.yaml
+# Set when the tracked test-access record is already "evaluated" (e.g. a clean clone), so the audited
+# re-evaluation path is used: EVALUATE_FLAGS='--force-reevaluate --reason "clean-clone reproducibility run"'
+EVALUATE_FLAGS ?=
 COV_MIN ?= 80
 OMP_NUM_THREADS ?= $(shell $(PY) -c "import yaml;print(yaml.safe_load(open('$(CONFIG)'))['compute']['omp_num_threads'])" 2>/dev/null || echo 4)
 export OMP_NUM_THREADS
@@ -54,7 +57,7 @@ pipeline: ## Full CLI sequence (contracts/cli-contract.md)
 	$(CLI) tune --config $(CONFIG) --models logreg,balanced_rf,hgb
 	$(CLI) choose-operating-point --config $(CONFIG)
 	$(CLI) freeze --config $(CONFIG)
-	$(CLI) evaluate --config $(CONFIG) --split test
+	$(CLI) evaluate --config $(CONFIG) --split test $(EVALUATE_FLAGS)
 	$(CLI) select --config $(CONFIG)
 	$(CLI) reproduce-check --config $(CONFIG)
 	$(CLI) explain --config $(CONFIG) --model LATEST
@@ -97,6 +100,6 @@ docker-run: ## Optional Step 8: run the API container on :8000
 	docker run --rm -p 8000:8000 --name aml-triage-api aml-triage-api
 
 clean-derived: ## Remove regenerable artifacts (keeps raw data and .gitkeep files)
-	find data/processed -mindepth 1 ! -name .gitkeep -delete
+	find data/processed -mindepth 1 ! -name .gitkeep ! -name test_access.json ! -name split_manifest.json -delete  # keep the tracked audit records
 	rm -rf models/runs models/smoke reports/smoke
 	find reports/figures -type f ! -name .gitkeep -delete

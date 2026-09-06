@@ -126,12 +126,37 @@ def make_split(df: pd.DataFrame, cfg: Config) -> tuple[dict[str, pd.DataFrame], 
 def write_split(parts: dict[str, pd.DataFrame], manifest: SplitManifest, processed_dir: str | Path) -> Path:
     out = ensure_dir(processed_dir)
     existing = out / MANIFEST_NAME
-    if existing.exists() and SplitManifest.read(existing).frozen_at:
-        raise SplitGuardError(f"{existing} is frozen; re-splitting would invalidate the single-touch test evaluation")
+    if existing.exists():
+        prior = SplitManifest.read(existing)
+        if prior.frozen_at:
+            # The manifest is tracked in git, so a clean clone starts frozen. Regenerating the (gitignored)
+            # parquet files is allowed only when the recomputed partition is identical; the frozen manifest
+            # itself is left untouched. Any different partition would invalidate the single-touch test
+            # evaluation and is refused.
+            if partition_fields(prior) != partition_fields(manifest):
+                raise SplitGuardError(f"{existing} is frozen; re-splitting would invalidate the single-touch test evaluation")
+            for name, part in parts.items():
+                write_parquet(part, out / f"{name}.parquet")
+            return existing
     for name, part in parts.items():
         write_parquet(part, out / f"{name}.parquet")
     existing.write_text(manifest.to_json(), encoding="utf-8")
     return existing
+
+
+def partition_fields(manifest: SplitManifest) -> dict[str, Any]:
+    """The fields that define the partition (timestamps and the config hash are provenance, not partition)."""
+    return {
+        "strategy": manifest.strategy,
+        "train_end_step": manifest.train_end_step,
+        "val_end_step": manifest.val_end_step,
+        "rows": manifest.rows,
+        "positives": manifest.positives,
+        "step_ranges": manifest.step_ranges,
+        "review_period_steps": manifest.review_period_steps,
+        "excluded_rows": manifest.excluded_rows,
+        "fallback_reason": manifest.fallback_reason,
+    }
 
 
 def load_split(processed_dir: str | Path, name: str) -> pd.DataFrame:

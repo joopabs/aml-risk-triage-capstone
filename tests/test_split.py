@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -98,8 +99,16 @@ def test_frozen_manifest_refuses_resplit(tmp_path: Path, repo_root: Path, fixtur
     data = json.loads(path.read_text())
     data["frozen_at"] = "2026-09-05T00:00:00+00:00"
     path.write_text(json.dumps(data))
+    frozen_text = path.read_text()
+    # Identical partition (a clean clone replaying the pipeline): parquet files regenerate, manifest untouched
+    (Path(cfg.paths.processed_dir) / "test.parquet").unlink()
+    write_split(parts, manifest, cfg.paths.processed_dir)
+    assert (Path(cfg.paths.processed_dir) / "test.parquet").exists()
+    assert path.read_text() == frozen_text
+    # Different partition: refused
+    other = replace(manifest, rows={**manifest.rows, "train": manifest.rows["train"] - 1})
     with pytest.raises(SplitGuardError, match="frozen"):
-        write_split(parts, manifest, cfg.paths.processed_dir)
+        write_split(parts, other, cfg.paths.processed_dir)
 
 
 def test_cli_split_end_to_end_and_guard_exit_code(

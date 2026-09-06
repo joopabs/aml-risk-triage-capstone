@@ -40,13 +40,19 @@ def freeze(cfg: Config) -> dict[str, Any]:
         raise PrerequisiteError(f"{cfg.operating_point_path} not found; run `choose-operating-point` first")
     processed = Path(cfg.paths.processed_dir)
     state = test_access_state(processed)
+    sealed = {k: op[k] for k in ("selected_run", "threshold", "primary_k", "k_score_cutoff")}
     if state.get("state") == "evaluated" or state.get("first_evaluated_at"):
+        # The audit record is tracked in git, so a clean clone starts in the "evaluated" state. Replaying
+        # the pipeline is allowed only as a no-op: same config hash, same sealed operating point, nothing
+        # rewritten. Anything different is a re-freeze after test access and is refused.
+        if state.get("config_hash") == cfg.config_hash() and state.get("operating_point") == sealed:
+            return {**state, "noop": True}
         raise TestAccessError(f"test split already evaluated at {state.get('first_evaluated_at')}; the operating point cannot be re-frozen")
     refreezes = list(state.get("refreezes", []))
     if state.get("state") == "frozen":
         refreezes.append({"previous_frozen_at": state.get("frozen_at"), "previous_operating_point": state.get("operating_point")})
     now = datetime.now(UTC).isoformat(timespec="seconds")
-    record = {"config_hash": cfg.config_hash(), "state": "frozen", "frozen_at": now, "first_evaluated_at": None, "reevaluations": [], "refreezes": refreezes, "operating_point": {k: op[k] for k in ("selected_run", "threshold", "primary_k", "k_score_cutoff")}}
+    record = {"config_hash": cfg.config_hash(), "state": "frozen", "frozen_at": now, "first_evaluated_at": None, "reevaluations": [], "refreezes": refreezes, "operating_point": sealed}
     (processed / TEST_ACCESS).write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     op["frozen_at"] = now
     Path(cfg.operating_point_path).write_text("# Frozen; do not edit. Written by `choose-operating-point`, sealed by `freeze`.\n" + yaml.safe_dump(op, sort_keys=False), encoding="utf-8")

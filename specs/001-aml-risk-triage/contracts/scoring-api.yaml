@@ -57,6 +57,7 @@ components:
         orig_prior_amount_sum: {type: number, minimum: 0, default: 0}
         dest_prior_txn_count: {type: integer, minimum: 0, default: 0}
         dest_prior_amount_sum: {type: number, minimum: 0, default: 0}
+        dest_is_merchant: {type: boolean, default: false, description: "Destination is a merchant account; supplied by the caller from account type, never derived from an identifier"}
     ScoreResponse:
       type: object
       additionalProperties: false

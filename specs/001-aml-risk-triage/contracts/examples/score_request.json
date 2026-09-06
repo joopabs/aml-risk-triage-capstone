@@ -9,5 +9,6 @@
   "orig_prior_txn_count": 0,
   "orig_prior_amount_sum": 0.0,
   "dest_prior_txn_count": 0,
-  "dest_prior_amount_sum": 0.0
+  "dest_prior_amount_sum": 0.0,
+  "dest_is_merchant": false
 }

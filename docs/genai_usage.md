@@ -16,7 +16,7 @@ by the learner, Julius Pabular, between 2026-09-04 and 2026-09-06.
 - **Representative prompt (learner):** "Create a durable constitution for this repository … The
   constitution must enforce: clear business framing … leakage-safe temporal or stratified splitting
   … a human-in-the-loop review model; no automatic blocking, account closure, customer risk rating,
-  regulatory filing, or real AML determination."
+  regulatory reporting, or real AML determination." (prompts are abridged and paraphrased)
 - **Representative output:** `.specify/memory/constitution.md` (11 principles, 12 quality gates),
   `specs/001-aml-risk-triage/{spec,plan,research,data-model,tasks}.md`.
 - **Human review performed:** the learner resolved every ambiguity the analysis pass raised

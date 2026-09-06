@@ -21,7 +21,13 @@ from aml_triage.evaluation.capacity import rank_within_periods
 from aml_triage.evaluation.capacity_report import capacity_report
 from aml_triage.evaluation.compare import compare, render_selection_matrix, selection_matrix
 from aml_triage.evaluation.metrics import compute_metrics
-from aml_triage.evaluation.threshold import apply_operating_point, assign_priority, guard_operating_point_path, load_operating_point
+from aml_triage.evaluation.threshold import (
+    apply_operating_point,
+    assign_priority,
+    guard_operating_point_path,
+    load_operating_point,
+    sealed_fields,
+)
 from aml_triage.models.train import TEST_ACCESS, TestAccessError, list_runs, load_run, run_id, runs_dir, test_access_state, train_and_score
 from aml_triage.reporting.tables import md_table, write_markdown
 from aml_triage.utils.io import ensure_dir, load_joblib, model_version, read_json, save_joblib, sha256_file, write_json
@@ -41,12 +47,20 @@ def freeze(cfg: Config) -> dict[str, Any]:
         raise PrerequisiteError(f"{cfg.operating_point_path} not found; run `choose-operating-point` first")
     processed = Path(cfg.paths.processed_dir)
     state = test_access_state(processed)
-    sealed = {k: op[k] for k in ("selected_run", "threshold", "primary_k", "k_score_cutoff")}
+    sealed = sealed_fields(op)
     if state.get("state") == "evaluated" or state.get("first_evaluated_at"):
         # The audit record is tracked in git, so a clean clone starts in the "evaluated" state. Replaying
         # the pipeline is allowed only as a no-op: same config hash, same sealed operating point, nothing
         # rewritten. Anything different is a re-freeze after test access and is refused.
         if state.get("config_hash") == cfg.config_hash() and state.get("operating_point") == sealed:
+            if not op.get("frozen_at"):
+                # choose-operating-point rewrote the file (e.g. a different chosen_at); re-stamp the seal
+                op["frozen_at"] = state["frozen_at"]
+                Path(cfg.operating_point_path).write_text(
+                    "# Frozen; do not edit. Written by `choose-operating-point`, sealed by `freeze`.\n"
+                    + yaml.safe_dump(op, sort_keys=False),
+                    encoding="utf-8",
+                )
             return {**state, "noop": True}
         raise TestAccessError(f"test split already evaluated at {state.get('first_evaluated_at')}; the operating point cannot be re-frozen")
     refreezes = list(state.get("refreezes", []))

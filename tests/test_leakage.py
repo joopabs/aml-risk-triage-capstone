@@ -241,10 +241,13 @@ def test_single_touch_test_evaluation(m6) -> None:
     # clone can replay `make pipeline`) and refuses anything different.
     access_path = Path(cfg.paths.processed_dir) / "test_access.json"
     before = access_path.read_bytes()
-    assert _main(["freeze", "--config", str(cfg_path)]) == EXIT_OK
-    assert access_path.read_bytes() == before  # nothing rewritten
     op_path = Path(cfg.operating_point_path)
     op_text = op_path.read_text()
+    assert _main(["choose-operating-point", "--config", str(cfg_path)]) == EXIT_OK
+    assert op_path.read_text() == op_text  # identical replay keeps the sealed file byte-for-byte
+    assert _main(["freeze", "--config", str(cfg_path)]) == EXIT_OK
+    assert access_path.read_bytes() == before  # nothing rewritten
+    assert yaml.safe_load(op_path.read_text())["frozen_at"]  # still sealed, so `select` can run
     op_path.write_text(op_text.replace("primary_k:", "primary_k: 7\n_tampered:"))
     assert (
         _main(["freeze", "--config", str(cfg_path)]) == EXIT_GUARD

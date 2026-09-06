@@ -54,7 +54,10 @@ def run_tune(args: argparse.Namespace, cfg: Config) -> int:
 def run_choose_operating_point(args: argparse.Namespace, cfg: Config) -> int:
     op = choose_operating_point(cfg)
     log.info("selected run %s; threshold=%.4f (F2=%.4f); k_score_cutoff=%.4f; calibration=%s", op["selected_run"], op["threshold"], op["threshold_f2"], op["k_score_cutoff"], op["calibration"]["method"])
-    print(f"wrote {cfg.operating_point_path}")
+    if op.get("frozen_at"):
+        print(f"{cfg.operating_point_path} reproduced the frozen operating point exactly; left untouched")
+    else:
+        print(f"wrote {cfg.operating_point_path}")
     return EXIT_OK
 
 

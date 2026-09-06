@@ -81,6 +81,7 @@ slides: ## Export the technical deck from the notebook
 smoke: ## CI smoke pipeline on a synthetic sample (available from task T063)
 	@if [ -f scripts/make_sample.py ]; then \
 		rm -rf data/processed/smoke data/processed/smoke_sample.csv models/smoke reports/smoke && \
+		mkdir -p models/smoke && cp configs/features.yaml models/smoke/features.yaml && \
 		$(PY) scripts/make_sample.py --config configs/smoke.yaml && $(CLI) validate-schema --config configs/smoke.yaml \
 		&& $(CLI) profile --config configs/smoke.yaml && $(CLI) data-dictionary --config configs/smoke.yaml \
 		&& $(MAKE) pipeline CONFIG=configs/smoke.yaml && $(CLI) queue --config configs/smoke.yaml --period 0; \

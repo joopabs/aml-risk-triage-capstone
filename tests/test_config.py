@@ -98,6 +98,10 @@ def test_isolated_config_may_not_write_tracked_operating_point(
         guard_operating_point_path(cfg)
     assert main(["choose-operating-point", "--config", str(cfg_path)]) == EXIT_VALIDATION
     assert main(["freeze", "--config", str(cfg_path)]) in (EXIT_VALIDATION, EXIT_MISSING_PREREQ)
+    # The tracked feature registry is protected the same way (pytest runs from the repository root)
+    assert main(["select-features", "--config", str(cfg_path)]) == EXIT_VALIDATION
+    smoke = load(repo_root / "configs" / "smoke.yaml")
+    assert smoke.features.registry.startswith(smoke.paths.models_dir)
 
 
 def test_seed_override(base_config_path: Path) -> None:

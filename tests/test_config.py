@@ -6,7 +6,10 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
+from aml_triage.cli import main
 from aml_triage.config import Config, load
+from aml_triage.constants import EXIT_MISSING_PREREQ, EXIT_VALIDATION
+from aml_triage.evaluation.threshold import guard_operating_point_path
 
 
 def test_load_base_config(base_config_path: Path) -> None:
@@ -72,6 +75,29 @@ def test_smoke_config_extends_base(repo_root: Path) -> None:
     assert cfg.seed == 42
     assert cfg.review.primary_k in cfg.review.k_grid
     assert cfg.paths.processed_dir.endswith("smoke")
+    # The smoke run must never write the tracked, sealed operating point (T065 finding)
+    assert cfg.operating_point_path != "configs/operating_point.yaml"
+    assert cfg.operating_point_path.startswith(cfg.paths.models_dir)
+    guard_operating_point_path(cfg)  # does not raise
+
+
+def test_isolated_config_may_not_write_tracked_operating_point(
+    tmp_path: Path, repo_root: Path
+) -> None:
+    cfg_path = tmp_path / "c.yaml"
+    cfg_path.write_text(
+        yaml.safe_dump(
+            {
+                "_extends": str(repo_root / "configs" / "base.yaml"),
+                "paths": {"processed_dir": str(tmp_path / "processed")},
+            }
+        )
+    )
+    cfg = load(cfg_path)
+    with pytest.raises(ValueError, match="isolated configurations must set operating_point_path"):
+        guard_operating_point_path(cfg)
+    assert main(["choose-operating-point", "--config", str(cfg_path)]) == EXIT_VALIDATION
+    assert main(["freeze", "--config", str(cfg_path)]) in (EXIT_VALIDATION, EXIT_MISSING_PREREQ)
 
 
 def test_seed_override(base_config_path: Path) -> None:

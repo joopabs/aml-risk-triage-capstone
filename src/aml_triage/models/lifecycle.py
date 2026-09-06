@@ -21,7 +21,7 @@ from aml_triage.evaluation.capacity import rank_within_periods
 from aml_triage.evaluation.capacity_report import capacity_report
 from aml_triage.evaluation.compare import compare, render_selection_matrix, selection_matrix
 from aml_triage.evaluation.metrics import compute_metrics
-from aml_triage.evaluation.threshold import apply_operating_point, assign_priority, load_operating_point
+from aml_triage.evaluation.threshold import apply_operating_point, assign_priority, guard_operating_point_path, load_operating_point
 from aml_triage.models.train import TEST_ACCESS, TestAccessError, list_runs, load_run, run_id, runs_dir, test_access_state, train_and_score
 from aml_triage.reporting.tables import md_table, write_markdown
 from aml_triage.utils.io import ensure_dir, load_joblib, model_version, read_json, save_joblib, sha256_file, write_json
@@ -35,6 +35,7 @@ class PrerequisiteError(RuntimeError):
 
 # ---- freeze -----------------------------------------------------------------------------------
 def freeze(cfg: Config) -> dict[str, Any]:
+    guard_operating_point_path(cfg)
     op = load_operating_point(cfg)
     if op is None:
         raise PrerequisiteError(f"{cfg.operating_point_path} not found; run `choose-operating-point` first")

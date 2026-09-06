@@ -9,7 +9,7 @@ sha256: 16910f90577b0d981bf8ff289714510bb89bc71bff7d3f220f024e287e4eea6b  # prag
 size_bytes: 493534783
 downloaded_on: 2026-09-05
 license_text_verbatim: "CC BY-SA 4.0"
-license_verified_on: 2026-09-05
+license_verified_on: 2026-09-06          # re-verified via the Kaggle API metadata during the clean-clone run (T065/T101); still CC BY-SA 4.0
 license_permits_educational_use: true   # CC BY-SA 4.0 permits use with attribution and share-alike
 license_source: Kaggle API dataset metadata (licenseName) at download time
 license_page_confirmed_by_human: true   # confirmed by the learner on 2026-09-05

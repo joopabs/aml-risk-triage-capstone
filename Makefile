@@ -11,7 +11,7 @@ OMP_NUM_THREADS ?= $(shell $(PY) -c "import yaml;print(yaml.safe_load(open('$(CO
 export OMP_NUM_THREADS
 CLI := $(PY) -m aml_triage
 
-.PHONY: help setup lint format test coverage data pipeline report slides smoke ci check-no-data api docker-build docker-run clean-derived
+.PHONY: help setup lint format test coverage data pipeline report slides package smoke ci check-no-data api docker-build docker-run clean-derived
 
 help:
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  %-16s %s\n",$$1,$$2}'
@@ -68,6 +68,9 @@ pipeline: ## Full CLI sequence (contracts/cli-contract.md)
 report: ## Assemble and export the final report
 	$(CLI) build-report --config $(CONFIG)
 	scripts/export_report.sh
+
+package: ## Copy the deliverables into submission/ (gitignored) with submission names (T101)
+	scripts/package_submission.sh $(NAME)
 
 slides: ## Export the technical deck from the notebook
 	$(PY) -m jupyter nbconvert notebooks/90_technical_deck.ipynb --to slides --output-dir reports/slides --output technical_deck && mv -f reports/slides/technical_deck.slides.html reports/slides/technical_deck.html

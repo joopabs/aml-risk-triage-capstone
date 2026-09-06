@@ -1,5 +1,7 @@
 # EDA observations (task T036, written 2026-09-05 after viewing each figure)
 
+> Human-authored narrative fragment; the `### <figure>` blocks below are merged into `reports/eda_summary.md` and this preamble is not merged. Disclaimer: Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.
+
 Each block below is merged into `reports/eda_summary.md` under the matching figure. Numbers are
 read from the figures and the two tables in that report (training split unless stated).
 

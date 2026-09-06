@@ -1,3 +1,5 @@
+> Human-authored narrative fragment; `build-report` merges the `## ` sections below into the generated report and this preamble is not merged. Disclaimer: Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.
+
 ## Validation discussion (task T050, written 2026-09-05 after reviewing the tables and curves above)
 
 All numbers below are validation-split figures (steps 409–552, 181,068 rows, 1,504 positives, six

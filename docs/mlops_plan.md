@@ -1,6 +1,6 @@
 # MLOps plan (optional Step 8)
 
-> Educational prototype on synthetic data. This plan describes what is in place and what a real
+> Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability. This plan describes what is in place and what a real
 > deployment would add; it does not claim production readiness.
 
 ## Reproducible environments

@@ -1,5 +1,7 @@
 # Generative AI usage record (optional Step 9)
 
+> Disclaimer: Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.
+
 This project was built with substantial generative-AI assistance, and this document records how,
 honestly and specifically. Every factual statement in the reports, decks, and README was produced
 from pipeline outputs (JSON metrics, generated tables, saved figures) and checked by tests; the AI

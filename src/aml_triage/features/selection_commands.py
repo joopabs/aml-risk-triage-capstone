@@ -6,16 +6,22 @@ import argparse
 import sys
 
 from aml_triage.config import Config
-from aml_triage.constants import EXIT_GUARD, EXIT_MISSING_PREREQ, EXIT_OK
+from aml_triage.constants import EXIT_GUARD, EXIT_MISSING_PREREQ, EXIT_OK, EXIT_VALIDATION
 from aml_triage.features.pca import run_pca
 from aml_triage.features.pipeline import LeakageError
 from aml_triage.features.selection import render_report, run_selection, update_registry_selected
+from aml_triage.isolation import guard_tracked_write
 from aml_triage.utils.logging import get_logger
 
 log = get_logger("aml_triage.selection")
 
 
 def run_select_features(args: argparse.Namespace, cfg: Config) -> int:
+    try:
+        guard_tracked_write(cfg, cfg.features.registry, "configs/features.yaml", "feature registry")
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return EXIT_VALIDATION
     try:
         result = run_selection(cfg, getattr(args, "feature_set", None) or cfg.features.default_set)
     except FileNotFoundError as exc:

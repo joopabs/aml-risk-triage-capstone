@@ -125,12 +125,25 @@ def choose_operating_point(cfg: Config, headline_set: str | None = None) -> dict
         "frozen_at": None,
         "config_hash": cfg.config_hash(),
     }
+    existing = load_operating_point(cfg)
+    if existing and existing.get("frozen_at") and sealed_fields(existing) == sealed_fields(op):
+        # Replaying the pipeline (clean clone) reproduced the sealed operating point exactly: keep the
+        # frozen, tracked file byte-for-byte rather than rewriting provenance timestamps.
+        return existing
     Path(cfg.operating_point_path).write_text(
         "# Written by `python -m aml_triage choose-operating-point` (validation only).\n"
         + yaml.safe_dump(op, sort_keys=False),
         encoding="utf-8",
     )
     return op
+
+
+SEALED_KEYS = ("selected_run", "threshold", "primary_k", "k_score_cutoff")
+
+
+def sealed_fields(op: dict[str, Any]) -> dict[str, Any]:
+    """The four fields `freeze` seals into the test-access record."""
+    return {k: op[k] for k in SEALED_KEYS}
 
 
 def load_operating_point(cfg: Config) -> dict[str, Any] | None:

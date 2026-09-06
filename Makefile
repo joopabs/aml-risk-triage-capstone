@@ -8,7 +8,7 @@ OMP_NUM_THREADS ?= $(shell $(PY) -c "import yaml;print(yaml.safe_load(open('$(CO
 export OMP_NUM_THREADS
 CLI := $(PY) -m aml_triage
 
-.PHONY: help setup lint format test coverage data pipeline report slides smoke ci check-no-data api clean-derived
+.PHONY: help setup lint format test coverage data pipeline report slides smoke ci check-no-data api docker-build docker-run clean-derived
 
 help:
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  %-16s %s\n",$$1,$$2}'
@@ -89,6 +89,12 @@ ci: lint test check-no-data smoke ## Everything CI runs
 
 api: ## Optional Step 8: run the local scoring service
 	$(PY) -m uvicorn aml_triage.api.main:app --port 8000
+
+docker-build: ## Optional Step 8: build the API image with the released bundle
+	docker build -t aml-triage-api -f deployment/Dockerfile --build-arg MODEL_VERSION=$$(cat models/LATEST) .
+
+docker-run: ## Optional Step 8: run the API container on :8000
+	docker run --rm -p 8000:8000 --name aml-triage-api aml-triage-api
 
 clean-derived: ## Remove regenerable artifacts (keeps raw data and .gitkeep files)
 	find data/processed -mindepth 1 ! -name .gitkeep -delete

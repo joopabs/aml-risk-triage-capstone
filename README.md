@@ -54,6 +54,7 @@ make pipeline         # split -> build-features -> select-features -> pca -> tra
                       # -> select -> reproduce-check -> explain -> fairness-availability -> fairness -> build-report
 make report           # assemble reports/final_report.md and export final_report.pdf
 make slides           # technical deck (reveal.js HTML + PDF) and business deck (PPTX + PDF), slide-count check
+make package          # copy report + decks into submission/ (gitignored) under the submission file names
 python -m aml_triage --help   # all 22 commands; every command takes --config and --seed
 ```
 

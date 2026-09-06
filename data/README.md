@@ -22,7 +22,8 @@ detection effectiveness, fairness, or regulatory suitability.
 ## License
 
 **CC BY-SA 4.0** (Creative Commons Attribution-ShareAlike 4.0 International), as reported by the
-Kaggle dataset API metadata (`licenseName`) at download time on 2026-09-05. This permits use,
+Kaggle dataset API metadata (`licenseName`) at download time on 2026-09-05, and re-verified from the
+same metadata on 2026-09-06 during the clean-clone reproducibility run (unchanged). This permits use,
 redistribution, and adaptation for educational purposes with attribution and share-alike.
 
 Attribution: PaySim synthetic dataset by E. A. Lopez-Rojas, Kaggle `ealaxi/paysim1`.

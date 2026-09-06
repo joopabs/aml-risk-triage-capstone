@@ -753,19 +753,19 @@ versioning/rollback.
   - Accept: every descriptor has an evidence link or an acknowledged gap
   - Verify: `grep -c '](' reports/rubric_self_assessment.md`
 
-- [ ] T099 Execute `specs/001-aml-risk-triage/quickstart.md` end to end
+- [X] T099 Execute `specs/001-aml-risk-triage/quickstart.md` end to end — done 2026-09-06: sections 1–9 via the clean clone (T065) plus the real-data checks in the working tree (validate-schema exit 0; profile and data-dictionary regenerated with no tracked diff; `train --split test` and a second `evaluate` refused with exit 3; slice-analysis headings present; 11 and 10 slides); section 10 (API health/score, `pytest tests/api`) passed. Drift fixed: §9 now uses `EVALUATE_FLAGS`, §10's `uv pip sync` keeps the dev requirements.
   - Milestone M6 / Type: verification / Depends: T098
   - Files: `specs/001-aml-risk-triage/quickstart.md` (fix any command that deviates from reality)
   - Accept: every expected outcome in the quickstart pass-criteria table observed
   - Verify: follow quickstart sections 1–9 (and 10 if Step 8 attempted)
 
-- [ ] T100 Final vocabulary, disclaimer, secret, and history audit
+- [X] T100 Final vocabulary, disclaimer, secret, and history audit — done 2026-09-06: 127 tests pass (vocabulary scan included); disclaimer present in README, every `reports/*.md` (narrative fragments got a non-merged preamble), decks (HTML/PPTX/PDF text), model card, deployment guide and both Step 8/9 docs; `pre-commit run --all-files` clean incl. detect-secrets; `git log --all --name-only` contains no csv/parquet/joblib/zip/.env; `origin/main` has 0 merge commits and only fast-forward updates.
   - Milestone M8 / Type: verification / Depends: T099
   - Files: none new
   - Accept: vocabulary test passes; every `reports/*.md`, deck, model card, and README carries the disclaimer; `detect-secrets` clean; `git log` contains no data or secret files in any commit; no force-pushes to `main`
   - Verify: `pytest -q && pre-commit run --all-files && git log --all --name-only --pretty=format: | sort -u | grep -E '\.(csv|parquet|joblib)$|^\.env$' ; test $? -eq 1`
 
-- [ ] T101 Package submission files
+- [X] T101 Package submission files — `make package` (scripts/package_submission.sh) writes `submission/Julius_Pabular_Pillar5_Capstone_{Report.pdf,Technical_Deck.pdf,Business_Deck.pptx,Business_Deck.pdf,Repository.pdf}` (gitignored); license re-verified from the Kaggle API metadata on 2026-09-06 (CC BY-SA 4.0, `license_verified_on` updated). Re-run `make package` on the submission day if any deliverable changes.
   - Milestone M8 / Type: docs / Depends: T100
   - Files: `submission/` (gitignored or separate): `Your_Name_Pillar5_Capstone_Report.pdf`, `Your_Name_Pillar5_Capstone_Technical_Deck.pdf`, `Your_Name_Pillar5_Capstone_Business_Deck.pptx`, repository URL note, per `CAPSTONE_BRIEF.md` §8; `configs/data_source.yaml` (`license_verified_on` updated after re-reading the Kaggle page)
   - Accept: approved formats only; names follow `Your_Name_Assignment name`; license re-verified on the submission date and still permits educational use, else the report flags it

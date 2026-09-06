@@ -34,7 +34,7 @@ by the learner, Julius Pabular, between 2026-09-04 and 2026-09-06.
 - **Representative prompt (learner):** "/speckit-implement Milestone 3" (and each later milestone);
   "keep primary as the headline set. proceed with the next milestone".
 - **Representative output:** `src/aml_triage/` (config, CLI with 22 commands, data, features,
-  models, evaluation, explain, fairness, reporting, api), `tests/` (126 tests), `.github/workflows/ci.yml`.
+  models, evaluation, explain, fairness, reporting, api), `tests/` (127 tests), `.github/workflows/ci.yml`.
 - **Human review performed:** the learner ran and merged every pull request, confirmed the Kaggle
   license on the dataset page, supplied the Kaggle token, decided the branch and merge policy, and
   reviewed each milestone's completion report. Automated review: ruff, pre-commit, detect-secrets,

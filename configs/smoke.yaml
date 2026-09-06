@@ -7,6 +7,8 @@ paths:
   processed_dir: data/processed/smoke
   models_dir: models/smoke
   reports_dir: reports/smoke
+# Isolated from the tracked, sealed configs/operating_point.yaml (choose-operating-point refuses otherwise).
+operating_point_path: models/smoke/operating_point.yaml
 split:
   train_end_step: 48
   val_end_step: 60

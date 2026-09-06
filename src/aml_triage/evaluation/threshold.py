@@ -22,6 +22,28 @@ from aml_triage.evaluation.capacity import rank_within_periods
 from aml_triage.evaluation.compare import collect, selection_ranking
 from aml_triage.utils.io import save_joblib
 
+TRACKED_OPERATING_POINT = "configs/operating_point.yaml"
+DEFAULT_PROCESSED_DIR = "data/processed"
+
+
+def guard_operating_point_path(cfg: Config) -> None:
+    """Refuse to write the tracked operating point from an isolated configuration.
+
+    The smoke/CI and test configurations redirect ``paths.*`` to scratch directories; if they kept the
+    default ``operating_point_path`` they would silently overwrite the real, sealed operating point in
+    git (this happened once, see the T065 reproducibility finding). Exit code 2 via ``ValueError``.
+    """
+    if (
+        cfg.operating_point_path == TRACKED_OPERATING_POINT
+        and cfg.paths.processed_dir != DEFAULT_PROCESSED_DIR
+    ):
+        raise ValueError(
+            f"operating_point_path is the tracked {TRACKED_OPERATING_POINT} but paths.processed_dir is "
+            f"{cfg.paths.processed_dir!r}; isolated configurations must set operating_point_path under their own "
+            "models_dir (e.g. models/smoke/operating_point.yaml) so the sealed operating point is never overwritten"
+        )
+
+
 PRIORITY_RULE = {"high": "rank_le_k", "medium": "above_threshold", "low": "below_threshold"}
 
 
@@ -46,6 +68,7 @@ def k_score_cutoff(preds: pd.DataFrame, k: int, period_steps: int) -> float:
 
 
 def choose_operating_point(cfg: Config, headline_set: str | None = None) -> dict[str, Any]:
+    guard_operating_point_path(cfg)
     headline_set = headline_set or cfg.features.default_set
     runs = collect(cfg, "val")
     if not runs:

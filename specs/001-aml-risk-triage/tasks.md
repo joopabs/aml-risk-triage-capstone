@@ -478,7 +478,7 @@ passes (SC-004); no data or secrets tracked (SC-005).
   - Accept: every command in README exists as a Make target or CLI command in contracts/cli-contract.md
   - Verify: `grep -oE 'make [a-z-]+' README.md | sort -u | while read -r m t; do make -n $t >/dev/null || echo "missing $t"; done`
 
-- [ ] T065 [US2] Perform the clean-clone reproducibility run (SC-003, SC-005)
+- [X] T065 [US2] Perform the clean-clone reproducibility run (SC-003, SC-005) — done 2026-09-06 from a fresh clone with the README commands (`make setup && make data && make pipeline EVALUATE_FLAGS=... && make report`); all 301 metric values in the released bundle's metrics.json reproduced exactly (only fit seconds and timestamps differ); released vs clean-clone estimator scores on the 181,068 validation rows differ by 0.0; no data/.env/joblib tracked; detect-secrets clean. Findings fixed on the way: tracked audit records blocked replay (split/freeze now no-op on an identical replay), and the smoke run had overwritten three tracked files (operating point, feature-registry markers, README tolerance line) — restored and isolated.
   - Milestone M6 / Type: verification / Depends: T063, T064
   - Files: none committed; scratch clone under the session scratchpad directory
   - Accept: pipeline and report regenerate from README commands alone; `git diff --stat reports/*.md models/*/metrics.json` shows no metric changes (or within recorded tolerance); `git ls-files` shows no data, `.env`, or joblib files; `detect-secrets scan` finds nothing new

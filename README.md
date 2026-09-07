@@ -84,7 +84,7 @@ src/aml_triage/  config, cli, utils; data/ (load, schema, profiling, dictionary,
                  evaluation/ (metrics, capacity, calibration, bootstrap, compare, threshold, capacity_report);
                  explain/ (SHAP, PDP/ICE, captions); fairness/ (availability, slices, demographic, report);
                  eda/, reporting/ (figures, tables, report_builder)
-tests/           127 tests: config, CLI, schema, split, features, causal aggregates, leakage + test-access
+tests/           128 tests: config, CLI, schema, split, features, causal aggregates, leakage + test-access
                  guards, metrics, capacity, training, fairness, vocabulary, notebooks compile, report builder
 notebooks/       01–07 numbered notebooks that call the package; 90_technical_deck.ipynb (slides)
 data/            README (provenance, license, checksum); raw/ and processed/ gitignored except small

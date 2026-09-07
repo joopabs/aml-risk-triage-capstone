@@ -42,3 +42,16 @@ def test_build_report_requires_every_section_and_assembles(tmp_path: Path, repo_
 
     assert not re.search(r"^### Part$", text, re.M)
     assert re.search(r"^#### Part$", text, re.M)  # demoted by two levels
+
+
+def test_md_table_escapes_pipes_in_cells() -> None:
+    """A cell such as ``|x - y| > 0.01`` must not break the row (the final report's engineered-feature
+    table rendered as a paragraph because of it)."""
+    import mistune
+
+    from aml_triage.reporting.tables import md_table
+
+    table = md_table(["name", "rule"], [["flag", "|new - expected| > 0.01"]])
+    assert table.count("\n") == 2  # header, separator, one row
+    html = mistune.create_markdown(plugins=["table"])(table + "\n")
+    assert "<table>" in html and "|new - expected| &gt; 0.01" in html

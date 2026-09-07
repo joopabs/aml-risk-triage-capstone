@@ -2,7 +2,7 @@
 
 **Final report — Pillar 5 Capstone Project**
 
-Author: Julius Pabular · Date: 2026-09-06 · Released model: `20260904T225142-0dc8f82-hgb` · Repository: https://github.com/joopabs/aml-risk-triage-capstone
+Author: Julius Pabular · Date: 2026-09-07 · Released model: `20260904T225142-0dc8f82-hgb` · Repository: https://github.com/joopabs/aml-risk-triage-capstone
 
 > Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.
 >
@@ -309,8 +309,8 @@ constraint rather than a formality. The k_grid [50, 100, 200, 300, 500] shows se
 | step_day_index | int | day | 0..30 | numeric | realtime | (step - 1) // 24. Excluded from every modeling set. Rationale: Diagnostic only. Under a temporal split the test days are out of the training range, so using it would encode regime rather than behaviour (DQ-10). |
 | orig_balance_delta | float | currency units | any | numeric | batch_only | oldbalanceOrg - newbalanceOrig. Rationale: Posted change in origin balance; in batch triage the posted state is available and its mismatch with amount is informative (DQ-05). |
 | dest_balance_delta | float | currency units | any | numeric | batch_only | newbalanceDest - oldbalanceDest. Rationale: Posted change in destination balance (DQ-06). |
-| orig_balance_inconsistent_flag | int | indicator | 0/1 | flag | batch_only | |newbalanceOrig - expected| > 0.01 where expected = old + amount for CASH_IN, old - amount otherwise. Rationale: Direction-aware arithmetic gap on the origin side is inconsistent for most CASH_OUT/TRANSFER rows (DQ-05); a simulator behaviour that correlates with the label. |
-| dest_balance_inconsistent_flag | int | indicator | 0/1 | flag | batch_only | |newbalanceDest - oldbalanceDest - amount| > 0.01. Rationale: Destination arithmetic gap (DQ-06); always inconsistent for merchant destinations. |
+| orig_balance_inconsistent_flag | int | indicator | 0/1 | flag | batch_only | \|newbalanceOrig - expected\| > 0.01 where expected = old + amount for CASH_IN, old - amount otherwise. Rationale: Direction-aware arithmetic gap on the origin side is inconsistent for most CASH_OUT/TRANSFER rows (DQ-05); a simulator behaviour that correlates with the label. |
+| dest_balance_inconsistent_flag | int | indicator | 0/1 | flag | batch_only | \|newbalanceDest - oldbalanceDest - amount\| > 0.01. Rationale: Destination arithmetic gap (DQ-06); always inconsistent for merchant destinations. |
 | orig_zero_after_flag | int | indicator | 0/1 | flag | batch_only | oldbalanceOrg > 0 and newbalanceOrig == 0. Rationale: Account emptied to exactly zero after the transaction (DQ-05); a strong mule pattern in the simulator. |
 | orig_prior_txn_count | int | count | >= 0 | aggregate | realtime | Count of earlier transactions with the same nameOrig (strictly earlier step, or earlier file position within the same step). Rationale: Number of strictly earlier transactions by the same origin; expected near zero because origins rarely repeat (DQ-11), kept to let V10 confirm. |
 | orig_prior_amount_sum | float | currency units | >= 0 | aggregate | realtime | Sum of amount over earlier transactions with the same nameOrig. Rationale: Cumulative earlier outflow by the same origin (DQ-11). |
@@ -1226,7 +1226,7 @@ Released bundle `20260904T225142-0dc8f82-hgb` (`hgb` on `primary`). Explainer: T
 
 #### Global
 
-| feature | mean |SHAP| (log-odds) | registry rationale |
+| feature | mean \|SHAP\| (log-odds) | registry rationale |
 |---|---|---|
 | orig_balance_inconsistent_flag | 0.4458 | Direction-aware arithmetic gap on the origin side is inconsistent for most CASH_OUT/TRANSFER rows (DQ-05); a simulator behaviour that correlates with the label. |
 | orig_zero_after_flag | 0.3313 | Account emptied to exactly zero after the transaction (DQ-05); a strong mule pattern in the simulator. |
@@ -1274,8 +1274,8 @@ Ranked #3 for review in test review period 1 (simulated day 24) with risk score 
 |---|---|---|---|
 | orig_balance_inconsistent_flag | produced | binary flag: the curve has two points |  |
 | orig_zero_after_flag | produced | binary flag: the curve has two points |  |
-| orig_balance_delta | produced | max |Spearman ρ| with other top features = 0.58 |  |
-| amount_to_orig_balance_ratio | produced | max |Spearman ρ| with other top features = 0.47 |  |
+| orig_balance_delta | produced | max \|Spearman ρ\| with other top features = 0.58 |  |
+| amount_to_orig_balance_ratio | produced | max \|Spearman ρ\| with other top features = 0.47 |  |
 | type_CASH_OUT | produced | binary flag: the curve has two points |  |
 
 ![pdp_ice_top_features](figures/explain/pdp_ice_top_features.png)
@@ -1583,7 +1583,7 @@ make pipeline EVALUATE_FLAGS='--force-reevaluate --reason "clean-clone reproduci
                                             # split -> features -> selection/PCA -> train -> compare -> tune
                                             # -> operating point -> freeze -> evaluate (audited) -> select
                                             # -> reproduce-check -> explain -> fairness -> build-report
-make test                                   # 127 tests incl. leakage, guard, vocabulary checks
+make test                                   # 128 tests incl. leakage, guard, vocabulary checks
 make report && make slides
 ```
 

@@ -104,7 +104,9 @@ def main() -> int:
         rc |= 0 if ok else 1
         if a.dump_text and p.suffix.lower() == ".pptx":
             txt = p.with_suffix(".txt")
-            txt.write_text(pptx_text(p), encoding="utf-8")
+            txt.write_text(
+                pptx_text(p).rstrip("\n") + "\n", encoding="utf-8"
+            )  # newline-terminated (pre-commit)
             print(f"    text dumped to {txt}")
     return rc
 

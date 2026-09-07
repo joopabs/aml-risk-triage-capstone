@@ -23,10 +23,15 @@ def fmt(value: Any) -> str:
 
 
 def md_table(headers: Sequence[str], rows: Iterable[Sequence[Any]]) -> str:
-    head = "| " + " | ".join(headers) + " |"
+    head = "| " + " | ".join(_cell(h) for h in headers) + " |"
     sep = "|" + "|".join("---" for _ in headers) + "|"
-    body = ["| " + " | ".join(fmt(v) for v in r) + " |" for r in rows]
+    body = ["| " + " | ".join(_cell(fmt(v)) for v in r) + " |" for r in rows]
     return "\n".join([head, sep, *body])
+
+
+def _cell(text: str) -> str:
+    """Escape pipes so cell text such as ``|x - y| > 0.01`` cannot break the table row."""
+    return str(text).replace("|", "\\|")
 
 
 def disclaimer_footer() -> str:

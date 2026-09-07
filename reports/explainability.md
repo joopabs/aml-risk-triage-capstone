@@ -6,7 +6,7 @@ Released bundle `20260904T225142-0dc8f82-hgb` (`hgb` on `primary`). Explainer: T
 
 ## Global
 
-| feature | mean |SHAP| (log-odds) | registry rationale |
+| feature | mean \|SHAP\| (log-odds) | registry rationale |
 |---|---|---|
 | orig_balance_inconsistent_flag | 0.4458 | Direction-aware arithmetic gap on the origin side is inconsistent for most CASH_OUT/TRANSFER rows (DQ-05); a simulator behaviour that correlates with the label. |
 | orig_zero_after_flag | 0.3313 | Account emptied to exactly zero after the transaction (DQ-05); a strong mule pattern in the simulator. |
@@ -54,8 +54,8 @@ Ranked #3 for review in test review period 1 (simulated day 24) with risk score 
 |---|---|---|---|
 | orig_balance_inconsistent_flag | produced | binary flag: the curve has two points |  |
 | orig_zero_after_flag | produced | binary flag: the curve has two points |  |
-| orig_balance_delta | produced | max |Spearman ρ| with other top features = 0.58 |  |
-| amount_to_orig_balance_ratio | produced | max |Spearman ρ| with other top features = 0.47 |  |
+| orig_balance_delta | produced | max \|Spearman ρ\| with other top features = 0.58 |  |
+| amount_to_orig_balance_ratio | produced | max \|Spearman ρ\| with other top features = 0.47 |  |
 | type_CASH_OUT | produced | binary flag: the curve has two points |  |
 
 ![pdp_ice_top_features](figures/explain/pdp_ice_top_features.png)

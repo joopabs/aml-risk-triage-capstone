@@ -39,8 +39,8 @@ values are referenced by name and read from `configs/operating_point.yaml` at ru
 - Q: When some rows fail validation, should valid rows still be scored or the whole batch be
   refused? → A: Skip and report (Option A): valid rows are scored; each invalid row is listed with
   row number, field, and reason, and the skipped list is exportable. Whole-file refusal applies only
-  to structural problems: unknown columns, empty file, or a file over the batch size limit.
-- Q: What should the default batch size limit be? → A: 5,000 rows (Option B), a configuration
+  to structural problems: unknown columns, empty file, or a file over the batch limit.
+- Q: What should the default batch limit be? → A: 5,000 rows (Option B), a configuration
   value shown on the upload screen; the scoring time at that limit is measured (V1) and the limit
   may be raised in configuration if the measurement allows.
 
@@ -196,7 +196,7 @@ order, and that the disclaimer is present in the file.
 
 Rows that fail validation (missing field, non-numeric value, negative amount, unknown transaction
 type, extra field) are reported individually with the row number, the field, and the reason. Files
-over the batch size limit, empty files, and files with the wrong columns are refused with a clear
+over the batch limit, empty files, and files with the wrong columns are refused with a clear
 message.
 
 **Why this priority**: Correct validation is what keeps the scoring honest; it is inseparable
@@ -209,7 +209,7 @@ number, field, and reason, and that the valid rows still score.
 
 1. **Given** a file with invalid rows, **When** uploaded, **Then** each invalid row appears in a
    validation report with row number, field, and reason, and the valid rows are scored.
-2. **Given** a file above the batch size limit, **When** uploaded, **Then** it is refused with a
+2. **Given** a file above the batch limit, **When** uploaded, **Then** it is refused with a
    message stating the limit; nothing is scored.
 3. **Given** an empty file or a file with only a header, **When** uploaded, **Then** the UI says
    there is nothing to score.
@@ -273,7 +273,7 @@ example file scores, and the documentation states which framework is the deploym
   treat manual rows and CSV rows identically from validation onward.
 - **FR-003**: The UI MUST refuse files with unknown columns (naming them), files over the batch
   size limit (stating the limit), and empty files, without scoring any row.
-- **FR-004**: The batch size limit MUST be a configuration value, default 5,000 rows (clarified
+- **FR-004**: The batch limit MUST be a configuration value, default 5,000 rows (clarified
   2026-09-08), shown on the upload screen; files with more rows are refused before any scoring.
   `[MEASURED: scoring time at the limit on the development machine, recorded in the deployment
   guide]`; the default MAY be raised in configuration if the measurement shows headroom.
@@ -390,7 +390,7 @@ example file scores, and the documentation states which framework is the deploym
 - **FR-080**: README: status line for this optional component, run commands, and the framework
   statement (FR-062).
 - **FR-081**: Deployment guide: UI section with setup, run, example batch, the batch ranking rule
-  in plain words, the batch size limit, the privacy statement, limits, and a demo capture
+  in plain words, the batch limit, the privacy statement, limits, and a demo capture
   (GIF or screencast) of a real batch being scored.
 - **FR-082**: GenAI usage record: the uses of generative AI in building this feature, with
   representative prompts, human review, and errors found, in the same format as the existing
@@ -449,7 +449,7 @@ example file scores, and the documentation states which framework is the deploym
   accept identifiers because the upstream feature removed them deliberately (FR-033 upstream).
 - K and the threshold are read from the frozen operating point at run time; the values are not
   written into UI code or documentation as facts.
-- Default batch size limit 5,000 rows (clarified), adjustable in configuration; chosen as a
+- Default batch limit 5,000 rows (clarified), adjustable in configuration; chosen as a
   realistic slice of one review period that keeps scoring and on-demand explanation interactive on
   a laptop. `[MEASURED]` in the plan's validation (V1).
 - The UI calls the local scoring service over the loopback interface only; no authentication is
@@ -480,7 +480,7 @@ example file scores, and the documentation states which framework is the deploym
 
 | ID | Placeholder | Resolved by |
 |---|---|---|
-| V1 | `[MEASURED]` scoring time at the batch size limit (FR-004, SC-006) | Timed run recorded in the deployment guide |
+| V1 | `[MEASURED]` scoring time at the batch limit (FR-004, SC-006) | Timed run recorded in the deployment guide |
 | V2 | `[VERIFY]` no code path in this feature reads `data/` (FR-024) | Grep and a test asserting no data-directory access |
 | V3 | FR-020 `high` rule (resolved 2026-09-08: rank ≤ K and score ≥ threshold) | SC-003 comparison against the existing queue report |
 | V4 | Framework choice and its justification (FR-062) | Plan research entry; README and deployment guide text |

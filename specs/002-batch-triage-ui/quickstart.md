@@ -65,17 +65,16 @@ pytest tests/test_vocabulary.py tests/test_core_without_optional.py -q   # UI te
 ## 4. Parity with the pipeline queue (V3, SC-003; development machine with real data)
 
 ```bash
-python - <<'EOF'
-# Load the rows of review period 0 from data/processed (test split + primary features), send them
-# in one batch, and compare the high set and order with reports/review_queue_period_0.md.
-EOF
-# expected: 0 differences in the top-K set and their priorities
+python scripts/check_batch_parity.py                   # created in M1 (T013); loads review period 0 from data/processed
+                                                        # (test split + primary features), posts one batch in-process, and
+                                                        # compares the top-K set and priorities with reports/review_queue_period_0.md
+# expected: 0 differences in the top-K set and their priorities; the script refuses to run without data/processed
 ```
 
 ## 5. Timing at the limit (V1, SC-006)
 
 ```bash
-python scripts/time_batch.py --rows 5000              # synthetic rows; prints seconds for /score-batch and for the UI render (AppTest)
+python scripts/time_batch.py --rows 5000              # created in M3 (T033); synthetic rows; prints seconds for /score-batch and for the UI render (AppTest)
 # expected: recorded in deployment/DEPLOYMENT.md ("Batch triage UI" section)
 ```
 

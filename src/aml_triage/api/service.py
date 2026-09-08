@@ -27,8 +27,22 @@ OPERATING_POINT_DECIMALS = (
 )
 
 
+DEFAULT_BATCH_LIMIT = 5000  # rows per POST /score-batch; deployment setting AML_BATCH_LIMIT
+
+
 class ServiceError(RuntimeError):
     pass
+
+
+def _batch_limit_from_env() -> int:
+    raw = os.environ.get("AML_BATCH_LIMIT", str(DEFAULT_BATCH_LIMIT))
+    try:
+        limit = int(raw)
+    except ValueError as exc:
+        raise ServiceError(f"AML_BATCH_LIMIT must be an integer >= 1, got {raw!r}") from exc
+    if limit < 1:
+        raise ServiceError(f"AML_BATCH_LIMIT must be >= 1, got {limit}")
+    return limit
 
 
 class UnknownTypeError(ValueError):
@@ -58,39 +72,47 @@ class ScoringService:
         self.known_types: list[str] = (
             [str(c) for c in onehot.categories_[0]] if onehot is not None else []
         )
+        self.batch_limit: int = _batch_limit_from_env()
         self._explainer = None
 
     # ---- feature assembly ---------------------------------------------------------------------
-    def _raw_frame(self, req: dict[str, Any]) -> pd.DataFrame:
-        if self.known_types and req["type"] not in self.known_types:
-            raise UnknownTypeError(f"type must be one of {self.known_types}")
+    def _raw_frame(self, reqs: list[dict[str, Any]]) -> pd.DataFrame:
+        """Raw-schema frame for one or more validated requests (placeholder identifiers only)."""
+        for req in reqs:
+            if self.known_types and req["type"] not in self.known_types:
+                raise UnknownTypeError(f"type must be one of {self.known_types}")
         return pd.DataFrame(
             {
-                "step": [int(req["step"])],
-                "type": pd.Categorical([req["type"]], categories=self.known_types or [req["type"]]),
-                "amount": [float(req["amount"])],
-                "nameOrig": [PLACEHOLDER_CUSTOMER],
-                "oldbalanceOrg": [float(req["oldbalanceOrg"])],
-                "newbalanceOrig": [float(req["newbalanceOrig"])],
+                "step": [int(r["step"]) for r in reqs],
+                "type": pd.Categorical(
+                    [r["type"] for r in reqs],
+                    categories=self.known_types or sorted({r["type"] for r in reqs}),
+                ),
+                "amount": [float(r["amount"]) for r in reqs],
+                "nameOrig": [PLACEHOLDER_CUSTOMER] * len(reqs),
+                "oldbalanceOrg": [float(r["oldbalanceOrg"]) for r in reqs],
+                "newbalanceOrig": [float(r["newbalanceOrig"]) for r in reqs],
                 "nameDest": [
-                    PLACEHOLDER_MERCHANT if req.get("dest_is_merchant") else PLACEHOLDER_CUSTOMER
+                    PLACEHOLDER_MERCHANT if r.get("dest_is_merchant") else PLACEHOLDER_CUSTOMER
+                    for r in reqs
                 ],
-                "oldbalanceDest": [float(req["oldbalanceDest"])],
-                "newbalanceDest": [float(req["newbalanceDest"])],
-                "row_index": [0],
+                "oldbalanceDest": [float(r["oldbalanceDest"]) for r in reqs],
+                "newbalanceDest": [float(r["newbalanceDest"]) for r in reqs],
+                "row_index": list(range(len(reqs))),
             }
         )
 
-    def features(self, req: dict[str, Any]) -> pd.DataFrame:
-        raw = self._raw_frame(req)
+    def features_many(self, reqs: list[dict[str, Any]]) -> pd.DataFrame:
+        """Engineered feature matrix for many requests through the fitted training-time pipeline."""
+        raw = self._raw_frame(reqs)
         parts = [raw[["type", "amount"]], compute_stateless(raw, self.defs)]
         if self.aggregate_names:
             parts.append(
                 pd.DataFrame(
                     {
                         n: [
-                            float(req.get(n, 0)) if "sum" in n else int(req.get(n, 0))
-                            for _ in range(1)
+                            float(r.get(n, 0) or 0) if "sum" in n else int(r.get(n, 0) or 0)
+                            for r in reqs
                         ]
                         for n in self.aggregate_names
                     }
@@ -100,6 +122,9 @@ class ScoringService:
         X = self.feature_pipeline.transform(engineered)
         X = X[self.feature_list] if list(X.columns) != self.feature_list else X
         return X
+
+    def features(self, req: dict[str, Any]) -> pd.DataFrame:
+        return self.features_many([req])
 
     # ---- scoring -----------------------------------------------------------------------------
     def priority(self, raw_score: float) -> str:
@@ -135,17 +160,26 @@ class ScoringService:
             for j in order
         ]
 
+    def explain_row(self, X: pd.DataFrame, i: int, top: int = 3) -> list[dict[str, Any]]:
+        """Factors for row ``i`` of a feature matrix (same explainer as the single path)."""
+        return self.explain(X.iloc[[i]], top=top)
+
+    def score_many(self, reqs: list[dict[str, Any]]) -> tuple[np.ndarray, np.ndarray, pd.DataFrame]:
+        """Raw scores, displayed (calibrated, clipped) scores, and the feature matrix for many rows.
+
+        One feature build and one ``predict_proba`` call; the single-transaction ``score`` is this
+        with one row, so batch and single scores are identical by construction.
+        """
+        X = self.features_many(reqs)
+        raw = self.estimator.predict_proba(X)[:, 1].astype(float)
+        display = self.calibrator.predict(raw).astype(float) if self.calibrator is not None else raw
+        return raw, np.clip(display, 0.0, 1.0), X
+
     def score(self, req: dict[str, Any]) -> dict[str, Any]:
-        X = self.features(req)
-        raw = float(self.estimator.predict_proba(X)[:, 1][0])
-        display = (
-            float(self.calibrator.predict(np.array([raw]))[0])
-            if self.calibrator is not None
-            else raw
-        )
+        raw, display, X = self.score_many([req])
         return {
-            "risk_score": float(min(1.0, max(0.0, display))),
-            "review_priority": self.priority(raw),
+            "risk_score": float(display[0]),
+            "review_priority": self.priority(float(raw[0])),
             "model_version": self.version,
             "top_contributing_features": self.explain(X),
         }

@@ -69,6 +69,9 @@ python scripts/check_batch_parity.py                   # created in M1 (T013); l
                                                         # (test split + primary features), posts one batch in-process, and
                                                         # compares the top-K set and priorities with reports/review_queue_period_0.md
 # expected: 0 differences in the top-K set and their priorities; the script refuses to run without data/processed
+# observed 2026-09-08 (T013): period 0 = 32,709 rows posted in one batch, model 20260904T225142-0dc8f82-hgb, K=200;
+#   top-K set differences 0, order identical, priority differences 0 (PARITY OK);
+#   bands over the whole period: high 200, medium 80, low 32,429
 ```
 
 ## 5. Timing at the limit (V1, SC-006)

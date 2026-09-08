@@ -317,7 +317,7 @@ rule and per-row validation as pure functions. Every user story calls these.
   - Files: none new
   - Accept: all green; no prohibited fields or vocabulary
   - Verify: `make lint && make test && make ui-test && .venv/bin/pre-commit run --all-files && make check-no-data`
-- [ ] T041 Open the final PR for `002-batch-triage-ui` into `main` (title and body drafted by the assistant, PR ends with the session URL), merge with rebase, realign the branch, confirm CI on `main` incl. `ui-optional`; then decide with the user whether `make package` deliverables mention the UI (spec FR-084: report and decks unchanged unless asked)
+- [X] T041 (PR #10 merged 2026-09-09 by rebase; branch realigned; main linear; CI green on core, api-optional, ui-optional) Open the final PR for `002-batch-triage-ui` into `main` (title and body drafted by the assistant, PR ends with the session URL), merge with rebase, realign the branch, confirm CI on `main` incl. `ui-optional`; then decide with the user whether `make package` deliverables mention the UI (spec FR-084: report and decks unchanged unless asked)
   - Milestone M3 / Type: verification / Depends: T040
   - Files: none
   - Accept: `main` linear; feature branch ahead 0 / behind 0; CI green

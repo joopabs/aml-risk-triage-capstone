@@ -65,7 +65,8 @@ tests). The bundle's `pipeline.joblib` must exist locally when building; regener
 - Prototype scope: single-transaction scoring, no authentication, no persistence, no batching.
   Suitable for a local demo only.
 - Priority bands for a single request use score-only cutoffs (no period rank exists for one
-  transaction); the batch queue (`python -m aml_triage queue`) is the reference ranking.
+  transaction), compared at the operating point's stored precision (6 decimals); the batch queue
+  (`python -m aml_triage queue`) is the reference ranking.
 - Results describe synthetic data. Real use requires the governance-controlled validation and
   fairness audit described in `reports/bias_fairness_analysis.md` and `docs/mlops_plan.md`.
 

@@ -2,7 +2,7 @@
 
 **Final report — Pillar 5 Capstone Project**
 
-Author: Julius Pabular · Date: 2026-09-07 · Released model: `20260904T225142-0dc8f82-hgb` · Repository: https://github.com/joopabs/aml-risk-triage-capstone
+Author: Julius Pabular · Date: 2026-09-08 · Released model: `20260904T225142-0dc8f82-hgb` · Repository: https://github.com/joopabs/aml-risk-triage-capstone
 
 > Educational decision-support prototype trained on synthetic PaySim data. Outputs are risk scores and review priorities that help human investigators decide what to review first. This system makes no fraud or AML determination and performs no automatic blocking, account closure, customer risk rating, or regulatory reporting. Results on synthetic data do not establish real-world detection effectiveness, fairness, or regulatory suitability.
 >
@@ -1583,7 +1583,7 @@ make pipeline EVALUATE_FLAGS='--force-reevaluate --reason "clean-clone reproduci
                                             # split -> features -> selection/PCA -> train -> compare -> tune
                                             # -> operating point -> freeze -> evaluate (audited) -> select
                                             # -> reproduce-check -> explain -> fairness -> build-report
-make test                                   # 128 tests incl. leakage, guard, vocabulary checks
+make test                                   # test suite incl. leakage, guard, vocabulary checks
 make report && make slides
 ```
 

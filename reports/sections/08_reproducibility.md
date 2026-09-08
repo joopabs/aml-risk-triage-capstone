@@ -19,7 +19,7 @@ make pipeline EVALUATE_FLAGS='--force-reevaluate --reason "clean-clone reproduci
                                             # split -> features -> selection/PCA -> train -> compare -> tune
                                             # -> operating point -> freeze -> evaluate (audited) -> select
                                             # -> reproduce-check -> explain -> fairness -> build-report
-make test                                   # 128 tests incl. leakage, guard, vocabulary checks
+make test                                   # test suite incl. leakage, guard, vocabulary checks
 make report && make slides
 ```
 

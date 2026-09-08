@@ -22,6 +22,9 @@ from aml_triage.utils.io import load_joblib
 
 PLACEHOLDER_CUSTOMER = "C0"  # placeholder identifiers exist only so prefix-based transforms run
 PLACEHOLDER_MERCHANT = "M0"
+OPERATING_POINT_DECIMALS = (
+    6  # precision at which choose-operating-point stores threshold and k_score_cutoff
+)
 
 
 class ServiceError(RuntimeError):
@@ -100,9 +103,13 @@ class ScoringService:
 
     # ---- scoring -----------------------------------------------------------------------------
     def priority(self, raw_score: float) -> str:
-        if raw_score >= float(self.op["k_score_cutoff"]):
+        # The sealed operating point stores its cutoffs rounded to 6 decimals, so compare at that
+        # precision: a raw score of 0.99997689 belongs to the 0.999977 band it was rounded into.
+        # Comparing the unrounded score against the rounded cutoff made the high band unreachable.
+        score = round(float(raw_score), OPERATING_POINT_DECIMALS)
+        if score >= float(self.op["k_score_cutoff"]):
             return "high"
-        if raw_score >= float(self.op["threshold"]):
+        if score >= float(self.op["threshold"]):
             return "medium"
         return "low"
 

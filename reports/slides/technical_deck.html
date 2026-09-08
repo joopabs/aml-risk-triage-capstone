@@ -7677,7 +7677,7 @@ main {
 <h2 id="9-%C2%B7-Reproducibility-and-governance">9 · Reproducibility and governance<a class="anchor-link" href="#9-%C2%B7-Reproducibility-and-governance">¶</a></h2><ul>
 <li>Python 3.11.12, pinned <code>requirements.txt</code>, seed 42, config-driven CLI (22 commands), notebooks call the package</li>
 <li><code>reproduce-check</code>: two fresh refits <strong>identical</strong> (tolerance 0.0e+00); released bundle <code>20260904T225142-0dc8f82-hgb</code> with <code>pipeline.sha256</code>, config snapshot, model card</li>
-<li>CI: lint, secret scan, 128 tests (leakage, test-access guard, vocabulary), no data tracked</li>
+<li>CI: lint, secret scan, pytest suite (leakage, test-access guard, vocabulary), no data tracked</li>
 <li>Repo: <a href="https://github.com/joopabs/aml-risk-triage-capstone">https://github.com/joopabs/aml-risk-triage-capstone</a></li>
 </ul>
 </div>

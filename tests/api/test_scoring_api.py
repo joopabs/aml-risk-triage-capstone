@@ -103,3 +103,19 @@ def test_openapi_matches_contract_fields(client) -> None:
             generated[name]["properties"]
         ), name
         assert generated[name].get("additionalProperties") is False
+
+
+def test_priority_bands_compare_at_operating_point_precision(client) -> None:
+    """The sealed cutoffs are stored rounded to 6 decimals; a raw score that rounds into the cutoff's
+    band belongs to it. Comparing unrounded scores against rounded cutoffs left the high band
+    unreachable for every real positive."""
+    svc = client.app.state.service
+    cut, thr = float(svc.op["k_score_cutoff"]), float(svc.op["threshold"])
+    assert svc.priority(cut) == "high"
+    assert svc.priority(cut - 4e-7) == "high"  # rounds to the cutoff
+    assert svc.priority(cut - 6e-7) in {
+        "medium",
+        "high",
+    }  # rounds below the cutoff unless equal to thr band
+    assert svc.priority(thr - 4e-7) in {"medium", "high"}
+    assert svc.priority(max(thr - 0.05, 0.0)) == "low"

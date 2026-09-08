@@ -1,0 +1,147 @@
+openapi: 3.1.0
+info:
+  title: AML Transaction-Risk Triage Demo API — batch extension (OPTIONAL, feature 002)
+  version: 0.2.0
+  description: >
+    Educational decision-support prototype trained on synthetic PaySim data. Scores a batch of
+    transactions with the released bundle, ranks them within the batch, and returns a review
+    priority per row for human investigator triage. It does not block transactions, close
+    accounts, rate customers, file reports, or make AML determinations. Request bodies are
+    processed in memory and never logged or stored. Extends specs/001-aml-risk-triage/contracts/
+    scoring-api.yaml (GET /health and POST /score are unchanged).
+paths:
+  /triage-config:
+    get:
+      summary: Frozen operating point values, batch limit, and model version in use
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/TriageConfig"}
+  /score-batch:
+    post:
+      summary: Score and rank a batch of transactions for review prioritization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/BatchRequest"}
+      responses:
+        "200":
+          description: Per-row scores, ranks, priorities, and the skipped rows
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/BatchResponse"}
+        "413":
+          description: More transactions than the batch limit; nothing scored. The message states the limit.
+        "422":
+          description: Structural error (empty list, malformed body, unknown top-level field); nothing scored. Row-level problems never produce 422 — they appear in `skipped`.
+components:
+  schemas:
+    TransactionInput:
+      description: >
+        One transaction. Validated per row with the same rules as TransactionRequest in the upstream
+        contract (required fields, minimums, known type, no extra fields). Deliberately typed as a
+        free object here so that one invalid row is reported in `skipped` instead of failing the batch.
+      type: object
+    BatchRequest:
+      type: object
+      additionalProperties: false
+      required: [transactions]
+      properties:
+        transactions:
+          type: array
+          minItems: 1
+          items: {$ref: "#/components/schemas/TransactionInput"}
+          description: "Position in the array + 1 is the row's `input_row`. Length must not exceed the batch limit."
+        explain:
+          type: string
+          enum: [high, none, all]
+          default: high
+          description: "Which rows receive top_contributing_features: the high band (default), none, or all rows"
+    ValidationIssue:
+      type: object
+      additionalProperties: false
+      required: [input_row, field, reason]
+      properties:
+        input_row: {type: integer, minimum: 1}
+        field: {type: string, description: "Field name, or `_row` for a row-level problem"}
+        reason: {type: string}
+    Contribution:
+      type: object
+      additionalProperties: false
+      required: [feature, contribution, plain_language]
+      properties:
+        feature: {type: string}
+        contribution: {type: number}
+        plain_language: {type: string}
+    ScoredRow:
+      type: object
+      additionalProperties: false
+      required: [input_row, rank, risk_score, review_priority, top_contributing_features]
+      properties:
+        input_row: {type: integer, minimum: 1}
+        rank:
+          type: [integer, "null"]
+          minimum: 1
+          description: "1..n over valid rows in the batch; null when the batch has a single valid row (not ranked)"
+        risk_score: {type: number, minimum: 0, maximum: 1, description: "Same quantity as POST /score for this row"}
+        review_priority:
+          type: string
+          enum: [high, medium, low]
+          description: >
+            Batch rule: high if rank <= primary_k AND score >= threshold (both from the frozen
+            operating point, score compared at 6 decimals); medium if score >= threshold; low
+            otherwise. Single valid row: the score-only bands of POST /score. A recommendation for
+            human review order only.
+        top_contributing_features:
+          type: array
+          maxItems: 5
+          items: {$ref: "#/components/schemas/Contribution"}
+    OperatingPoint:
+      type: object
+      additionalProperties: false
+      required: [primary_k, threshold]
+      properties:
+        primary_k: {type: integer, minimum: 1}
+        threshold: {type: number, minimum: 0, maximum: 1}
+    Counts:
+      type: object
+      additionalProperties: false
+      required: [received, scored, skipped, high, medium, low]
+      properties:
+        received: {type: integer}
+        scored: {type: integer}
+        skipped: {type: integer}
+        high: {type: integer}
+        medium: {type: integer}
+        low: {type: integer}
+    BatchResponse:
+      type: object
+      additionalProperties: false
+      required: [model_version, operating_point, batch_limit, ranked, counts, rows, skipped, disclaimer]
+      properties:
+        model_version: {type: string}
+        operating_point: {$ref: "#/components/schemas/OperatingPoint"}
+        batch_limit: {type: integer}
+        ranked: {type: boolean, description: "true when two or more rows were valid"}
+        counts: {$ref: "#/components/schemas/Counts"}
+        rows:
+          type: array
+          items: {$ref: "#/components/schemas/ScoredRow"}
+          description: "In rank order (rank 1 first); the single row when not ranked"
+        skipped:
+          type: array
+          items: {$ref: "#/components/schemas/ValidationIssue"}
+        disclaimer: {type: string}
+    TriageConfig:
+      type: object
+      additionalProperties: false
+      required: [model_version, batch_limit, primary_k, threshold, disclaimer]
+      properties:
+        model_version: {type: string}
+        batch_limit: {type: integer, description: "Env AML_BATCH_LIMIT, default 5000"}
+        primary_k: {type: integer}
+        threshold: {type: number}
+        disclaimer: {type: string}

@@ -37,7 +37,7 @@ decision fields or actions, triage vocabulary only, green suite before every com
   - Files: `requirements-ui.in`, `requirements-ui.txt`
   - Accept: compile succeeds without changing any pin in `requirements.txt` or `requirements-api.txt`; `python -c "import streamlit, pandas; print(streamlit.__version__)"` works in `.venv`; if the newest Streamlit is incompatible, pin the newest compatible release and record why in `research.md` R-07
   - Verify: `uv pip sync --python .venv/bin/python requirements.txt requirements-dev.txt requirements-api.txt requirements-ui.txt && .venv/bin/python -c "import streamlit"`
-- [ ] T002 [P] Add `.streamlit/config.toml` (`browser.gatherUsageStats=false`, `server.headless=true`, `server.address="127.0.0.1"`, `server.maxUploadSize` sized for the row limit, `logger.level="error"`) and `configs/ui.yaml` (`api_url: http://127.0.0.1:8000`, `explain_default: high`, `request_timeout_seconds`) per research R-06
+- [ ] T002 [P] Add `.streamlit/config.toml` (`browser.gatherUsageStats=false`, `server.headless=true`, `server.address="127.0.0.1"`, `server.maxUploadSize=10` (megabytes; a 5,000-row batch of this schema is well under 1 MB), `logger.level="error"`) and `configs/ui.yaml` (`api_url: http://127.0.0.1:8000`, `explain_default: high`, `request_timeout_seconds`) per research R-06
   - Milestone M2 / Type: config / Depends: none
   - Files: `.streamlit/config.toml`, `configs/ui.yaml`
   - Accept: both files parse; no user-data setting enables caching or telemetry; the batch limit is NOT in `configs/ui.yaml` (it comes from the service)
@@ -99,10 +99,10 @@ rule and per-row validation as pure functions. Every user story calls these.
   - Files: `src/aml_triage/api/batch.py`
   - Accept: T007 (b)–(f), (h) pass; single-row batch uses `service.priority`
   - Verify: `.venv/bin/pytest tests/api/test_batch_api.py -q`
-- [ ] T012 Add endpoints to `src/aml_triage/api/main.py`: `GET /triage-config` and `POST /score-batch` (413 when `len(transactions) > service.batch_limit` with the limit in `detail`; 422 for empty list via `min_length=1`), operation descriptions carrying the disclaimer; bump app version to 0.2.0
-  - Milestone M1 / Type: code / Depends: T011
-  - Files: `src/aml_triage/api/main.py`
-  - Accept: all of `tests/api` pass (existing 8 + new); `/docs` lists the two operations
+- [ ] T012 Add endpoints to `src/aml_triage/api/main.py`: `GET /triage-config` and `POST /score-batch` (413 when `len(transactions) > service.batch_limit` with the limit in `detail`; 422 for empty list via `min_length=1`), operation descriptions carrying the disclaimer; bump app version to 0.2.0; document the deployment setting in `.env.example` (`AML_BATCH_LIMIT=5000` with a one-line comment, next to `AML_MODELS_DIR`; create the file if absent)
+  - Milestone M1 / Type: code + docs / Depends: T011
+  - Files: `src/aml_triage/api/main.py`, `.env.example`
+  - Accept: all of `tests/api` pass (existing 8 + new); `/docs` lists the two operations; `.env.example` lists both variables and no secret values
   - Verify: `.venv/bin/pytest tests/api -q && make lint`
 - [ ] T013 Parity check against the pipeline queue on real data (development machine only, plan V3 / SC-003): `scripts/check_batch_parity.py` loads the rows of review period 0 from `data/processed/test.parquet` + `features_primary_test.parquet`, posts them to a `TestClient` app in one batch, and compares the top-K `input_row` set and priorities with `reports/review_queue_period_0.md`; print the difference count; record the result in `specs/002-batch-triage-ui/quickstart.md` §4
   - Milestone M1 / Type: verification / Depends: T012
@@ -120,10 +120,10 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 **Independent Test**: `pytest tests/ui -q -k us1`; manually load `deployment/ui/example_batch.csv`.
 
-- [ ] T014 [P] [US1] Create `tests/ui/conftest.py`: `pytest.importorskip("streamlit")`; `InProcessTriageClient` implementing the `TriageClient` protocol over `fastapi.testclient.TestClient(create_app(api_bundle))`; `app_test()` helper that builds `AppTest.from_file("src/aml_triage/ui/app.py")`, injects the client into `st.session_state["client"]`, and runs; CSV builders (valid example, unknown column, empty, over-limit, one-invalid-row); `fs_snapshot()` helper hashing the repository tree and `~/.streamlit`
+- [ ] T014 [P] [US1] Move the session-scoped `api_bundle` fixture from `tests/api/conftest.py` to `tests/conftest.py` (keep `pytest.importorskip("fastapi")` inside the fixture body so the core run still skips; the batch fixtures stay in `tests/api/conftest.py`), then create `tests/ui/conftest.py`: `pytest.importorskip("streamlit")`; `InProcessTriageClient` implementing the `TriageClient` protocol over `fastapi.testclient.TestClient(create_app(api_bundle))`; `app_test()` helper that builds `AppTest.from_file("src/aml_triage/ui/app.py")`, injects the client into `st.session_state["client"]`, and runs; CSV builders (valid example, unknown column, empty, over-limit, one-invalid-row); `fs_snapshot()` helper hashing the repository tree and `~/.streamlit`
   - Milestone M2 / Type: tests / Depends: T012
-  - Files: `tests/ui/conftest.py`
-  - Accept: fixtures import; the in-process client returns the same body as the HTTP path would
+  - Files: `tests/conftest.py`, `tests/api/conftest.py`, `tests/ui/conftest.py`
+  - Accept: existing `tests/api` tests still pass after the move; fixtures import; the in-process client returns the same body as the HTTP path would
   - Verify: `.venv/bin/pytest tests/ui -q --co`
 - [ ] T015 [P] [US1] Write failing tests in `tests/ui/test_inputs.py`: header normalisation (whitespace, case), unknown columns detected and named, empty/header-only detected, over-limit detected with the limit, `dest_is_merchant` parsing (true/false/1/0), optional columns defaulted, values kept as received (no coercion beyond parsing), `input_row` is 1-based file position
   - Milestone M2 / Type: tests / Depends: none
@@ -150,16 +150,16 @@ rule and per-row validation as pure functions. Every user story calls these.
   - Files: `src/aml_triage/ui/views.py`
   - Accept: helpers render with `AppTest`; every string comes from `texts.py`
   - Verify: `.venv/bin/pytest tests/ui/test_app.py -q -k "sidebar or queue"`
-- [ ] T020 [US1] Implement `src/aml_triage/ui/app.py`: session state machine S0→S1→S2 (data-model §8), client from `st.session_state` or `HttpTriageClient`, `/triage-config` fetch with SERVICE_DOWN handling, "Upload CSV" tab with `st.file_uploader`, "Score batch" and "Clear batch" buttons, wiring of views; the batch is kept only in `st.session_state`; no `st.cache_*` on user data
+- [ ] T020 [US1] Implement `src/aml_triage/ui/app.py`: session state machine S0→S1→S2 (data-model §8), client from `st.session_state` or `HttpTriageClient`, `/triage-config` fetch with SERVICE_DOWN handling, "Upload CSV" tab with `st.file_uploader` and `PRIVACY_NOTE` as a caption directly under the uploader (in addition to the sidebar; spec FR-052), "Score batch" and "Clear batch" buttons, wiring of views; the batch is kept only in `st.session_state`; no `st.cache_*` on user data
   - Milestone M2 / Type: code / Depends: T018, T019
   - Files: `src/aml_triage/ui/app.py`
   - Accept: US1 tests pass; `make ui` renders against a running `make api`
   - Verify: `.venv/bin/pytest tests/ui -q -k us1`
-- [ ] T021 [P] [US1] Ship the synthetic example: copy `specs/002-batch-triage-ui/contracts/examples/example_batch.csv` to `deployment/ui/example_batch.csv` (already whitelisted in `.gitignore`) and add a "Load synthetic example" button in the upload tab that reads it from the package path; label it synthetic on screen
-  - Milestone M2 / Type: code / Depends: T020
-  - Files: `deployment/ui/example_batch.csv`, `src/aml_triage/ui/app.py`
-  - Accept: pressing the button yields the same S2 state as uploading the file; `make check-no-data` still passes
-  - Verify: `.venv/bin/pytest tests/ui -q -k example && make check-no-data`
+- [ ] T021 [P] [US1] Ship the synthetic example (spec FR-005): `scripts/make_ui_example.py` builds 10 rows from `aml_triage.utils.synthetic.make_synthetic_frame(seed=7, …)` mapped to the request columns (aggregates 0, `dest_is_merchant` from the synthetic destination prefix) plus two hand-written drained-account rows (TRANSFER and CASH_OUT with `newbalanceOrig` 0), writes `deployment/ui/example_batch.csv` (whitelisted in `.gitignore`) and copies it over `specs/002-batch-triage-ui/contracts/examples/example_batch.csv`; add a "Load synthetic example" button in the upload tab that reads it from the package path and labels it synthetic; add a test that no example row equals any of the first 20 rows of the raw PaySim file when that file is present locally (skip otherwise)
+  - Milestone M2 / Type: code + tests / Depends: T020
+  - Files: `scripts/make_ui_example.py`, `deployment/ui/example_batch.csv`, `specs/002-batch-triage-ui/contracts/examples/example_batch.csv`, `src/aml_triage/ui/app.py`, `tests/ui/test_app.py`
+  - Accept: pressing the button yields the same S2 state as uploading the file; both example copies are byte-identical and generated, not hand-typed; `make check-no-data` still passes
+  - Verify: `.venv/bin/python scripts/make_ui_example.py && git diff --exit-code specs/002-batch-triage-ui/contracts/examples/example_batch.csv deployment/ui/example_batch.csv; .venv/bin/pytest tests/ui -q -k example && make check-no-data`
 
 **Checkpoint**: MVP. Commit `feat(ui): CSV upload and ranked review queue (002 US1)`.
 
@@ -275,10 +275,10 @@ rule and per-row validation as pure functions. Every user story calls these.
   - Files: `scripts/time_batch.py`, `deployment/DEPLOYMENT.md`
   - Accept: the guide states the measured numbers with machine and date; no real data used
   - Verify: `.venv/bin/python scripts/time_batch.py --rows 5000`
-- [ ] T034 [US6] Write the "Batch triage UI" section of `deployment/DEPLOYMENT.md`: what it is, setup (`make setup-ui`), run (`make api`, `make ui`), the example file, the batch rule in plain words (FR-020), the batch limit and the measured time (T033), the privacy statement (in-memory only, telemetry off, loopback), limits, and the framework statement: FastAPI is the Step 8 deployment of record, Streamlit is the optional UI, why (research R-01)
+- [ ] T034 [US6] Write the "Batch triage UI" section of `deployment/DEPLOYMENT.md`: what it is, setup (`make setup-ui`), run (`make api`, `make ui`), the example file, the batch rule in plain words (FR-020), the batch limit and the measured time (T033), the privacy statement (in-memory only, telemetry off, loopback), limits, the framework statement: FastAPI is the Step 8 deployment of record, Streamlit is the optional UI, why (research R-01); and add `AML_BATCH_LIMIT` to the existing Configuration table next to `AML_MODELS_DIR`
   - Milestone M3 / Type: docs / Depends: T033
   - Files: `deployment/DEPLOYMENT.md`
-  - Accept: `grep -n "deployment of record" deployment/DEPLOYMENT.md` matches; vocabulary test passes
+  - Accept: `grep -n "deployment of record" deployment/DEPLOYMENT.md` matches; the Configuration table lists `AML_BATCH_LIMIT`; vocabulary test passes
   - Verify: `.venv/bin/pytest tests/test_vocabulary.py -q && grep -n "deployment of record" deployment/DEPLOYMENT.md`
 - [ ] T035 [P] [US6] Update `README.md`: optional-steps status line for the batch UI, the three make targets in the Commands block, the framework statement (FR-062), a pointer to the deployment guide section; keep the repository map current (`src/aml_triage/ui/`, `deployment/ui/`)
   - Milestone M3 / Type: docs / Depends: T031

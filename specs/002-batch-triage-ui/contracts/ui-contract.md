@@ -24,7 +24,8 @@ imported from `aml_triage.constants.DISCLAIMER` and never retyped.
 - Sidebar shows the service status. If `/triage-config` is unreachable: an error message with the
   exact command to start the service (`make api`) and no input controls enabled.
 - Input area shows the expected columns (required and optional with defaults), the batch limit,
-  and a link/button to load the bundled synthetic example (`deployment/ui/example_batch.csv`).
+  the PRIVACY_NOTE as a caption directly under the file uploader (in addition to the sidebar), and
+  a button to load the bundled synthetic example (`deployment/ui/example_batch.csv`).
 
 ### S1 Loaded (rows present, not scored)
 

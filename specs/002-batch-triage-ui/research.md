@@ -96,8 +96,9 @@ dependency and is not the spec's "CSV").
 ## R-06 Privacy configuration for Streamlit
 
 **Decision**: Commit `.streamlit/config.toml` with `browser.gatherUsageStats = false`,
-`server.headless = true`, `server.address = "127.0.0.1"`, `server.maxUploadSize` sized for the
-row limit (a few MB), `logger.level = "error"`. Do not use `st.cache_data` or `st.cache_resource`
+`server.headless = true`, `server.address = "127.0.0.1"`, `server.maxUploadSize = 10` (megabytes;
+a 5,000-row batch of this schema is well under 1 MB, so 10 MB leaves headroom without inviting
+files far above the batch limit), `logger.level = "error"`. Do not use `st.cache_data` or `st.cache_resource`
 on any user data; keep the batch only in `st.session_state`. The `file_uploader` returns an
 in-memory buffer; it is read once and not written anywhere. The service is contacted on loopback
 only; the URL is in `configs/ui.yaml`.
@@ -127,8 +128,10 @@ record to the UI); an unpinned install (violates P III).
 
 ## R-08 Headless UI testing
 
-**Decision**: `tests/ui/conftest.py` builds the FastAPI app from the existing session-scoped
-`api_bundle` fixture and provides an `InProcessTriageClient` (FastAPI `TestClient`) implementing
+**Decision**: The session-scoped `api_bundle` fixture moves from `tests/api/conftest.py` to
+`tests/conftest.py` (pytest scopes a conftest to its own directory tree, so `tests/ui/` cannot see
+`tests/api/conftest.py`), keeping `pytest.importorskip("fastapi")` inside the fixture body.
+`tests/ui/conftest.py` builds the FastAPI app from that fixture and provides an `InProcessTriageClient` (FastAPI `TestClient`) implementing
 the same `TriageClient` protocol as the HTTP client. `tests/ui/test_app.py` uses
 `streamlit.testing.v1.AppTest.from_file("src/aml_triage/ui/app.py")` and injects that client via
 `st.session_state` before `run()`, then drives upload, scoring, row selection, and export, asserting

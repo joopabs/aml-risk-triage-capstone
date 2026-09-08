@@ -36,3 +36,68 @@ def base_config_path(repo_root: Path) -> Path:
 @pytest.fixture
 def fixture_frame() -> pd.DataFrame:
     return make_fixture_frame()
+
+
+@pytest.fixture(scope="session")
+def api_bundle(tmp_path_factory) -> Path:
+    """Released bundle trained on synthetic rows through the real lifecycle (optional API + UI tests).
+
+    Lives here (not in tests/api/conftest.py) because pytest scopes a conftest to its own directory
+    and tests/ui needs the same bundle. Skips when FastAPI is not installed.
+    """
+    pytest.importorskip("fastapi")
+    import os
+    import shutil
+
+    import yaml
+
+    from aml_triage.cli import main
+    from aml_triage.constants import EXIT_OK
+
+    tmp = tmp_path_factory.mktemp("api_bundle")
+    (tmp / "configs" / "models").mkdir(parents=True)
+    for f in (REPO_ROOT / "configs" / "models").glob("*.yaml"):
+        if ".tuned" not in f.name:
+            shutil.copy(f, tmp / "configs" / "models" / f.name)
+    shutil.copy(REPO_ROOT / "configs" / "schema.yaml", tmp / "configs" / "schema.yaml")
+    reg = tmp / "features.yaml"
+    shutil.copy(REPO_ROOT / "configs" / "features.yaml", reg)
+    raw = tmp / "sample.csv"
+    make_synthetic_frame(
+        seed=3, n_rows=4000, n_steps=72, n_positives=80, plant_defects=False
+    ).to_csv(raw, index=False)
+    cfg = tmp / "cfg.yaml"
+    cfg.write_text(
+        yaml.safe_dump(
+            {
+                "_extends": str(REPO_ROOT / "configs" / "base.yaml"),
+                "paths": {
+                    "raw_csv": str(raw),
+                    "processed_dir": str(tmp / "processed"),
+                    "models_dir": str(tmp / "models"),
+                    "reports_dir": str(tmp / "reports"),
+                },
+                "features": {"registry": str(reg)},
+                "split": {"train_end_step": 48, "val_end_step": 60, "min_positives_per_split": 5},
+                "review": {"review_period_steps": 24, "primary_k": 10, "k_grid": [5, 10, 20]},
+                "bootstrap": {"n_resamples": 3},
+                "operating_point_path": str(tmp / "operating_point.yaml"),
+            }
+        )
+    )
+    cwd = Path.cwd()
+    os.chdir(tmp)
+    try:
+        for args in (
+            ["split"],
+            ["build-features", "--feature-set", "primary"],
+            ["train", "--models", "dummy,hgb", "--feature-set", "primary", "--split", "val"],
+            ["choose-operating-point"],
+            ["freeze"],
+            ["evaluate", "--split", "test"],
+            ["select"],
+        ):
+            assert main([*args, "--config", str(cfg)]) == EXIT_OK, args
+    finally:
+        os.chdir(cwd)
+    return tmp / "models"

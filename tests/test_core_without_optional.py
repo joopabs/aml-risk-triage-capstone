@@ -21,8 +21,10 @@ def test_core_modules_import_with_api_unavailable(monkeypatch: pytest.MonkeyPatc
 
     imported: list[str] = []
     for mod in pkgutil.walk_packages(aml_triage.__path__, prefix="aml_triage."):
-        if mod.name.startswith("aml_triage.api") or mod.name.endswith("__main__"):
-            continue
+        if mod.name.startswith(("aml_triage.api", "aml_triage.ui")) or mod.name.endswith(
+            "__main__"
+        ):
+            continue  # both optional components are excluded from the core import walk
         importlib.import_module(mod.name)
         imported.append(mod.name)
     assert "aml_triage.cli" in imported

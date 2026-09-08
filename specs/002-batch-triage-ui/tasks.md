@@ -120,42 +120,42 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 **Independent Test**: `pytest tests/ui -q -k us1`; manually load `deployment/ui/example_batch.csv`.
 
-- [ ] T014 [P] [US1] Move the session-scoped `api_bundle` fixture from `tests/api/conftest.py` to `tests/conftest.py` (keep `pytest.importorskip("fastapi")` inside the fixture body so the core run still skips; the batch fixtures stay in `tests/api/conftest.py`), then create `tests/ui/conftest.py`: `pytest.importorskip("streamlit")`; `InProcessTriageClient` implementing the `TriageClient` protocol over `fastapi.testclient.TestClient(create_app(api_bundle))`; `app_test()` helper that builds `AppTest.from_file("src/aml_triage/ui/app.py")`, injects the client into `st.session_state["client"]`, and runs; CSV builders (valid example, unknown column, empty, over-limit, one-invalid-row); `fs_snapshot()` helper hashing the repository tree and `~/.streamlit`
+- [X] T014 [P] [US1] Move the session-scoped `api_bundle` fixture from `tests/api/conftest.py` to `tests/conftest.py` (keep `pytest.importorskip("fastapi")` inside the fixture body so the core run still skips; the batch fixtures stay in `tests/api/conftest.py`), then create `tests/ui/conftest.py`: `pytest.importorskip("streamlit")`; `InProcessTriageClient` implementing the `TriageClient` protocol over `fastapi.testclient.TestClient(create_app(api_bundle))`; `app_test()` helper that builds `AppTest.from_file("src/aml_triage/ui/app.py")`, injects the client into `st.session_state["client"]`, and runs; CSV builders (valid example, unknown column, empty, over-limit, one-invalid-row); `fs_snapshot()` helper hashing the repository tree and `~/.streamlit`
   - Milestone M2 / Type: tests / Depends: T012
   - Files: `tests/conftest.py`, `tests/api/conftest.py`, `tests/ui/conftest.py`
   - Accept: existing `tests/api` tests still pass after the move; fixtures import; the in-process client returns the same body as the HTTP path would
   - Verify: `.venv/bin/pytest tests/ui -q --co`
-- [ ] T015 [P] [US1] Write failing tests in `tests/ui/test_inputs.py`: header normalisation (whitespace, case), unknown columns detected and named, empty/header-only detected, over-limit detected with the limit, `dest_is_merchant` parsing (true/false/1/0), optional columns defaulted, values kept as received (no coercion beyond parsing), `input_row` is 1-based file position
+- [X] T015 [P] [US1] Write failing tests in `tests/ui/test_inputs.py`: header normalisation (whitespace, case), unknown columns detected and named, empty/header-only detected, over-limit detected with the limit, `dest_is_merchant` parsing (true/false/1/0), optional columns defaulted, values kept as received (no coercion beyond parsing), `input_row` is 1-based file position
   - Milestone M2 / Type: tests / Depends: none
   - Files: `tests/ui/test_inputs.py`
   - Accept: tests fail on missing module `aml_triage.ui.inputs`
   - Verify: `.venv/bin/pytest tests/ui/test_inputs.py -q`
-- [ ] T016 [P] [US1] Write failing `AppTest` tests in `tests/ui/test_app.py` (US1 group): empty state shows sidebar config values (model version, K, threshold, batch limit) and the disclaimer; uploading the example CSV shows `counts.scored` rows in rank order with columns per `contracts/ui-contract.md`; the rule text and the below-capacity note appear; unknown-column file → refusal message naming the column, no table; the disclaimer appears in the sidebar and the footer in every state; no widget label or column matches the prohibited-action or prohibited-field lists
+- [X] T016 [P] [US1] Write failing `AppTest` tests in `tests/ui/test_app.py` (US1 group): empty state shows sidebar config values (model version, K, threshold, batch limit) and the disclaimer; uploading the example CSV shows `counts.scored` rows in rank order with columns per `contracts/ui-contract.md`; the rule text and the below-capacity note appear; unknown-column file → refusal message naming the column, no table; the disclaimer appears in the sidebar and the footer in every state; no widget label or column matches the prohibited-action or prohibited-field lists
   - Milestone M2 / Type: tests / Depends: T014
   - Files: `tests/ui/test_app.py`
   - Accept: tests fail on missing `app.py`
   - Verify: `.venv/bin/pytest tests/ui/test_app.py -q -k us1`
-- [ ] T017 [US1] Implement `src/aml_triage/ui/client.py`: `TriageClient` protocol (`config()`, `score_batch(rows, explain)`, `score_one(row)`), `HttpTriageClient` (requests, base URL and timeout from `configs/ui.yaml`, loopback default), typed errors `ServiceUnavailable`, `BatchTooLarge(limit)`, `BadRequest(detail)`
+- [X] T017 [US1] Implement `src/aml_triage/ui/client.py`: `TriageClient` protocol (`config()`, `score_batch(rows, explain)`, `score_one(row)`), `HttpTriageClient` (requests, base URL and timeout from `configs/ui.yaml`, loopback default), typed errors `ServiceUnavailable`, `BatchTooLarge(limit)`, `BadRequest(detail)`
   - Milestone M2 / Type: code / Depends: T014
   - Files: `src/aml_triage/ui/client.py`
   - Accept: `InProcessTriageClient` and `HttpTriageClient` share the protocol; no logging of payloads
   - Verify: `.venv/bin/pytest tests/ui -q -k client`
-- [ ] T018 [US1] Implement `src/aml_triage/ui/inputs.py`: `read_csv_rows(buffer, limit) -> list[dict] | StructuralError`, header normalisation, structural checks (unknown columns, empty, over limit, unreadable), row dicts with `input_row`, optional defaults, boolean parsing; values passed through as strings/numbers without other transformation (FR-013)
+- [X] T018 [US1] Implement `src/aml_triage/ui/inputs.py`: `read_csv_rows(buffer, limit) -> list[dict] | StructuralError`, header normalisation, structural checks (unknown columns, empty, over limit, unreadable), row dicts with `input_row`, optional defaults, boolean parsing; values passed through as strings/numbers without other transformation (FR-013)
   - Milestone M2 / Type: code / Depends: T015
   - Files: `src/aml_triage/ui/inputs.py`
   - Accept: `tests/ui/test_inputs.py` passes
   - Verify: `.venv/bin/pytest tests/ui/test_inputs.py -q`
-- [ ] T019 [US1] Implement `src/aml_triage/ui/views.py` for US1: `sidebar(config, status)`, `summary(result)`, `rule_text(result)` (RULE_TEXT plus BELOW_CAPACITY / SINGLE_ROW when applicable), `queue_table(rows_in, result)` (columns `rank, review_priority, risk_score, type, amount, step, input_row, model_version`; `st.dataframe`, sortable; rank column values fixed), `footer()`
+- [X] T019 [US1] Implement `src/aml_triage/ui/views.py` for US1: `sidebar(config, status)`, `summary(result)`, `rule_text(result)` (RULE_TEXT plus BELOW_CAPACITY / SINGLE_ROW when applicable), `queue_table(rows_in, result)` (columns `rank, review_priority, risk_score, type, amount, step, input_row, model_version`; `st.dataframe`, sortable; rank column values fixed), `footer()`
   - Milestone M2 / Type: code / Depends: T017
   - Files: `src/aml_triage/ui/views.py`
   - Accept: helpers render with `AppTest`; every string comes from `texts.py`
   - Verify: `.venv/bin/pytest tests/ui/test_app.py -q -k "sidebar or queue"`
-- [ ] T020 [US1] Implement `src/aml_triage/ui/app.py`: session state machine S0→S1→S2 (data-model §8), client from `st.session_state` or `HttpTriageClient`, `/triage-config` fetch with SERVICE_DOWN handling, "Upload CSV" tab with `st.file_uploader` and `PRIVACY_NOTE` as a caption directly under the uploader (in addition to the sidebar; spec FR-052), "Score batch" and "Clear batch" buttons, wiring of views; the batch is kept only in `st.session_state`; no `st.cache_*` on user data
+- [X] T020 [US1] Implement `src/aml_triage/ui/app.py`: session state machine S0→S1→S2 (data-model §8), client from `st.session_state` or `HttpTriageClient`, `/triage-config` fetch with SERVICE_DOWN handling, "Upload CSV" tab with `st.file_uploader` and `PRIVACY_NOTE` as a caption directly under the uploader (in addition to the sidebar; spec FR-052), "Score batch" and "Clear batch" buttons, wiring of views; the batch is kept only in `st.session_state`; no `st.cache_*` on user data
   - Milestone M2 / Type: code / Depends: T018, T019
   - Files: `src/aml_triage/ui/app.py`
   - Accept: US1 tests pass; `make ui` renders against a running `make api`
   - Verify: `.venv/bin/pytest tests/ui -q -k us1`
-- [ ] T021 [P] [US1] Ship the synthetic example (spec FR-005): `scripts/make_ui_example.py` builds 10 rows from `aml_triage.utils.synthetic.make_synthetic_frame(seed=7, …)` mapped to the request columns (aggregates 0, `dest_is_merchant` from the synthetic destination prefix) plus two hand-written drained-account rows (TRANSFER and CASH_OUT with `newbalanceOrig` 0), writes `deployment/ui/example_batch.csv` (whitelisted in `.gitignore`) and copies it over `specs/002-batch-triage-ui/contracts/examples/example_batch.csv`; add a "Load synthetic example" button in the upload tab that reads it from the package path and labels it synthetic; add a test that no example row equals any of the first 20 rows of the raw PaySim file when that file is present locally (skip otherwise)
+- [X] T021 [P] [US1] Ship the synthetic example (spec FR-005): `scripts/make_ui_example.py` builds 10 rows from `aml_triage.utils.synthetic.make_synthetic_frame(seed=7, …)` mapped to the request columns (aggregates 0, `dest_is_merchant` from the synthetic destination prefix) plus two hand-written drained-account rows (TRANSFER and CASH_OUT with `newbalanceOrig` 0), writes `deployment/ui/example_batch.csv` (whitelisted in `.gitignore`) and copies it over `specs/002-batch-triage-ui/contracts/examples/example_batch.csv`; add a "Load synthetic example" button in the upload tab that reads it from the package path and labels it synthetic; add a test that no example row equals any of the first 20 rows of the raw PaySim file when that file is present locally (skip otherwise)
   - Milestone M2 / Type: code + tests / Depends: T020
   - Files: `scripts/make_ui_example.py`, `deployment/ui/example_batch.csv`, `specs/002-batch-triage-ui/contracts/examples/example_batch.csv`, `src/aml_triage/ui/app.py`, `tests/ui/test_app.py`
   - Accept: pressing the button yields the same S2 state as uploading the file; both example copies are byte-identical and generated, not hand-typed; `make check-no-data` still passes
@@ -171,12 +171,12 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 **Independent Test**: `pytest tests/ui -q -k us2`; type three rows, one emptying the origin account.
 
-- [ ] T022 [P] [US2] Write failing `AppTest` tests (US2 group) in `tests/ui/test_app.py`: manual grid with three rows scores identically to uploading the same rows as CSV; a manual row with a missing required value appears in the validation report while the others score; a single manual row shows the SINGLE_ROW note and a null rank
+- [X] T022 [P] [US2] Write failing `AppTest` tests (US2 group) in `tests/ui/test_app.py`: manual grid with three rows scores identically to uploading the same rows as CSV; a manual row with a missing required value appears in the validation report while the others score; a single manual row shows the SINGLE_ROW note and a null rank
   - Milestone M2 / Type: tests / Depends: T020
   - Files: `tests/ui/test_app.py`
   - Accept: tests fail on the missing tab
   - Verify: `.venv/bin/pytest tests/ui/test_app.py -q -k us2`
-- [ ] T023 [US2] Implement the "Enter rows" tab: `st.data_editor` with the schema columns and defaults (`inputs.grid_to_rows(df) -> list[dict]` assigning `input_row` from grid position) in `src/aml_triage/ui/inputs.py`; tab wiring in `src/aml_triage/ui/app.py` so both tabs feed the same S1 state
+- [X] T023 [US2] Implement the "Enter rows" tab: `st.data_editor` with the schema columns and defaults (`inputs.grid_to_rows(df) -> list[dict]` assigning `input_row` from grid position) in `src/aml_triage/ui/inputs.py`; tab wiring in `src/aml_triage/ui/app.py` so both tabs feed the same S1 state
   - Milestone M2 / Type: code / Depends: T022
   - Files: `src/aml_triage/ui/inputs.py`, `src/aml_triage/ui/app.py`
   - Accept: US2 tests pass; no separate validation code for manual rows
@@ -192,12 +192,12 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 **Independent Test**: `pytest tests/ui -q -k us3`; select the top row and a low row.
 
-- [ ] T024 [P] [US3] Write failing `AppTest` tests (US3 group): selecting a row shows up to five factors, direction, and plain-language sentences equal to `POST /score` for that row (via the in-process client); a high-band row uses factors from the batch response, a low row triggers `score_one`; the panel shows rank, priority, score, model version, and the disclaimer; no prohibited vocabulary in the sentences
+- [X] T024 [P] [US3] Write failing `AppTest` tests (US3 group): selecting a row shows up to five factors, direction, and plain-language sentences equal to `POST /score` for that row (via the in-process client); a high-band row uses factors from the batch response, a low row triggers `score_one`; the panel shows rank, priority, score, model version, and the disclaimer; no prohibited vocabulary in the sentences
   - Milestone M2 / Type: tests / Depends: T020
   - Files: `tests/ui/test_app.py`
   - Accept: tests fail on the missing panel
   - Verify: `.venv/bin/pytest tests/ui/test_app.py -q -k us3`
-- [ ] T025 [US3] Implement `explanation_panel(selected, rows_in, result, client)` in `src/aml_triage/ui/views.py` with an `input_row` selector, on-demand `client.score_one` for rows without factors, and a per-session `explanations` dict in `st.session_state`; wire into `src/aml_triage/ui/app.py`
+- [X] T025 [US3] Implement `explanation_panel(selected, rows_in, result, client)` in `src/aml_triage/ui/views.py` with an `input_row` selector, on-demand `client.score_one` for rows without factors, and a per-session `explanations` dict in `st.session_state`; wire into `src/aml_triage/ui/app.py`
   - Milestone M2 / Type: code / Depends: T024
   - Files: `src/aml_triage/ui/views.py`, `src/aml_triage/ui/app.py`
   - Accept: US3 tests pass; only one scoring path is used (no SHAP import in the UI)
@@ -213,17 +213,17 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 **Independent Test**: `pytest tests/ui -q -k "us4 or export"`.
 
-- [ ] T026 [P] [US4] Write failing tests in `tests/ui/test_export.py`: first line `# ` + disclaimer verbatim; queue header equals the contract column list; rows in ascending rank; row count equals `counts.scored`; input values echoed as received; skipped file rows equal `len(skipped)`; UTF-8 BOM present; no prohibited field names or vocabulary; file names `triage_queue_<version>.csv` / `triage_skipped_<version>.csv`
+- [X] T026 [P] [US4] Write failing tests in `tests/ui/test_export.py`: first line `# ` + disclaimer verbatim; queue header equals the contract column list; rows in ascending rank; row count equals `counts.scored`; input values echoed as received; skipped file rows equal `len(skipped)`; UTF-8 BOM present; no prohibited field names or vocabulary; file names `triage_queue_<version>.csv` / `triage_skipped_<version>.csv`
   - Milestone M2 / Type: tests / Depends: T014
   - Files: `tests/ui/test_export.py`
   - Accept: tests fail on missing `aml_triage.ui.export`
   - Verify: `.venv/bin/pytest tests/ui/test_export.py -q`
-- [ ] T027 [US4] Implement `src/aml_triage/ui/export.py`: `queue_csv(rows_in, result) -> bytes`, `skipped_csv(rows_in, result) -> bytes`, `file_names(version)`; built in memory only
+- [X] T027 [US4] Implement `src/aml_triage/ui/export.py`: `queue_csv(rows_in, result) -> bytes`, `skipped_csv(rows_in, result) -> bytes`, `file_names(version)`; built in memory only
   - Milestone M2 / Type: code / Depends: T026
   - Files: `src/aml_triage/ui/export.py`
   - Accept: `tests/ui/test_export.py` passes
   - Verify: `.venv/bin/pytest tests/ui/test_export.py -q`
-- [ ] T028 [US4] Add the two `st.download_button` controls to S2 in `src/aml_triage/ui/app.py` (skipped download only when `skipped` is non-empty) and an `AppTest` test (US4 group) asserting the download payloads equal `export.queue_csv`/`skipped_csv` output
+- [X] T028 [US4] Add the two `st.download_button` controls to S2 in `src/aml_triage/ui/app.py` (skipped download only when `skipped` is non-empty) and an `AppTest` test (US4 group) asserting the download payloads equal `export.queue_csv`/`skipped_csv` output
   - Milestone M2 / Type: code + tests / Depends: T027
   - Files: `src/aml_triage/ui/app.py`, `tests/ui/test_app.py`
   - Accept: US4 tests pass; nothing written to disk by the download path
@@ -239,17 +239,17 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 **Independent Test**: `pytest tests/ui -q -k us5`.
 
-- [ ] T029 [P] [US5] Write failing `AppTest` tests (US5 group): a CSV with one row per failure type shows each row in the validation report with `input_row`, `field`, `reason`, and the valid rows are scored; over-limit file → OVER_LIMIT message with the service's limit and no table; empty/header-only → EMPTY_FILE; non-UTF-8 bytes → UNREADABLE; unreachable service (client raising `ServiceUnavailable`) → SERVICE_DOWN with the `make api` hint and disabled inputs
+- [X] T029 [P] [US5] Write failing `AppTest` tests (US5 group): a CSV with one row per failure type shows each row in the validation report with `input_row`, `field`, `reason`, and the valid rows are scored; over-limit file → OVER_LIMIT message with the service's limit and no table; empty/header-only → EMPTY_FILE; non-UTF-8 bytes → UNREADABLE; unreachable service (client raising `ServiceUnavailable`) → SERVICE_DOWN with the `make api` hint and disabled inputs
   - Milestone M2 / Type: tests / Depends: T020
   - Files: `tests/ui/test_app.py`
   - Accept: tests fail on the missing report/expander
   - Verify: `.venv/bin/pytest tests/ui/test_app.py -q -k us5`
-- [ ] T030 [US5] Implement `validation_report(result)` (expander titled with the skipped count, one line per issue) and the structural/service error messages in `src/aml_triage/ui/views.py`; wire into `src/aml_triage/ui/app.py`
+- [X] T030 [US5] Implement `validation_report(result)` (expander titled with the skipped count, one line per issue) and the structural/service error messages in `src/aml_triage/ui/views.py`; wire into `src/aml_triage/ui/app.py`
   - Milestone M2 / Type: code / Depends: T029
   - Files: `src/aml_triage/ui/views.py`, `src/aml_triage/ui/app.py`
   - Accept: US5 tests pass; every message text is from `texts.py`
   - Verify: `.venv/bin/pytest tests/ui -q -k us5`
-- [ ] T031 [US5] Add the no-persistence test (SC-007): `tests/ui/test_app.py::test_no_files_written` snapshots the repository tree and `~/.streamlit` before and after upload → score → select → export → clear, and asserts equality; also asserts `browser.gatherUsageStats` is false in `.streamlit/config.toml`
+- [X] T031 [US5] Add the no-persistence test (SC-007): `tests/ui/test_app.py::test_no_files_written` snapshots the repository tree and `~/.streamlit` before and after upload → score → select → export → clear, and asserts equality; also asserts `browser.gatherUsageStats` is false in `.streamlit/config.toml`
   - Milestone M2 / Type: tests / Depends: T030
   - Files: `tests/ui/test_app.py`
   - Accept: passes; if Streamlit writes a credentials/telemetry file, adjust config and re-run

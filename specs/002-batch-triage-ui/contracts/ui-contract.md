@@ -13,7 +13,7 @@ imported from `aml_triage.constants.DISCLAIMER` and never retyped.
 |---|---|---|
 | Sidebar | Service status (reachable / unreachable), model version, frozen operating point (K, threshold), batch limit, synthetic-data notice, privacy notice ("processed in memory, not stored"), the disclaimer | yes |
 | Header | Title "Batch Transaction-Risk Triage (educational prototype, synthetic data)" and one-line purpose | yes |
-| Input area | Two tabs: "Upload CSV" and "Enter rows" | yes |
+| Input area | Two tabs: "Upload CSV" and "Enter rows" (a text area that accepts pasted or typed CSV lines, with or without a header; chosen over an editable grid because the headless test harness cannot drive `st.data_editor`) | yes |
 | Results area | Summary, rule text, queue table, explanation panel, downloads | after scoring |
 | Footer | The disclaimer | yes |
 

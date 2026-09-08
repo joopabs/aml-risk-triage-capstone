@@ -318,3 +318,14 @@ def test_us5_no_files_written_by_the_whole_flow(app, example_csv, fs_snapshot) -
     assert at.download_button  # export payloads were built in memory
     at.button(key="clear").click().run()
     assert fs_snapshot(*roots) == before
+
+
+def test_demo_query_param_loads_and_scores_the_example(app, example_csv) -> None:
+    """`?demo=example` (used for the screenshots) takes the same path as the two buttons."""
+    at = app()
+    at.query_params["demo"] = "example"
+    at.run()
+    assert not at.exception
+    n_rows = len(example_csv.decode().splitlines()) - 1
+    assert len(at.dataframe[0].value) == n_rows
+    assert _disclaimer_count(at) >= 3

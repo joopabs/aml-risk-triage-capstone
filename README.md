@@ -55,6 +55,9 @@ make pipeline         # split -> build-features -> select-features -> pca -> tra
 make report           # assemble reports/final_report.md and export final_report.pdf
 make slides           # technical deck (reveal.js HTML + PDF) and business deck (PPTX + PDF), slide-count check
 make package          # copy report + decks into submission/ (gitignored) under the submission file names
+make setup-ui         # optional batch-triage UI: install the pinned UI extras (Streamlit) next to the API extras
+make ui               # optional batch-triage UI on http://127.0.0.1:8501 (run `make api` first)
+make ui-test          # headless UI + API tests
 python -m aml_triage --help   # all 22 commands; every command takes --config and --seed
 ```
 
@@ -83,15 +86,19 @@ src/aml_triage/  config, cli, utils; data/ (load, schema, profiling, dictionary,
                  models/ (registry, comparators, train, tune, lifecycle: freeze/evaluate/select/queue/reproduce);
                  evaluation/ (metrics, capacity, calibration, bootstrap, compare, threshold, capacity_report);
                  explain/ (SHAP, PDP/ICE, captions); fairness/ (availability, slices, demographic, report);
-                 eda/, reporting/ (figures, tables, report_builder)
+                 eda/, reporting/ (figures, tables, report_builder);
+                 api/ (optional Step 8 service: /score, /score-batch, /triage-config); ui/ (optional batch-triage UI)
 tests/           pytest suite: config, CLI, schema, split, features, causal aggregates, leakage + test-access
-                 guards, metrics, capacity, training, fairness, vocabulary, notebooks compile, report builder
+                 guards, metrics, capacity, training, fairness, vocabulary, notebooks compile, report builder;
+                 api/ and ui/ (optional; skipped when the extras are not installed)
 notebooks/       01–07 numbered notebooks that call the package; 90_technical_deck.ipynb (slides)
 data/            README (provenance, license, checksum); raw/ and processed/ gitignored except small
                  governance JSON (split manifest, test-access record, feature lists, fit-scope records)
 models/          <version>/ bundle (pipeline.sha256, config snapshot, metrics, feature list, model card); LATEST
 reports/         data quality, dictionary, EDA, selection, PCA, comparison, selection matrix, capacity,
                  explainability, Bias & Fairness Analysis, review queues, final_report.md/.pdf, slides/
+deployment/      Dockerfile, DEPLOYMENT.md (service + batch triage UI), demo/ (service transcript GIF),
+                 ui/ (synthetic example batch, screenshots, demo GIF)
 scripts/         fetch_data.sh, export_report.sh, md_to_html.py, html_to_pdf.py, build_business_deck.py,
                  check_slide_counts.py
 specs/           Spec Kit constitution-driven specification, plan, research, data model, contracts, tasks
@@ -138,6 +145,13 @@ in the final report's Reproducibility section.
   (`deployment/Dockerfile`, `make docker-build`), deployment guide (`deployment/DEPLOYMENT.md`),
   demo (`deployment/demo/demo.gif`, a rendered transcript of real responses), MLOps plan
   (`docs/mlops_plan.md`). Cloud deployment not attempted.
+- **Batch triage UI (feature 002, optional add-on): attempted.** A Streamlit front end
+  (`src/aml_triage/ui/`, `make ui`) that uploads a CSV or takes pasted rows, scores them through the
+  service's `POST /score-batch`, and shows a ranked review queue with per-row factors and CSV
+  exports; the disclaimer is on every screen and export, nothing is persisted. The FastAPI service
+  remains the Step 8 deployment of record; the UI is a separate, removable component with its own
+  pinned requirements (`requirements-ui.txt`) and CI job. Guide: `deployment/DEPLOYMENT.md`
+  ("Batch triage UI"); specification: `specs/002-batch-triage-ui/`.
 - **Step 9 (Generative AI): attempted.** The build was AI-assisted end to end; the record of tools,
   purposes, prompts, outputs, human review, and corrections is `docs/genai_usage.md`.
 

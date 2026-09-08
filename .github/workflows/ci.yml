@@ -59,3 +59,27 @@ jobs:
       - name: API contract tests
         if: steps.api.outputs.present == 'true'
         run: pytest tests/api -q
+
+  ui-optional:
+    runs-on: ubuntu-latest
+    needs: core
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect optional batch-triage UI
+        id: ui
+        run: |
+          if [ -f src/aml_triage/ui/app.py ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "optional UI not implemented; skipping"; fi
+      - uses: actions/setup-python@v5
+        if: steps.ui.outputs.present == 'true'
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@v3
+        if: steps.ui.outputs.present == 'true'
+      - name: Install with API and UI extras
+        if: steps.ui.outputs.present == 'true'
+        run: |
+          uv pip sync --system requirements.txt requirements-dev.txt requirements-api.txt requirements-ui.txt
+          uv pip install --system --no-deps -e .
+      - name: UI and API tests (headless AppTest over the in-process service)
+        if: steps.ui.outputs.present == 'true'
+        run: pytest tests/ui tests/api -q

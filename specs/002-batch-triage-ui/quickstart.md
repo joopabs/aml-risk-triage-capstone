@@ -62,6 +62,14 @@ pytest tests/ui -q                                      # expected: pass (AppTes
 pytest tests/test_vocabulary.py tests/test_core_without_optional.py -q   # UI texts clean; core import graph excludes aml_triage.ui
 ```
 
+Observed 2026-09-08 (T039): `make api` and `make ui` started on :8000 and :8501 and both health
+endpoints answered; `/triage-config` reported model `20260904T225142-0dc8f82-hgb`, batch limit 5000,
+K 200, threshold 0.971931. Browser steps 1–7 were executed headlessly by `pytest tests/ui`
+(42 passed) against the in-process service, including the `?demo=example` path used for the demo;
+the same flow against the released bundle produced the five frames of `deployment/ui/demo_ui.gif`.
+No browser-driven clicks were recorded on this machine (no headless browser available), so the visual
+layout was not machine-verified; the rendered element tree was.
+
 ## 4. Parity with the pipeline queue (V3, SC-003; development machine with real data)
 
 ```bash
@@ -79,6 +87,8 @@ python scripts/check_batch_parity.py                   # created in M1 (T013); l
 ```bash
 python scripts/time_batch.py --rows 5000              # created in M3 (T033); synthetic rows; prints seconds for /score-batch and for the UI render (AppTest)
 # expected: recorded in deployment/DEPLOYMENT.md ("Batch triage UI" section)
+# observed 2026-09-08 (Apple M3, released bundle): POST /score-batch 5,000 rows in 0.78 s (explain=high);
+#   headless UI parse+load 0.02 s, score+render 0.14 s (table rows 5000)
 ```
 
 ## 6. Removability and CI (M3, SC-008)
@@ -88,6 +98,13 @@ uv pip sync --python .venv/bin/python requirements.txt requirements-dev.txt   # 
 make test && make smoke                                 # expected: green; tests/ui and tests/api skipped
 git stash -u  # optional: remove UI files locally and re-run `make test` to prove no core import of aml_triage.ui
 ```
+
+Observed 2026-09-08 (T038): in a scratch venv with only `requirements.txt` + `requirements-dev.txt`
+(Streamlit absent), `make test` → 122 passed, 2 skipped (tests/api, tests/ui) and `make smoke` → exit 0
+through to the smoke review queue. In a scratch clone with `src/aml_triage/ui/`, `tests/ui/`,
+`requirements-ui.*`, `.streamlit/`, and `configs/ui.yaml` deleted and the clone installed editable,
+the suite → 122 passed, 1 skipped. `grep -rn "aml_triage.ui" src/aml_triage --include=*.py | grep -v
+"^src/aml_triage/ui/"` prints nothing.
 
 CI: the `ui-optional` job installs the UI extras and runs `pytest tests/ui tests/api -q`; the
 `core` job is unchanged.
@@ -102,13 +119,16 @@ make package                                             # unchanged deliverable
 
 ## Pass criteria summary
 
-| Check | Expected |
-|---|---|
-| `pytest tests/api tests/ui -q` with extras | all pass |
-| `make test` without extras | all pass, optional tests skipped |
-| Batch vs single scores | 0 differences (SC-002) |
-| Batch vs queue report, period 0 | 0 differences in top-K set and priorities (SC-003) |
-| Disclaimer | on every screen and in both exports (SC-004) |
-| Invalid rows | listed with row, field, reason; valid rows scored (SC-005) |
-| Files written by a scoring run | none (SC-007) |
-| Timing at 5,000 rows | measured and recorded (SC-006) |
+| Check | Expected | Observed 2026-09-08 |
+|---|---|---|
+| `pytest tests/api tests/ui -q` with extras | all pass | 67 passed (`make ui-test`) |
+| `make test` without extras | all pass, optional tests skipped | 122 passed, 2 skipped (core-only venv, §6) |
+| Every row once, in rank order (SC-001) | yes | `test_us1_upload_example_shows_ranked_queue` |
+| Batch vs single scores (SC-002) | 0 differences | `test_batch_scores_equal_single_scores`: exact equality on 25 rows incl. factors |
+| Batch vs queue report, period 0 (SC-003) | 0 differences in top-K set and priorities | `scripts/check_batch_parity.py`: 32,709 rows, PARITY OK |
+| Disclaimer (SC-004) | on every screen and in both exports | sidebar + footer (+ panel) asserted in every AppTest state; first line of both CSVs |
+| Invalid rows (SC-005) | listed with row, field, reason; valid rows scored | `test_us5_invalid_rows_reported_and_valid_rows_scored` |
+| Timing at 5,000 rows (SC-006) | measured and recorded | 0.78 s endpoint, 0.14 s headless render (§5, deployment guide) |
+| Files written by a scoring run (SC-007) | none | `test_us5_no_files_written_by_the_whole_flow`: repository and `~/.streamlit` snapshots identical |
+| Removability (SC-008) | core green without the UI | scratch venv and UI-less clone both green (§6) |
+| Clean-environment start (SC-009) | documented commands suffice | `make setup-ui`, `make api`, `make ui` here; CI `ui-optional` installs from scratch |

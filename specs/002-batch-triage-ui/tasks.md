@@ -265,42 +265,42 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 **Independent Test**: follow `specs/002-batch-triage-ui/quickstart.md` §1–§7 on a clean environment.
 
-- [ ] T032 [P] [US6] Add the `ui-optional` job to `.github/workflows/ci.yml` (detect `src/aml_triage/ui/app.py`; Python 3.11; uv; `uv pip sync --system requirements.txt requirements-dev.txt requirements-api.txt requirements-ui.txt`; `uv pip install --system --no-deps -e .`; `pytest tests/ui tests/api -q`); leave `core` and `api-optional` unchanged
+- [X] T032 [P] [US6] Add the `ui-optional` job to `.github/workflows/ci.yml` (detect `src/aml_triage/ui/app.py`; Python 3.11; uv; `uv pip sync --system requirements.txt requirements-dev.txt requirements-api.txt requirements-ui.txt`; `uv pip install --system --no-deps -e .`; `pytest tests/ui tests/api -q`); leave `core` and `api-optional` unchanged
   - Milestone M3 / Type: config / Depends: T031
   - Files: `.github/workflows/ci.yml`
   - Accept: pushed branch shows the job green; `core` still green with optional tests skipped
   - Verify: GitHub Actions run on the branch head (checked via the API as in earlier milestones)
-- [ ] T033 [P] [US6] Add `scripts/time_batch.py` (synthetic rows via `make_synthetic_frame`; times `POST /score-batch` in-process for 5,000 rows with `explain=high` and the `AppTest` render) and record the measured seconds in the deployment guide (plan V1 / SC-006)
+- [X] T033 [P] [US6] Add `scripts/time_batch.py` (synthetic rows via `make_synthetic_frame`; times `POST /score-batch` in-process for 5,000 rows with `explain=high` and the `AppTest` render) and record the measured seconds in the deployment guide (plan V1 / SC-006)
   - Milestone M3 / Type: verification / Depends: T031
   - Files: `scripts/time_batch.py`, `deployment/DEPLOYMENT.md`
   - Accept: the guide states the measured numbers with machine and date; no real data used
   - Verify: `.venv/bin/python scripts/time_batch.py --rows 5000`
-- [ ] T034 [US6] Write the "Batch triage UI" section of `deployment/DEPLOYMENT.md`: what it is, setup (`make setup-ui`), run (`make api`, `make ui`), the example file, the batch rule in plain words (FR-020), the batch limit and the measured time (T033), the privacy statement (in-memory only, telemetry off, loopback), limits, the framework statement: FastAPI is the Step 8 deployment of record, Streamlit is the optional UI, why (research R-01); and add `AML_BATCH_LIMIT` to the existing Configuration table next to `AML_MODELS_DIR`
+- [X] T034 [US6] Write the "Batch triage UI" section of `deployment/DEPLOYMENT.md`: what it is, setup (`make setup-ui`), run (`make api`, `make ui`), the example file, the batch rule in plain words (FR-020), the batch limit and the measured time (T033), the privacy statement (in-memory only, telemetry off, loopback), limits, the framework statement: FastAPI is the Step 8 deployment of record, Streamlit is the optional UI, why (research R-01); and add `AML_BATCH_LIMIT` to the existing Configuration table next to `AML_MODELS_DIR`
   - Milestone M3 / Type: docs / Depends: T033
   - Files: `deployment/DEPLOYMENT.md`
   - Accept: `grep -n "deployment of record" deployment/DEPLOYMENT.md` matches; the Configuration table lists `AML_BATCH_LIMIT`; vocabulary test passes
   - Verify: `.venv/bin/pytest tests/test_vocabulary.py -q && grep -n "deployment of record" deployment/DEPLOYMENT.md`
-- [ ] T035 [P] [US6] Update `README.md`: optional-steps status line for the batch UI, the three make targets in the Commands block, the framework statement (FR-062), a pointer to the deployment guide section; keep the repository map current (`src/aml_triage/ui/`, `deployment/ui/`)
+- [X] T035 [P] [US6] Update `README.md`: optional-steps status line for the batch UI, the three make targets in the Commands block, the framework statement (FR-062), a pointer to the deployment guide section; keep the repository map current (`src/aml_triage/ui/`, `deployment/ui/`)
   - Milestone M3 / Type: docs / Depends: T031
   - Files: `README.md`
   - Accept: every `make` target named in the README exists; disclaimer unchanged
   - Verify: `grep -oE 'make [a-z-]+' README.md | sort -u | while read -r m t; do make -n $t >/dev/null || echo "missing $t"; done`
-- [ ] T036 [P] [US6] Update `docs/genai_usage.md` with a new use entry for this feature (tool and model, purpose, representative prompts incl. the clarification questions, human review performed, errors found and fixed) and `docs/mlops_plan.md` (UI versioned with the bundle it displays, effect of a bundle rollback, what monitoring a real deployment would add for batch uploads)
+- [X] T036 [P] [US6] Update `docs/genai_usage.md` with a new use entry for this feature (tool and model, purpose, representative prompts incl. the clarification questions, human review performed, errors found and fixed) and `docs/mlops_plan.md` (UI versioned with the bundle it displays, effect of a bundle rollback, what monitoring a real deployment would add for batch uploads)
   - Milestone M3 / Type: docs / Depends: T031
   - Files: `docs/genai_usage.md`, `docs/mlops_plan.md`
   - Accept: both keep the disclaimer; vocabulary test passes
   - Verify: `.venv/bin/pytest tests/test_vocabulary.py -q`
-- [ ] T037 [US6] Demo capture: capture screenshots of the running UI with the synthetic example (`deployment/ui/shots/01_empty.png` … `05_export.png`; steps listed in the deployment guide), add `scripts/render_ui_demo.py` (Pillow: compose the PNGs into `deployment/ui/demo_ui.gif` with a caption strip carrying the disclaimer), render the GIF, and reference it from the deployment guide; review every frame for non-synthetic content before committing
+- [X] T037 [US6] Demo capture: capture screenshots of the running UI with the synthetic example (`deployment/ui/shots/01_empty.png` … `05_export.png`; steps listed in the deployment guide), add `scripts/render_ui_demo.py` (Pillow: compose the PNGs into `deployment/ui/demo_ui.gif` with a caption strip carrying the disclaimer), render the GIF, and reference it from the deployment guide; review every frame for non-synthetic content before committing
   - Milestone M3 / Type: docs / Depends: T034
   - Files: `scripts/render_ui_demo.py`, `deployment/ui/shots/*.png`, `deployment/ui/demo_ui.gif`, `deployment/DEPLOYMENT.md`
   - Accept: GIF under 6 MB (pre-commit size hook); frames show only the example batch
   - Verify: `.venv/bin/python scripts/render_ui_demo.py deployment/ui/shots deployment/ui/demo_ui.gif && ls -la deployment/ui/demo_ui.gif`
-- [ ] T038 [US6] Removability and core isolation (SC-008): in a scratch venv with only `requirements.txt` + `requirements-dev.txt`, run `make test` and `make smoke` (expect green; `tests/ui` and `tests/api` skipped); then, in a scratch clone with `src/aml_triage/ui/`, `tests/ui/`, `requirements-ui.*`, `.streamlit/`, `configs/ui.yaml` deleted, run `make test` (expect green). Record both results in `specs/002-batch-triage-ui/quickstart.md` §6
+- [X] T038 [US6] Removability and core isolation (SC-008): in a scratch venv with only `requirements.txt` + `requirements-dev.txt`, run `make test` and `make smoke` (expect green; `tests/ui` and `tests/api` skipped); then, in a scratch clone with `src/aml_triage/ui/`, `tests/ui/`, `requirements-ui.*`, `.streamlit/`, `configs/ui.yaml` deleted, run `make test` (expect green). Record both results in `specs/002-batch-triage-ui/quickstart.md` §6
   - Milestone M3 / Type: verification / Depends: T031
   - Files: `specs/002-batch-triage-ui/quickstart.md`
   - Accept: both runs green; no core module imports `aml_triage.ui`
   - Verify: `grep -rn "aml_triage.ui" src/aml_triage --include=*.py | grep -v "^src/aml_triage/ui/"` prints nothing
-- [ ] T039 [US6] Execute `specs/002-batch-triage-ui/quickstart.md` §1–§7 end to end on this machine (service + UI + browser steps + headless tests), fix any drift in the quickstart, and fill the pass-criteria table with observed results
+- [X] T039 [US6] Execute `specs/002-batch-triage-ui/quickstart.md` §1–§7 end to end on this machine (service + UI + browser steps + headless tests), fix any drift in the quickstart, and fill the pass-criteria table with observed results
   - Milestone M3 / Type: verification / Depends: T032, T034, T035, T036, T037, T038
   - Files: `specs/002-batch-triage-ui/quickstart.md`
   - Accept: every expected outcome observed; SC-001..SC-009 each cite evidence
@@ -312,7 +312,7 @@ rule and per-row validation as pure functions. Every user story calls these.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T040 Final audit for the new surfaces: `make lint && make test && make ui-test`; `pre-commit run --all-files`; vocabulary scan incl. UI texts and exports; disclaimer present in sidebar, footer, explanation panel, both exports, deployment guide section; `git ls-files` shows no uploads, exports, or data beyond the two whitelisted example CSVs; `make check-no-data`
+- [X] T040 Final audit for the new surfaces: `make lint && make test && make ui-test`; `pre-commit run --all-files`; vocabulary scan incl. UI texts and exports; disclaimer present in sidebar, footer, explanation panel, both exports, deployment guide section; `git ls-files` shows no uploads, exports, or data beyond the two whitelisted example CSVs; `make check-no-data`
   - Milestone M3 / Type: verification / Depends: T039
   - Files: none new
   - Accept: all green; no prohibited fields or vocabulary

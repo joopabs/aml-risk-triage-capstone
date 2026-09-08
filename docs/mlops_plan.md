@@ -55,6 +55,26 @@ Branch protection on `main`: pull requests only, required `core` check, no force
 - **Re-release:** a new split/operating point requires a new config hash and a new bundle; the
   single-touch test protocol (`data/processed/test_access.json`) records any re-evaluation with a reason.
 
+## Batch triage UI (feature 002)
+
+- **Versioned with the bundle it displays.** The UI has no model of its own: it reads the model
+  version, K, threshold, and batch limit from `GET /triage-config` and shows them in the sidebar, and
+  every export carries the model version. A bundle rollback (repointing `models/LATEST` and
+  restarting the service) changes what the UI shows without any UI change; the UI code itself is
+  pinned by `requirements-ui.txt` and released with the repository.
+- **Effect of a rollback.** Queues exported before the rollback carry the old version string, so
+  reviewers can tell which model ranked them. Nothing is persisted by the UI, so there is no stored
+  state to migrate.
+- **What a real deployment would add.** Authentication and per-user audit of who scored which
+  batch; rate limits and a server-side batch limit tuned to capacity; monitoring of batch sizes,
+  skipped-row rates by field (a rising rate signals an upstream schema change), score-distribution
+  drift per batch against the validation distribution, and the share of `high` rows per batch
+  (a proxy for capacity pressure); retention rules for exports; and a periodic re-run of the
+  parity check (`scripts/check_batch_parity.py`) after any bundle change.
+- **Removability.** The UI is an optional component (`src/aml_triage/ui/`, `tests/ui/`,
+  `requirements-ui.txt`, `.streamlit/`, `configs/ui.yaml`); the core pipeline, the service, and the
+  report do not import it (guard test `tests/test_core_without_optional.py`).
+
 ## Not in scope for this prototype
 
 Authentication, batch endpoints, feature-store integration, A/B or shadow deployment, and any use

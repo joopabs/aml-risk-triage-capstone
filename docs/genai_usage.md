@@ -77,6 +77,42 @@ by the learner, Julius Pabular, between 2026-09-04 and 2026-09-06.
 - **Human review performed:** the learner pasted, edited where desired, and merged each PR.
 - **Limitations / corrections:** none beyond the items above.
 
+## Use 5 — Batch triage UI (feature 002, 2026-09-08)
+
+**Purpose.** A second Spec Kit feature on top of the finished capstone: a batch endpoint on the
+scoring service and a Streamlit front end that scores a CSV upload or pasted rows and shows a ranked
+review queue (`specs/002-batch-triage-ui/`).
+
+**Representative prompts (learner → assistant).** The learner asked how to extend the service
+into an interactive UI "such that I now have an interactive UI that lets me upload a csv file or send
+in multiple transaction entries … and display the risk ratings", then ran the Spec Kit sequence with
+the prompts the assistant drafted. The clarification session settled three decisions the assistant
+presented as options: how `high` is assigned within a batch (chosen: rank within K **and** score at
+or above the frozen threshold), whether invalid rows block the batch (chosen: skip and report), and
+the batch limit (chosen: 5,000 rows).
+
+**Representative outputs.** The specification, plan, research notes, data model, OpenAPI contract
+for `POST /score-batch` and `GET /triage-config`, the UI contract, the export format, 41 task items,
+the analysis report with nine remediations, and the code and tests for all three milestones.
+
+**Human review performed.** The learner chose every clarification answer, reviewed the analysis
+findings before they were applied, merged each milestone through a pull request, and checked the
+running UI. The assistant's own checks: the batch endpoint reproduced the pipeline's period-0 queue
+on real data (0 differences in the top-200 set, order, and priorities), batch and single scores were
+asserted equal on every test row, and the UI's vocabulary was scanned with the same rules as the
+reports.
+
+**Errors found and fixed.** (1) The analysis pass caught that the committed example batch
+resembled the opening rows of the PaySim file; it was regenerated from the project's own synthetic
+generator. (2) The first CI run of the UI failed the core coverage gate because the optional package
+measured 0% in an environment without its extras; the gate now omits the UI as it already omitted
+the API. (3) The manual-entry grid was replaced by a paste box because the headless test harness
+cannot drive Streamlit's grid widget. (4) A Streamlit app that ran `main()` at import time broke the
+core import-isolation test; the entry point is now guarded.
+
+**Limitations.** As before, the assistant cannot see the rendered page; screenshots for the demo
+were captured from the running app, and the layout was judged by the learner.
+
 ## What generative AI did not do
 
 - It did not download the dataset without the learner's token, did not confirm the license (the

@@ -138,6 +138,18 @@ def main() -> None:
                 st.session_state["result"] = None
                 st.session_state["error"] = _structural_message(exc, limit)
 
+    # Demo mode for screenshots/docs: `?demo=example` loads and scores the bundled synthetic example
+    # once; it uses exactly the same path as pressing the two buttons.
+    if (
+        st.query_params.get("demo") == "example"
+        and not st.session_state.get("rows")
+        and not st.session_state.get("demo_done")
+    ):
+        _load_example(limit)
+        if st.session_state.get("rows"):
+            _score(limit)
+        st.session_state["demo_done"] = True
+
     if st.session_state.get("error"):
         st.error(st.session_state["error"])
 

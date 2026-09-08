@@ -1,0 +1,17 @@
+# Streamlit configuration for the optional batch-triage UI (specs/002-batch-triage-ui, research R-06).
+# Privacy: no usage statistics, loopback only, quiet logs. Uploaded data lives only in process memory.
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
+address = "127.0.0.1"
+port = 8501
+maxUploadSize = 10   # megabytes; a 5,000-row batch of this schema is well under 1 MB
+enableXsrfProtection = true
+
+[logger]
+level = "error"
+
+[client]
+toolbarMode = "minimal"

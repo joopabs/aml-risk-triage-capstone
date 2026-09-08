@@ -1,0 +1,5 @@
+# Optional batch-triage UI (feature 002) only. Compile with: uv pip compile requirements-ui.in -o requirements-ui.txt
+-c requirements.txt
+-c requirements-api.txt
+streamlit
+requests

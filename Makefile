@@ -11,7 +11,7 @@ OMP_NUM_THREADS ?= $(shell $(PY) -c "import yaml;print(yaml.safe_load(open('$(CO
 export OMP_NUM_THREADS
 CLI := $(PY) -m aml_triage
 
-.PHONY: help setup lint format test coverage data pipeline report slides package smoke ci check-no-data api docker-build docker-run clean-derived
+.PHONY: help setup lint format test coverage data pipeline report slides package smoke ci check-no-data api setup-ui ui ui-test docker-build docker-run clean-derived
 
 help:
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  %-16s %s\n",$$1,$$2}'
@@ -96,6 +96,16 @@ ci: lint test check-no-data smoke ## Everything CI runs
 
 api: ## Optional Step 8: run the local scoring service
 	$(PY) -m uvicorn aml_triage.api.main:app --port 8000
+
+setup-ui: ## Optional batch-triage UI (002): sync core + dev + api + ui pinned requirements into .venv
+	$(UV) pip sync --python $(PY) requirements.txt requirements-dev.txt requirements-api.txt requirements-ui.txt
+	$(UV) pip install --python $(PY) --no-deps -e .
+
+ui: ## Optional batch-triage UI (002): Streamlit on http://127.0.0.1:8501 (needs `make api` running)
+	$(PY) -m streamlit run src/aml_triage/ui/app.py
+
+ui-test: ## Optional batch-triage UI (002): UI + API tests (needs the ui extras installed)
+	$(PY) -m pytest tests/ui tests/api -q
 
 docker-build: ## Optional Step 8: build the API image with the released bundle
 	docker build -t aml-triage-api -f deployment/Dockerfile --build-arg MODEL_VERSION=$$(cat models/LATEST) .

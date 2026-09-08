@@ -1,0 +1,6 @@
+# Optional batch-triage UI (specs/002-batch-triage-ui). The batch limit is NOT set here: the UI
+# reads it from the scoring service (GET /triage-config) so there is a single source of truth.
+api_url: http://127.0.0.1:8000     # loopback only; the UI never contacts anything else
+request_timeout_seconds: 60
+explain_default: high              # which rows receive factors in the batch response: high | none | all
+example_batch: deployment/ui/example_batch.csv

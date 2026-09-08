@@ -32,27 +32,27 @@ decision fields or actions, triage vocabulary only, green suite before every com
 
 **Purpose**: pinned UI environment, configuration, make targets, package skeleton, guard tests.
 
-- [ ] T001 Create `requirements-ui.in` (`-c requirements.txt`, `-c requirements-api.txt`, `streamlit`, `requests`) and compile `requirements-ui.txt` with `uv pip compile requirements-ui.in -o requirements-ui.txt`; install into `.venv` and verify the pinned Streamlit imports next to pandas 3.0.5 (plan V5, research R-07)
+- [X] T001 Create `requirements-ui.in` (`-c requirements.txt`, `-c requirements-api.txt`, `streamlit`, `requests`) and compile `requirements-ui.txt` with `uv pip compile requirements-ui.in -o requirements-ui.txt`; install into `.venv` and verify the pinned Streamlit imports next to pandas 3.0.5 (plan V5, research R-07)
   - Milestone M2 / Type: config / Depends: none
   - Files: `requirements-ui.in`, `requirements-ui.txt`
   - Accept: compile succeeds without changing any pin in `requirements.txt` or `requirements-api.txt`; `python -c "import streamlit, pandas; print(streamlit.__version__)"` works in `.venv`; if the newest Streamlit is incompatible, pin the newest compatible release and record why in `research.md` R-07
   - Verify: `uv pip sync --python .venv/bin/python requirements.txt requirements-dev.txt requirements-api.txt requirements-ui.txt && .venv/bin/python -c "import streamlit"`
-- [ ] T002 [P] Add `.streamlit/config.toml` (`browser.gatherUsageStats=false`, `server.headless=true`, `server.address="127.0.0.1"`, `server.maxUploadSize=10` (megabytes; a 5,000-row batch of this schema is well under 1 MB), `logger.level="error"`) and `configs/ui.yaml` (`api_url: http://127.0.0.1:8000`, `explain_default: high`, `request_timeout_seconds`) per research R-06
+- [X] T002 [P] Add `.streamlit/config.toml` (`browser.gatherUsageStats=false`, `server.headless=true`, `server.address="127.0.0.1"`, `server.maxUploadSize=10` (megabytes; a 5,000-row batch of this schema is well under 1 MB), `logger.level="error"`) and `configs/ui.yaml` (`api_url: http://127.0.0.1:8000`, `explain_default: high`, `request_timeout_seconds`) per research R-06
   - Milestone M2 / Type: config / Depends: none
   - Files: `.streamlit/config.toml`, `configs/ui.yaml`
   - Accept: both files parse; no user-data setting enables caching or telemetry; the batch limit is NOT in `configs/ui.yaml` (it comes from the service)
   - Verify: `.venv/bin/python -c "import tomllib,yaml;tomllib.load(open('.streamlit/config.toml','rb'));yaml.safe_load(open('configs/ui.yaml'))"`
-- [ ] T003 [P] Add make targets `setup-ui` (sync all four requirements files), `ui` (`$(PY) -m streamlit run src/aml_triage/ui/app.py`), `ui-test` (`$(PY) -m pytest tests/ui tests/api -q`) to `Makefile` and list them in `make help`
+- [X] T003 [P] Add make targets `setup-ui` (sync all four requirements files), `ui` (`$(PY) -m streamlit run src/aml_triage/ui/app.py`), `ui-test` (`$(PY) -m pytest tests/ui tests/api -q`) to `Makefile` and list them in `make help`
   - Milestone M3 / Type: config / Depends: none
   - Files: `Makefile`
   - Accept: `make -n setup-ui ui ui-test` print the expected commands; `.PHONY` updated
   - Verify: `make -n setup-ui ui ui-test`
-- [ ] T004 [P] Create the UI package skeleton: `src/aml_triage/ui/__init__.py` (docstring: optional component, no core import may depend on it) and `src/aml_triage/ui/texts.py` with every fixed string from `contracts/ui-contract.md` (TITLE, PURPOSE, PRIVACY_NOTE, SYNTHETIC_NOTE, RULE_TEXT, BELOW_CAPACITY, SINGLE_ROW, SERVICE_DOWN, UNKNOWN_COLUMNS, EMPTY_FILE, OVER_LIMIT, UNREADABLE) and `DISCLAIMER` imported from `aml_triage.constants`
+- [X] T004 [P] Create the UI package skeleton: `src/aml_triage/ui/__init__.py` (docstring: optional component, no core import may depend on it) and `src/aml_triage/ui/texts.py` with every fixed string from `contracts/ui-contract.md` (TITLE, PURPOSE, PRIVACY_NOTE, SYNTHETIC_NOTE, RULE_TEXT, BELOW_CAPACITY, SINGLE_ROW, SERVICE_DOWN, UNKNOWN_COLUMNS, EMPTY_FILE, OVER_LIMIT, UNREADABLE) and `DISCLAIMER` imported from `aml_triage.constants`
   - Milestone M2 / Type: code / Depends: none
   - Files: `src/aml_triage/ui/__init__.py`, `src/aml_triage/ui/texts.py`
   - Accept: module imports without Streamlit installed (texts only); disclaimer is not retyped
   - Verify: `.venv/bin/python -c "from aml_triage.ui import texts; assert texts.DISCLAIMER"`
-- [ ] T005 [P] Extend guard tests: `tests/test_vocabulary.py` scans `src/aml_triage/ui/**/*.py` and `specs/002-batch-triage-ui/contracts/ui-contract.md`; `tests/test_core_without_optional.py` asserts that importing `aml_triage.cli` and running `--help` never imports `aml_triage.ui` or `streamlit` (check `sys.modules`)
+- [X] T005 [P] Extend guard tests: `tests/test_vocabulary.py` scans `src/aml_triage/ui/**/*.py` and `specs/002-batch-triage-ui/contracts/ui-contract.md`; `tests/test_core_without_optional.py` asserts that importing `aml_triage.cli` and running `--help` never imports `aml_triage.ui` or `streamlit` (check `sys.modules`)
   - Milestone M2 / Type: tests / Depends: T004
   - Files: `tests/test_vocabulary.py`, `tests/test_core_without_optional.py`
   - Accept: both tests pass with and without the UI extras installed

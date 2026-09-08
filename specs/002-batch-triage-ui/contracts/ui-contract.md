@@ -61,8 +61,9 @@ imported from `aml_triage.constants.DISCLAIMER` and never retyped.
 - No control that records, applies, or simulates a decision on a transaction: no approve, block,
   hold, release, escalate, file, close, or rate buttons, checkboxes, or columns.
 - No field named allow, block, decision, hold, sar, filing, or equivalents in any table or export.
-- No text applying "fraudulent", "launderer", "guilty", "confirmed", or "suspicious activity
-  report" to a scored row; the positive class is "simulated fraud" where labels are discussed.
+- No text applying any phrase from `prohibited_applied_to_outputs` or `case_sensitive` in
+  `configs/vocabulary.yaml` to a scored row; the positive class is "simulated fraud" where labels
+  are discussed.
 - No persistence: no save button, no history, no "recent batches", no cookies with row data.
 - No accepted columns beyond the schema (unknown columns refuse the file; they are not dropped).
 

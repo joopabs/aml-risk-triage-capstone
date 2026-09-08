@@ -41,5 +41,5 @@ fairness_forbidden_when_unavailable:
   - bias audit by protected group
   - demographic parity achieved
 required_literal: "operational error-slice analysis"
-scan_paths: [src, reports, notebooks, README.md, docs]
+scan_paths: [src, reports, notebooks, README.md, docs, deployment/DEPLOYMENT.md, specs/002-batch-triage-ui/contracts/ui-contract.md]
 scan_extensions: [.py, .md, .ipynb, .txt, .yaml, .yml]

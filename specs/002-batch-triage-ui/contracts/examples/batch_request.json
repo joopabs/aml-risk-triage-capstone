@@ -1,0 +1,44 @@
+{
+  "transactions": [
+    {
+      "step": 600,
+      "type": "TRANSFER",
+      "amount": 250000.0,
+      "oldbalanceOrg": 250000.0,
+      "newbalanceOrig": 0.0,
+      "oldbalanceDest": 0.0,
+      "newbalanceDest": 250000.0
+    },
+    {
+      "step": 600,
+      "type": "PAYMENT",
+      "amount": 50.0,
+      "oldbalanceOrg": 5000.0,
+      "newbalanceOrig": 4950.0,
+      "oldbalanceDest": 0.0,
+      "newbalanceDest": 0.0,
+      "dest_is_merchant": true
+    },
+    {
+      "step": 601,
+      "type": "CASH_OUT",
+      "amount": 1000.0,
+      "oldbalanceOrg": 20000.0,
+      "newbalanceOrig": 19000.0,
+      "oldbalanceDest": 100000.0,
+      "newbalanceDest": 101000.0,
+      "dest_prior_txn_count": 4,
+      "dest_prior_amount_sum": 40000.0
+    },
+    {
+      "step": 601,
+      "type": "WIRE",
+      "amount": 10.0,
+      "oldbalanceOrg": 100.0,
+      "newbalanceOrig": 90.0,
+      "oldbalanceDest": 0.0,
+      "newbalanceDest": 10.0
+    }
+  ],
+  "explain": "high"
+}

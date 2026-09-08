@@ -51,7 +51,9 @@ filterwarnings = ["error::DeprecationWarning:aml_triage.*"]
 [tool.coverage.run]
 source = ["aml_triage"]
 branch = true
-omit = ["src/aml_triage/api/*"]
+# Optional components are measured by their own CI jobs (api-optional, ui-optional), whose tests are
+# skipped in the core environment; counting them here would only measure the absence of their extras.
+omit = ["src/aml_triage/api/*", "src/aml_triage/ui/*"]
 
 [tool.coverage.report]
 # Gate enforced by `make coverage` (task T066); target from constitution Principle III.
